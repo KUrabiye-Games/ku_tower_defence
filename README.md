@@ -20,7 +20,7 @@ cd ku_tower_defence
 
 ### Building the Project
 
-This project uses Gradle Wrapper, which means you don't need to install Gradle to build and run the project.
+This project uses Gradle Wrapper, which means you don't need to install Gradle to build and run the project. However, you need at least one java installation on your device to run auto-downloader.
 
 To build the project:
 
@@ -97,8 +97,8 @@ ku_tower_defence/
 
 ## License
 
-This project is licensed under the [LICENSE NAME] - see the LICENSE file for details.
+This project is licensed under the [We have not figured this out] - see the LICENSE file for details.
 
 ## Acknowledgments
 
-* [Your acknowledgments here]
+* [To be later elabroted]
