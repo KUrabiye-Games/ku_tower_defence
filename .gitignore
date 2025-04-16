@@ -9,3 +9,8 @@ build
 *.iml
 .vscode
 
+# Eclipse specific files
+.project
+.classpath
+.settings/
+

@@ -8,6 +8,9 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+    
+    // Plugin for JavaFX support
+    id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
 repositories {
@@ -20,21 +23,33 @@ dependencies {
     testImplementation(libs.junit.jupiter)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
+    
+    // JavaFX dependencies
+    implementation(libs.javafx.base)
+    implementation(libs.javafx.controls)
+    implementation(libs.javafx.fxml)
+    implementation(libs.javafx.graphics)
+    implementation(libs.javafx.media)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(24)
+        // Enable automatic download of JDK 24 if not present
+        vendor = JvmVendorSpec.ADOPTIUM
     }
+}
+
+// Configure JavaFX plugin
+javafx {
+    version = "22" // Use latest compatible version
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.media", "javafx.graphics")
 }
 
 application {
     // Define the main class for the application.
-    mainClass = "ku_tower_defence.App"
+    mainClass = "com.kurabiye.kutd.app.App"
 }
 
 tasks.named<Test>("test") {
