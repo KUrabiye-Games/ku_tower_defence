@@ -12,3 +12,4 @@ plugins {
 
 rootProject.name = "ku_tower_defence"
 include("app")
+include("view")
