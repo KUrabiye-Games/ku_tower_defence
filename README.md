@@ -25,11 +25,13 @@ This project uses Gradle Wrapper, which means you don't need to install Gradle t
 To build the project:
 
 #### On Windows:
+
 ```bash
 gradlew.bat build
 ```
 
 #### On Linux/macOS:
+
 ```bash
 ./gradlew build
 ```
@@ -39,11 +41,13 @@ gradlew.bat build
 To run the application:
 
 #### On Windows:
+
 ```bash
 gradlew.bat run
 ```
 
 #### On Linux/macOS:
+
 ```bash
 ./gradlew run
 ```
@@ -53,11 +57,13 @@ gradlew.bat run
 To run the tests:
 
 #### On Windows:
+
 ```bash
 gradlew.bat test
 ```
 
 #### On Linux/macOS:
+
 ```bash
 ./gradlew test
 ```
@@ -91,17 +97,22 @@ ku_tower_defence/
 
 ## Built With
 
-* [Gradle](https://gradle.org/) - Dependency Management and Build Tool
-* [JavaFX](https://openjfx.io/) - GUI Framework for Java
-* [JUnit Jupiter](https://junit.org/junit5/) - Testing Framework
+- [Gradle](https://gradle.org/) - Dependency Management and Build Tool
+- [JavaFX](https://openjfx.io/) - GUI Framework for Java
+- [JUnit Jupiter](https://junit.org/junit5/) - Testing Framework
 
 ## License
 
 This project is licensed under the [We have not figured this out] - see the LICENSE file for details.
+hey
 
 ## Acknowledgments
 
+<<<<<<< HEAD
 * [To be later elabroted]
 
 vvvvv
 push test
+=======
+- [To be later elabroted]
+>>>>>>> 29f6691 (README push test)
