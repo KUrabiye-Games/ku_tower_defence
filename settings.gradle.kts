@@ -11,5 +11,8 @@ plugins {
 }
 
 rootProject.name = "ku_tower_defence"
-include("app")
 include("view")
+include("model")
+include("controller")
+include("persistence")
+include("utils")
