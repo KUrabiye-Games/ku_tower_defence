@@ -1,10 +1,10 @@
-package com.kurabiye.kutd.persistance;
+package com.kurabiye.kutd.persistence;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class PersistanceTest {
+public class PersistenceTest {
   
  
     
