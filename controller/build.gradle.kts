@@ -11,6 +11,9 @@ plugins {
     
     // Plugin for JavaFX support
     id("org.openjfx.javafxplugin") version "0.1.0"
+    
+    // Apply the java plugin to add support for Java
+    java
 }
 
 repositories {
@@ -30,6 +33,10 @@ dependencies {
     implementation(libs.javafx.fxml)
     implementation(libs.javafx.graphics)
     implementation(libs.javafx.media)
+    
+    // Project dependencies
+    implementation(project(":model"))
+    implementation(project(":view"))
 }
 
 // Configure source sets - this helps with IDE recognition

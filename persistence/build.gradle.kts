@@ -5,7 +5,10 @@
  * For more details on building Java & JVM projects, please refer to https://docs.gradle.org/8.8/userguide/building_java_projects.html in the Gradle documentation.
  */
 
-
+plugins {
+    // Apply the java plugin to add support for Java
+    java
+}
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -18,6 +21,8 @@ dependencies {
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
+    // Project dependencies
+    implementation(project(":model"))
 }
 
 // Configure source sets - this helps with IDE recognition
@@ -38,8 +43,6 @@ java {
         vendor = JvmVendorSpec.ADOPTIUM
     }
 }
-
-
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
