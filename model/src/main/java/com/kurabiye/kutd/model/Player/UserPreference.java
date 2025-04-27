@@ -33,11 +33,12 @@ public class UserPreference implements Serializable{
     private int[] goldPerEnemy; // Amount of gold earned when defeating an enemy
     private int startingHealth; // Starting hit points of the player
     private int[] enemyHealth; // Hit points of different types of enemies
-    private int[][] damageDealt; // Damage dealt by different types of attacks, this is a 2D array where the first index is the type of attack and the second index is the type of enemy
+    private float[][] damageDealt; // Damage dealt by different types of attacks, this is a 2D array where the first index is the type of the tower and the second index is the type of enemy
     private int[] towerConstructionCost; // Construction cost of each type of tower
-    private int[] towerEffectiveRange; // Effective range of each type of tower
-    private int[] towerRateOfFire; // Rate of fire for each type of tower
-    private int artilleryRange; // Range of AOE damage for artillery shells
+    private float[] towerSellReturn; // Percentage of construction cost returned when selling each type of tower
+    private float[] towerEffectiveRange; // Effective range of each type of tower
+    private float[] towerRateOfFire; // Rate of fire for each type of tower
+    private float artilleryRange; // Range of AOE damage for artillery shells
     private int[] enemyMovementSpeed; // Movement speed of different types of enemies
 
 
@@ -62,10 +63,11 @@ public class UserPreference implements Serializable{
         goldPerEnemy = new int[]{5, 10}; // 5 gold per goblin, 10 gold per knight
         startingHealth = 100;
         enemyHealth = new int[]{50, 100}; // 50 health for goblin, 100 health for knight
-        damageDealt = new int[][]{{10, 10}, {20, 20}, {15, 15}}; // arrow, artillery, magic
+        damageDealt = new float[][]{{10, 10}, {20, 20}, {15, 15}}; // arrow, artillery, magic
         towerConstructionCost = new int[]{50, 100, 150}; // arrow, artillery, magic
-        towerEffectiveRange = new int[]{5, 4, 3}; // arrow, artillery, magic
-        towerRateOfFire = new int[]{1000, 2000, 1500}; // ms between shots
+        towerSellReturn = new float[]{0.8f, 0.7f, 0.6f}; // 80%, 70%, 60% return
+        towerEffectiveRange = new float[]{5, 4, 3}; // arrow, artillery, magic
+        towerRateOfFire = new float[]{1000, 2000, 1500}; // ms between shots
         artilleryRange = 2;
         enemyMovementSpeed = new int[]{2, 1}; // goblin, knight
     }
@@ -147,20 +149,23 @@ public class UserPreference implements Serializable{
     public int[] getEnemyHealth() {
         return enemyHealth;
     }
-    public int[][] getDamageDealt() {
+    public float[][] getDamageDealt() {
         return damageDealt;
     }
     public int[] getTowerConstructionCost() {
         return towerConstructionCost;
     }
-    public int[] getTowerEffectiveRange() {
+    public float[] getTowerSellReturn() {
+        return towerSellReturn;
+    }
+    public float[] getTowerEffectiveRange() {
         return towerEffectiveRange;
     }
 
-    public int[] getTowerRateOfFire() {
+    public float[] getTowerRateOfFire() {
         return towerRateOfFire;
     }
-    public int getArtilleryRange() {
+    public float getArtilleryRange() {
         return artilleryRange;
     }
     public int[] getEnemyMovementSpeed() {
@@ -190,6 +195,7 @@ public class UserPreference implements Serializable{
             this.userPreference.enemyHealth = userPreference.enemyHealth;
             this.userPreference.damageDealt = userPreference.damageDealt;
             this.userPreference.towerConstructionCost = userPreference.towerConstructionCost;
+            this.userPreference.towerSellReturn = userPreference.towerSellReturn;
             this.userPreference.towerEffectiveRange = userPreference.towerEffectiveRange;
             this.userPreference.towerRateOfFire = userPreference.towerRateOfFire;
             this.userPreference.artilleryRange = userPreference.artilleryRange;
@@ -270,7 +276,7 @@ public class UserPreference implements Serializable{
             return this;
         }
 
-        public Builder setDamageDealt(int[][] damageDealt) {
+        public Builder setDamageDealt(float[][] damageDealt) {
             userPreference.damageDealt = damageDealt;
             return this;
         }
@@ -280,16 +286,16 @@ public class UserPreference implements Serializable{
             return this;
         }
 
-        public Builder setTowerEffectiveRange(int[] towerEffectiveRange) {
+        public Builder setTowerEffectiveRange(float[] towerEffectiveRange) {
             userPreference.towerEffectiveRange = towerEffectiveRange;
             return this;
         }
 
-        public Builder setTowerRateOfFire(int[] towerRateOfFire) {
+        public Builder setTowerRateOfFire(float[] towerRateOfFire) {
             userPreference.towerRateOfFire = towerRateOfFire;
             return this;
         }
-        public Builder setArtilleryRange(int artilleryRange) {
+        public Builder setArtilleryRange(float artilleryRange) {
             userPreference.artilleryRange = artilleryRange;
             return this;
         }
@@ -297,6 +303,12 @@ public class UserPreference implements Serializable{
             userPreference.enemyMovementSpeed = enemyMovementSpeed;
             return this;
         }
+        
+        public Builder setTowerSellReturn(float[] towerSellReturn) {
+            userPreference.towerSellReturn = towerSellReturn;
+            return this;
+        }
+        
         public UserPreference build() {
             return userPreference;
         }

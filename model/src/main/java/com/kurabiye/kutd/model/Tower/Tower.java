@@ -1,26 +1,41 @@
 package com.kurabiye.kutd.model.Tower;
 
+import java.util.List;
+
 import com.kurabiye.kutd.model.Coordinates.TileCoordinate;
-import com.kurabiye.kutd.model.Tower.AttackStrategy.AttackStrategy;
+import com.kurabiye.kutd.model.Enemy.Enemy;
+import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
 public abstract class Tower {
 
-    private TileCoordinate tileCoordinate; // Coordinate of the tower on the map
-    private AttackStrategy attackStrategy; // Strategy for attacking enemies
+    protected float[] attackPower; // Attack power of the tower for different enemy types
+    protected float range; // Range of the tower
+    protected float attackSpeed; // Attack speed of the tower
 
-    private int cost; // Cost of the tower
+    protected TileCoordinate tileCoordinate; // Coordinate of the tower on the map
+    protected IAttackStrategy attackStrategy; // Strategy for attacking enemies
+
+    protected int cost; // Cost of the tower
     //private int level; // Level of the tower maybe later
-    private int sellReturn; // The amount of money returned when the tower is sold
+    protected int sellReturn; // The amount of money returned when the tower is sold
 
 
-    public void setAttackStrategy(AttackStrategy attackStrategy) {
+    public Tower(int cost, int sellReturn, float[] attackPower, float range, float attackSpeed) {
+        this.cost = cost; // Set the cost of the tower
+        this.sellReturn = sellReturn; // Set the sell return of the tower
+        this.attackPower = attackPower; // Set the attack power of the tower
+        this.range = range; // Set the range of the tower
+        this.attackSpeed = attackSpeed; // Set the attack speed of the tower
+    }
+
+    public void setAttackStrategy(IAttackStrategy attackStrategy) {
         this.attackStrategy = attackStrategy; // Set the attack strategy
     }
-    public AttackStrategy getAttackStrategy() {
+    public IAttackStrategy getAttackStrategy() {
         return attackStrategy; // Get the attack strategy
     }
 
-    public abstract void attack(); // Abstract method for attacking
+    public abstract void attack(List<Enemy> enemies); // Abstract method for attacking
     // public abstract void upgrade(); // Abstract method for upgrading the tower maybe later
 
     public abstract void sell(); // Abstract method for selling the tower

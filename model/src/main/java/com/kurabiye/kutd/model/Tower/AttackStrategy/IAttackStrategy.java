@@ -16,9 +16,16 @@ import java.util.List;
  * @since: 2025-04-23
  */
 
-public interface AttackStrategy {
+public interface IAttackStrategy {
+    
 
-    void attack(List<Enemy> enemy); // Method to perform the attack
+    /**
+     * Attack method to be implemented by concrete attack strategies.
+     * The strategy chooses the target enemy to attack. 
+     * It might be the one with the lowest health, the closest one, or any other criteria.
+     * @param enemy List of enemies to attack.
+     */
+    void attack(List<Enemy> enemy); 
 
 
 }
