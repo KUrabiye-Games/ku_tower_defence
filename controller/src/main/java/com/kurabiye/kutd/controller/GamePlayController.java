@@ -2,21 +2,17 @@ package com.kurabiye.kutd.controller;
 
 import com.kurabiye.kutd.view.GamePlayView;
 import com.kurabiye.kutd.model.GameManager;
-import com.kurabiye.kutd.model.TowerManager;
-import com.kurabiye.kutd.model.InventoryManager;
 import com.kurabiye.kutd.model.Item;
 
 public class GamePlayController extends Controller{
     private GamePlayView gamePlayView;
     private GameManager gameManager;
-    private TowerManager towerManager;
-    private InventoryManager inventoryManager;
 
-    public GamePlayController(GamePlayView gamePlayView, GameManager gameManager, TowerManager towerManager, InventoryManager inventoryManager) {
+
+    public GamePlayController(GamePlayView gamePlayView, GameManager gameManager) {
         this.gamePlayView = gamePlayView;
         this.gameManager = gameManager;
-        this.towerManager = towerManager;
-        this.inventoryManager = inventoryManager;
+
         initialize();
     }
 
@@ -33,7 +29,7 @@ public class GamePlayController extends Controller{
     }
 
     private void onPlaceTower(int x, int y, String towerType) {
-        boolean success = towerManager.placeTower(x, y, towerType);
+        boolean success = gameManager.placeTower(x, y, towerType);
         if (success) {
             gamePlayView.showTowerPlaced(x, y, towerType);
         } else {
@@ -42,7 +38,7 @@ public class GamePlayController extends Controller{
     }
 
     private void onSellTower(int x, int y) {
-        boolean success = towerManager.sellTower(x, y);
+        boolean success = gameManager.sellTower(x, y);
         if (success) {
             gamePlayView.showTowerSold(x, y);
         } else {
@@ -51,20 +47,11 @@ public class GamePlayController extends Controller{
     }
 
     private void onUpgradeTower(int x, int y) {
-        boolean success = towerManager.upgradeTower(x, y);
+        boolean success = gameManager.upgradeTower(x, y);
         if (success) {
             gamePlayView.showTowerUpgraded(x, y);
         } else {
             gamePlayView.showError("Upgrade failed. Insufficient resources or max level reached.");
-        }
-    }
-
-    private void onCollectItem(Item item) {
-        boolean success = inventoryManager.addItem(item);
-        if (success) {
-            gamePlayView.showItemCollected(item);
-        } else {
-            gamePlayView.showError("Inventory full! Cannot collect item.");
         }
     }
 
