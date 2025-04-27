@@ -53,7 +53,7 @@ public class GameTimer {
     /*
         * This method returns the delta time in seconds.
         * It divides the delta time by the time cofactor to convert it to seconds.
-        * The time coefficient is used to adjust the game speed.
+        
         * 
         * @return The delta time in seconds
      */
