@@ -1,6 +1,7 @@
 package com.kurabiye.kutd.model;
 
-import com.kurabiye.kutd.model.*;
+import com.kurabiye.kutd.model.Tile;
+import com.kurabiye.kutd.model.util.Point;
 
 public class MapManager {
 
