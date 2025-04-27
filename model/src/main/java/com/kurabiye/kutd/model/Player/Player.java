@@ -26,6 +26,25 @@ public class Player{
         this.currentScore = 0; // Initialize player's score to 0
     }
 
+    public int getCurrentScore() {
+        return currentScore; // Get player's score
+    }
+    public void setCurrentScore(int currentScore) {
+        this.currentScore = currentScore; // Set player's score
+    }
+    public int getCurrentGold() {
+        return currentGold; // Get player's gold
+    }
+    public void setCurrentGold(int currentGold) {
+        this.currentGold = currentGold; // Set player's gold
+    }
+    public int getCurrentHealth() {
+        return currentHealth; // Get player's health
+    }
+    public void setCurrentHealth(int currentHealth) {
+        this.currentHealth = currentHealth; // Set player's health
+    }
+
     
 
     

@@ -19,12 +19,13 @@ public class ArcherTower extends Tower {
     
         public ArcherTower(int cost, int sellReturn, float[] attackPower, float range, float attackSpeed) {
         super(cost, sellReturn, attackPower, range, attackSpeed);
-        //TODO Auto-generated constructor stub
-    }
+        }
 
         @Override
         public void attack(List<Enemy> enemies) {
             // Implement the attack logic for ArcherTower here
+            // Use the attackStrategy to find the target enemy and attack it
+            
         }
     
         @Override

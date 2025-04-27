@@ -1,6 +1,9 @@
 package com.kurabiye.kutd.model.Tower;
 
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Tower.AttackStrategy.ArcherStrategy;
+import com.kurabiye.kutd.model.Tower.AttackStrategy.ArtilleryStrategy;
+import com.kurabiye.kutd.model.Tower.AttackStrategy.MageStrategy;
 
 /*  TowerFactory.java
  *  This class is a singleton factory for creating different types of towers in the game.
@@ -71,23 +74,41 @@ public class TowerFactory{
     public Tower createTower(TowerType type) {
         switch (type) {
             case ARCHER:
-                return new ArcherTower(userPreferences.getTowerConstructionCost()[0], // cost
+                Tower productArcher = new ArcherTower(userPreferences.getTowerConstructionCost()[0], // cost
                         (int) userPreferences.getTowerSellReturn()[0] * userPreferences.getTowerConstructionCost()[0], // sell return
                         userPreferences.getDamageDealt()[0], // attack power
                         userPreferences.getTowerEffectiveRange()[0], // range
                         userPreferences.getTowerRateOfFire()[0]); // attack speed
+
+                // Set the attack strategy for the ArcherTower
+                productArcher.setAttackStrategy(new ArcherStrategy()); // set attack strategy
+
+                return productArcher; // Return the created ArcherTower object
+
             case MAGE:
-                return new MageTower(userPreferences.getTowerConstructionCost()[1], // cost
+                Tower productMage = new MageTower(userPreferences.getTowerConstructionCost()[1], // cost
                         (int) userPreferences.getTowerSellReturn()[1] * userPreferences.getTowerConstructionCost()[1], // sell return
                         userPreferences.getDamageDealt()[1], // attack power
                         userPreferences.getTowerEffectiveRange()[1], // range
                         userPreferences.getTowerRateOfFire()[1]); // attack speed
+
+                // Set the attack strategy for the MageTower
+                productMage.setAttackStrategy(new MageStrategy()); // set attack strategy
+
+                return productMage; // Return the created MageTower object
+
             case ARTILLERY:
-                return new ArtilleryTower(userPreferences.getTowerConstructionCost()[2], // cost
+                Tower productArtillery =  new ArtilleryTower(userPreferences.getTowerConstructionCost()[2], // cost
                         (int) userPreferences.getTowerSellReturn()[2] * userPreferences.getTowerConstructionCost()[2], // sell return
                         userPreferences.getDamageDealt()[2], // attack power
                         userPreferences.getTowerEffectiveRange()[2], // range
-                        userPreferences.getTowerRateOfFire()[2]); // attack speed
+                        userPreferences.getTowerRateOfFire()[2],
+                        userPreferences.getArtilleryRange()); // attack speed
+
+                // Set the attack strategy for the ArtilleryTower
+                productArtillery.setAttackStrategy(new ArtilleryStrategy()); // set attack strategy
+
+                return productArtillery; // Return the created ArtilleryTower object
             default:
                 throw new IllegalArgumentException("Invalid tower type: " + type); // Invalid tower type
         }

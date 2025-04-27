@@ -51,4 +51,27 @@ public class Coordinate {
         this.y = y;
     }
 
+    @Override
+    public String toString() {
+        return "Coordinate{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Check if the object is the same instance
+        if (!(o instanceof Coordinate)) return false; // Check if the object is of type Coordinate
+        Coordinate that = (Coordinate) o; // Cast the object to Coordinate
+        return x == that.x && y == that.y; // Check if the coordinates are equal
+    }
+
+    @Override
+    public int hashCode() {
+        int result = x; // Initialize the hash code with the x coordinate
+        result = 31 * result + y; // Combine the x and y coordinates to generate a unique hash code
+        return result; // Return the hash code
+    }
+
 }

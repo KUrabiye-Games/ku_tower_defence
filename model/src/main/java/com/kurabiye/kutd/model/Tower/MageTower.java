@@ -19,7 +19,6 @@ public class MageTower extends Tower {
   
     public MageTower(int cost, int sellReturn, float[] attackPower, float range, float attackSpeed) {
         super(cost, sellReturn, attackPower, range, attackSpeed);
-        //TODO Auto-generated constructor stub
     }
 
    

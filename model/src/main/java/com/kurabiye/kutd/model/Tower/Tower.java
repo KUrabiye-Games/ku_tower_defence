@@ -35,8 +35,9 @@ public abstract class Tower {
         return attackStrategy; // Get the attack strategy
     }
 
-    public abstract void attack(List<Enemy> enemies); // Abstract method for attacking
-    // public abstract void upgrade(); // Abstract method for upgrading the tower maybe later
+    // We are keeping this as an abstarct method as the flying objevts will be different
+    // and we will need to implement the attack method in the subclasses of the tower class
+    public abstract void attack(List<Enemy> enemies);
 
     public abstract void sell(); // Abstract method for selling the tower
 
