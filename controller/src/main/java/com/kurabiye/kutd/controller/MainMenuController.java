@@ -23,9 +23,32 @@ public class MainMenuController extends Controller{
     }
 
     private void onPlayButtonPressed() {
-        System.out.println("Play Game button pressed");
-        gameManager.startNewGame();
+        MapSelectionView mapSelectionView = new MapSelectionView();
+        mapSelectionView.setOnMapSelected(this::onMapSelected);
+        mapSelectionView.show();
     }
+
+    private void onMapSelected(String mapName) {
+        // Load the selected map
+        Tile[][] selectedMap = mapPersistenceManager.loadMap(mapName);
+        
+        if (selectedMap == null) {
+            mainMenuView.showError("Failed to load the selected map.");
+            return;
+        }
+        
+        // Initialize the Gameplay View
+        GamePlayView gamePlayView = new GamePlayView();
+        
+        // Pass the selected map to the GameManager and start the game
+        gameManager.startGame(selectedMap);
+    
+        // Create the Gameplay Controller to connect GameManager and GamePlayView
+        new GamePlayController(gamePlayView, gameManager);
+        
+        gamePlayView.show();
+    }
+    
 
     private void onMapEditorButtonPressed() {
         // Initialize Map Editor independently
