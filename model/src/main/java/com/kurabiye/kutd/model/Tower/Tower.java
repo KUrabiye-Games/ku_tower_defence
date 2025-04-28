@@ -2,7 +2,7 @@ package com.kurabiye.kutd.model.Tower;
 
 import java.util.List;
 
-import com.kurabiye.kutd.model.Coordinates.TileCoordinate;
+import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
@@ -12,7 +12,7 @@ public abstract class Tower {
     protected float range; // Range of the tower
     protected float attackSpeed; // Attack speed of the tower
 
-    protected TileCoordinate tileCoordinate; // Coordinate of the tower on the map
+    protected TilePoint2D tileCoordinate; // Coordinate of the tower on the map
     protected IAttackStrategy attackStrategy; // Strategy for attacking enemies
 
     protected int cost; // Cost of the tower
@@ -35,17 +35,16 @@ public abstract class Tower {
         return attackStrategy; // Get the attack strategy
     }
 
-    // We are keeping this as an abstarct method as the flying objevts will be different
     // and we will need to implement the attack method in the subclasses of the tower class
     public abstract void attack(List<Enemy> enemies);
 
     public abstract void sell(); // Abstract method for selling the tower
 
-    public TileCoordinate getTileCoordinate() {
+    public TilePoint2D getTileCoordinate() {
         return tileCoordinate; // Get the tile coordinate of the tower
     }
 
-    /*public void setTileCoordinate(TileCoordinate tileCoordinate) { // In case we add a feature to move the tower
+    /*public void setTileCoordinate(TilePoint2D tileCoordinate) { // In case we add a feature to move the tower
         this.tileCoordinate = tileCoordinate; // Set the tile coordinate of the tower
     }*/
 

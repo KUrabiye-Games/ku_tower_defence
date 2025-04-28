@@ -1,6 +1,6 @@
 package com.kurabiye.kutd.model.Tile;
 
-import com.kurabiye.kutd.model.Coordinates.TileCoordinate;
+import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 
 /* Tile.java
  * This class represents a tile in the game.
@@ -36,7 +36,7 @@ public class Tile {
         protected int tileCode; // Code for the tile
         
 
-        protected TileCoordinate coordinate; // Coordinate of the tile on the map
+        protected TilePoint2D coordinate; // Coordinate of the tile on the map
 
         /* The neighbors array is used to store the neighboring tiles of this tile.
          * There is a maximum of 8 neighbors for each tile.

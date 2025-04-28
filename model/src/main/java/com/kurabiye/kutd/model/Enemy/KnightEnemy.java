@@ -1,6 +1,6 @@
 package com.kurabiye.kutd.model.Enemy;
 
-import com.kurabiye.kutd.model.Coordinates.Coordinate;
+import javafx.geometry.Point2D;
 
 public class KnightEnemy extends Enemy {
     // KnightEnemy class extends the Enemy class
@@ -10,9 +10,8 @@ public class KnightEnemy extends Enemy {
         super(EnemyType.KNIGHT, health, speed, killReward);
     }
 
-
     @Override
-    public void move(Coordinate target) {
+    public void move(Point2D target) {
         this.moveStrategy.move(target); // Call the move method of the move strategy
     }
 

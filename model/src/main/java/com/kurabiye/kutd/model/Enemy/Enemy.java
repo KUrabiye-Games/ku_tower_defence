@@ -1,6 +1,6 @@
 package com.kurabiye.kutd.model.Enemy;
 
-import com.kurabiye.kutd.model.Coordinates.Coordinate;
+import javafx.geometry.Point2D;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
 
 /*
@@ -23,7 +23,7 @@ public abstract class Enemy {
 
     protected EnemyType enemyType; // Type of the enemy
 
-    protected Coordinate coordinate = new Coordinate(0,0); // Coordinate of the enemy on the map
+    protected Point2D coordinate = new Point2D(0,0); // Coordinate of the enemy on the map
 
     protected int killReward; // Default health for enemies
 
@@ -54,7 +54,7 @@ public abstract class Enemy {
         return killReward; // Get the kill reward for the enemy
     }
 
-    public abstract void move(Coordinate target); // Abstract method for moving the enemy
+    public abstract void move(Point2D target); // Abstract method for moving the enemy
 
 
     public boolean isAlive() {
@@ -70,7 +70,7 @@ public abstract class Enemy {
     public int getSpeed() {
         return speed; // Get the speed of the enemy
     }
-    public Coordinate getCoordinate() {
+    public Point2D getCoordinate() {
         return coordinate; // Get the coordinate of the enemy
     }
 
@@ -81,8 +81,8 @@ public abstract class Enemy {
      * 
      * @param coordinate The new coordinate of the enemy.
      */
-    public void locate(Coordinate coordinate) {
-        this.coordinate.setX(coordinate.getX());// Set the coordinate of the enemy to the starting point
+    public void locate(Point2D newCoordinate) {
+        this.coordinate = newCoordinate; // Set the coordinate of the enemy to the new point
     }
 
     
