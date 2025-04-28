@@ -28,18 +28,24 @@ public class MainMenuController extends Controller{
     }
 
     private void onMapEditorButtonPressed() {
-        System.out.println("Map Editor button pressed");
-        gameManager.openMapEditor();
+        // Initialize Map Editor independently
+        MapEditorView mapEditorView = new MapEditorView();
+        MapEditor mapEditor = new MapEditor();
+        MapPersistenceManager mapPersistenceManager = new MapPersistenceManager();
+        new MapEditorController(mapEditorView, mapEditor, mapPersistenceManager);
+        mapEditorView.show();
     }
 
     private void onSettingsButtonPressed() {
-        System.out.println("Settings button pressed");
-        gameManager.openSettings();
+        // Initialize Settings independently
+        SettingsView settingsView = new SettingsView();
+        SettingsManager settingsManager = new SettingsManager();
+        new SettingsController(settingsView, settingsManager);
+        settingsView.show();
     }
 
     private void onExitButtonPressed() {
-        System.out.println("Exit button pressed");
-        gameManager.exitGame();
+        System.exit(0);
     }
 }
 
