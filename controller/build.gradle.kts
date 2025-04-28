@@ -7,7 +7,7 @@
 
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
-    application
+  
     
     // Plugin for JavaFX support
     id("org.openjfx.javafxplugin") version "0.1.0"
@@ -64,10 +64,7 @@ javafx {
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.media", "javafx.graphics")
 }
 
-application {
-    // Define the main class for the application.
-    mainClass = "com.kurabiye.kutd.view.View"
-}
+
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
