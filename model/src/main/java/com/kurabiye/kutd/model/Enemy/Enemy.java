@@ -38,8 +38,22 @@ public class Enemy implements Observable{
     
     protected boolean isAlive; // Enemy's alive status
 
-    protected IMoveStrategy moveStrategy; // Move strategy for the enemy
 
+    // For the moment it will be only the center of the tiles
+    protected ArrayList<Point2D> movePath = new ArrayList<Point2D>(); // Path of the enemy
+
+
+    /*
+     * For the moment we do not implement any move strategy.
+     * The enemies will move from one center of the tile to another center of the tile.
+     * The move sttategy will use math and geometry to create more complex paths later.
+     * 
+     */
+    
+     public void setMovePath(ArrayList<Point2D> path, IMoveStrategy moveStrategy) {
+        
+         this.movePath = moveStrategy.createMovePath(path); // Create the move path using the strategy
+     }
 
     public Enemy(EnemyType enemyType, int health, int speed, int killReward) {
         this.enemyType = enemyType; // Set the type of the enemy

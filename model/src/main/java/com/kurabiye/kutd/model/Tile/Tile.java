@@ -36,30 +36,9 @@ public class Tile {
          *      6 5 4 
          */
 
-        public Tile(int tileCode, TilePoint2D coordinate) {
+        public Tile(int tileCode) {
             this.tileCode = tileCode; // Set the tile code
-            this.coordinate = coordinate; // Set the coordinate of the tile
 
-
-            if(isIn(tileCode, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14})) {
-                isPathTile = true; // Set the tile as a path tile
-            }
-
-            if(tileCode == 15) {
-                isBuildableTile = true; // Set the tile as buildable
-            }
-
-            if(tileCode == 5) {
-                isGroundTile = true; // Set the tile as a starting tile
-            }
-
-            if(isIn(tileCode, new int[]{20, 21, 26})){
-                isTowerTile = true; // Set the tile as a tower tile
-            }
-
-            if(isIn(tileCode, new int[]{16, 17, 18, 19, 22, 23, 24, 25, 27, 28, 29, 30, 31})) {
-                isDecorationTile = true; // Set the tile as a starting tile
-            }
 
             
         }
@@ -92,22 +71,39 @@ public class Tile {
             return isTowerTile; // Check if the tile is a tower tile
         }
 
+
+        public void setTileCode(int tileCode) {
+            this.tileCode = tileCode; // Set the code of the tile
+        }
+        public void setPathTile(boolean isPathTile) {
+            this.isPathTile = isPathTile; // Set the tile as a path tile
+        }
+        public void setBuildableTile(boolean isBuildableTile) {
+            this.isBuildableTile = isBuildableTile; // Set the tile as buildable
+        }
+        public void setGroundTile(boolean isGroundTile) {
+            this.isGroundTile = isGroundTile; // Set the tile as a ground tile
+        }
+        public void setDecorationTile(boolean isDecorationTile) {
+            this.isDecorationTile = isDecorationTile; // Set the tile as a decoration tile
+        }
+        public void setTowerTile(boolean isTowerTile) {
+            this.isTowerTile = isTowerTile; // Set the tile as a tower tile
+        }
+
+        public void setCoordinate(TilePoint2D coordinate) {
+            this.coordinate = coordinate; // Set the coordinate of the tile
+        }
+
+
+
+
         public TilePoint2D getCoordinate() {
             return coordinate; // Get the coordinate of the tile
         }
 
 
 
-        // Helper method
-
-        private static boolean isIn(int num, int[] arr){
-
-            for (int i = 0; i < arr.length; i++) {
-                if (arr[i] == num) {
-                    return true; // Return true if the number is found in the array
-                }
-            }
-            return false; // Return false if the number is not found in the array
-        }
+        
 
 }
