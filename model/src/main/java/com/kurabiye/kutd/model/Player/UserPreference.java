@@ -2,6 +2,8 @@ package com.kurabiye.kutd.model.Player;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+
 /* This is the class where the defined game settings on the settings screen are stored.
  * It is used to set the game settings such as waves, speed, sound, music, and difficulty level etc.
  * 
@@ -25,12 +27,9 @@ public class UserPreference implements Serializable {
     private String userName; // Player's name
     private float musicVolume; // Music volume level
     private float soundVolume; // Sound volume level
-    private int numberOfWaves; // Total number of waves in the game
-    private int numberOfGroupsPerWave; // Number of groups per wave
-    private int numberOfEnemiesPerGroup; // Number of enemies per group
+    private ArrayList<ArrayList<int[]>> waveList; // Number of groups per wave
     private int delayBetweenWaves; // Delay between waves in milliseconds
     private int delayBetweenGroups; // Delay between groups in milliseconds
-    private int[] enemyComposition; // Composition of types of enemies for a given group or wave
     private int startingGold; // Starting amount of gold for the player
     private int[] goldPerEnemy; // Amount of gold earned when defeating an enemy
     private int startingHealth; // Starting hit points of the player
@@ -54,12 +53,10 @@ public class UserPreference implements Serializable {
         userName = "Player";
         musicVolume = 0.5f;
         soundVolume = 0.5f;
-        numberOfWaves = 10;
-        numberOfGroupsPerWave = 3;
-        numberOfEnemiesPerGroup = 5;
+       
         delayBetweenWaves = 10000; // 10 seconds
         delayBetweenGroups = 3000; // 3 seconds
-        enemyComposition = new int[]{1, 1, 1}; // Equal distribution of enemy types
+       
         startingGold = 100;
         goldPerEnemy = new int[]{10, 20, 30}; // Gold earned per enemy type
         startingHealth = 100;
@@ -128,17 +125,9 @@ public class UserPreference implements Serializable {
         return soundVolume;
     }
     
-    public int getNumberOfWaves() {
-        return numberOfWaves;
-    }
+   
     
-    public int getNumberOfGroupsPerWave() {
-        return numberOfGroupsPerWave;
-    }
     
-    public int getNumberOfEnemiesPerGroup() {
-        return numberOfEnemiesPerGroup;
-    }
     
     public int getDelayBetweenWaves() {
         return delayBetweenWaves;
@@ -148,8 +137,21 @@ public class UserPreference implements Serializable {
         return delayBetweenGroups;
     }
     
-    public int[] getEnemyComposition() {
-        return enemyComposition.clone(); // Return a copy to maintain immutability
+    public ArrayList<ArrayList<int[]>> getWaveList() {
+        // Return a deep copy to maintain immutability
+        if (waveList == null) {
+            return null;
+        }
+        
+        ArrayList<ArrayList<int[]>> copyList = new ArrayList<>();
+        for (ArrayList<int[]> wave : waveList) {
+            ArrayList<int[]> copyWave = new ArrayList<>();
+            for (int[] group : wave) {
+                copyWave.add(group.clone());
+            }
+            copyList.add(copyWave);
+        }
+        return copyList;
     }
     
     public int getStartingGold() {
@@ -220,14 +222,21 @@ public class UserPreference implements Serializable {
                 this.userPreference.userName = userPreference.userName;
                 this.userPreference.musicVolume = userPreference.musicVolume;
                 this.userPreference.soundVolume = userPreference.soundVolume;
-                this.userPreference.numberOfWaves = userPreference.numberOfWaves;
-                this.userPreference.numberOfGroupsPerWave = userPreference.numberOfGroupsPerWave;
-                this.userPreference.numberOfEnemiesPerGroup = userPreference.numberOfEnemiesPerGroup;
+                
+                
                 this.userPreference.delayBetweenWaves = userPreference.delayBetweenWaves;
                 this.userPreference.delayBetweenGroups = userPreference.delayBetweenGroups;
                 
-                if (userPreference.enemyComposition != null) {
-                    this.userPreference.enemyComposition = userPreference.enemyComposition.clone();
+                // Copy waveList with deep copy to maintain immutability
+                if (userPreference.waveList != null) {
+                    this.userPreference.waveList = new ArrayList<>();
+                    for (ArrayList<int[]> wave : userPreference.waveList) {
+                        ArrayList<int[]> copyWave = new ArrayList<>();
+                        for (int[] group : wave) {
+                            copyWave.add(group.clone());
+                        }
+                        this.userPreference.waveList.add(copyWave);
+                    }
                 }
                 
                 this.userPreference.startingGold = userPreference.startingGold;
@@ -290,20 +299,7 @@ public class UserPreference implements Serializable {
             return this;
         }
 
-        public Builder setNumberOfWaves(int numberOfWaves) {
-            userPreference.numberOfWaves = numberOfWaves;
-            return this;
-        }
-
-        public Builder setNumberOfGroupsPerWave(int numberOfGroupsPerWave) {
-            userPreference.numberOfGroupsPerWave = numberOfGroupsPerWave;
-            return this;
-        }
-
-        public Builder setNumberOfEnemiesPerGroup(int numberOfEnemiesPerGroup) {
-            userPreference.numberOfEnemiesPerGroup = numberOfEnemiesPerGroup;
-            return this;
-        }
+       
 
         public Builder setDelayBetweenWaves(int delayBetweenWaves) {
             userPreference.delayBetweenWaves = delayBetweenWaves;
@@ -315,11 +311,7 @@ public class UserPreference implements Serializable {
             return this;
         }
 
-        public Builder setEnemyComposition(int[] enemyComposition) {
-            userPreference.enemyComposition = enemyComposition;
-            return this;
-        }
-
+        
         public Builder setStartingGold(int startingGold) {
             userPreference.startingGold = startingGold;
             return this;
@@ -357,6 +349,23 @@ public class UserPreference implements Serializable {
 
         public Builder setTowerRateOfFire(float[] towerRateOfFire) {
             userPreference.towerRateOfFire = towerRateOfFire;
+            return this;
+        }
+        
+        public Builder setWaveList(ArrayList<ArrayList<int[]>> waveList) {
+            // Create a deep copy to ensure immutability
+            if (waveList == null) {
+                userPreference.waveList = null;
+            } else {
+                userPreference.waveList = new ArrayList<>();
+                for (ArrayList<int[]> wave : waveList) {
+                    ArrayList<int[]> copyWave = new ArrayList<>();
+                    for (int[] group : wave) {
+                        copyWave.add(group.clone());
+                    }
+                    userPreference.waveList.add(copyWave);
+                }
+            }
             return this;
         }
         
