@@ -1,4 +1,4 @@
-package com.kurabiye.kutd.ObserverPattern;
+package com.kurabiye.kutd.util.ObserverPattern;
 
 public interface Observable {
 

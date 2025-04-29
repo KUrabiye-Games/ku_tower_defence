@@ -1,7 +1,12 @@
 package com.kurabiye.kutd.model.Enemy;
 
 import javafx.geometry.Point2D;
+
+import java.util.ArrayList;
+
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
+
+import com.kurabiye.kutd.util.ObserverPattern.*;;
 
 /*
  * This class represents an enemy in the game.
@@ -14,7 +19,7 @@ import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
  * @since: 2025-04-23
  */
 
-public abstract class Enemy {
+public class Enemy implements Observable{
 
     public enum EnemyType { // Enum for different enemy types
         GOBLIN, // Goblin enemy type
@@ -44,7 +49,7 @@ public abstract class Enemy {
         this.isAlive = true; // Set alive status to true by default
     }
 
-    public void damage(int damage) {
+    public synchronized void damage(int damage) {
         this.health -= damage; // Reduce health by damage amount
         if (this.health <= 0) {
             this.isAlive = false; // Set alive status to false if health is 0 or less
@@ -54,23 +59,26 @@ public abstract class Enemy {
         return killReward; // Get the kill reward for the enemy
     }
 
-    public abstract void move(Point2D target); // Abstract method for moving the enemy
+    public synchronized void move(Point2D target){
 
 
-    public boolean isAlive() {
+    }
+
+
+    public synchronized boolean isAlive() {
         return isAlive; // Check if the enemy is alive
     }
 
-    public boolean isDead() {
+    public synchronized boolean isDead() {
         return !isAlive; // Check if the enemy is dead
     }
-    public int getHealth() {
+    public synchronized int getHealth() {
         return health; // Get the health of the enemy
     }
     public int getSpeed() {
         return speed; // Get the speed of the enemy
     }
-    public Point2D getCoordinate() {
+    public synchronized Point2D getCoordinate() {
         return coordinate; // Get the coordinate of the enemy
     }
 
@@ -81,8 +89,45 @@ public abstract class Enemy {
      * 
      * @param coordinate The new coordinate of the enemy.
      */
-    public void locate(Point2D newCoordinate) {
+    public synchronized void locate(Point2D newCoordinate) {
         this.coordinate = newCoordinate; // Set the coordinate of the enemy to the new point
+    }
+
+
+
+
+    // Obserbable interface methods
+    // Boilerplate code for the Observable interface
+
+
+    ArrayList<Observer> observers = new ArrayList<>(); // List of observers
+
+    @Override
+    public void addObserver(Observer observer) {
+        if (observer == null) {
+            throw new NullPointerException("Null Observer");
+        }
+        if (!observers.contains(observer)) {
+            observers.add(observer); // Add the observer to the list
+        }
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        
+        if (observer == null) {
+            throw new NullPointerException("Null Observer");
+        }
+        if (observers.contains(observer)) {
+            observers.remove(observer); // Remove the observer from the list
+        }
+    }
+
+    @Override
+    public void notifyObservers(Object arg) {
+        for (Observer observer : observers) {
+            observer.update(arg); // Notify each observer with the argument
+        }
     }
 
     

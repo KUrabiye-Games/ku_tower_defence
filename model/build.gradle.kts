@@ -26,6 +26,9 @@ dependencies {
 
     // JavaFX dependencies
     implementation(libs.javafx.graphics)
+
+    // Add your util subproject dependency
+    implementation(project(":util"))
 }
 
 // Configure source sets - this helps with IDE recognition
