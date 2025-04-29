@@ -4,6 +4,7 @@ import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.ArcherStrategy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.ArtilleryStrategy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.MageStrategy;
+import com.kurabiye.kutd.util.FactoryPattern.EnumFactory;
 
 /*  TowerFactory.java
  *  This class is a singleton factory for creating different types of towers in the game.
@@ -32,7 +33,7 @@ import com.kurabiye.kutd.model.Tower.AttackStrategy.MageStrategy;
  * @since 2025-04-23
  */
 
-public class TowerFactory{
+public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> { // Implementing the Factory interface for Tower objects
 
     public enum TowerType {  // already static enum
         ARTILLERY, // 0 // Artillery tower type
@@ -88,11 +89,11 @@ public class TowerFactory{
      * @param type The type of tower to create (ARTILLERY, MAGE, ARCHER).
      * @return Tower object of the specified type.
      */
-    public synchronized Tower createTower(TowerType type) {
-        // Implementation of tower creation based on type
-        // Synchronized to ensure thread-safety when accessing user preferences
+    @Override
+    public Tower create(TowerType type) {
         
-        // Implementation example (you'll need to complete this based on your Tower class)
+        
+       
         Tower tower = null;
         
         switch(type) {
@@ -135,4 +136,6 @@ public class TowerFactory{
         
         return tower;
     }
+
+
 }
