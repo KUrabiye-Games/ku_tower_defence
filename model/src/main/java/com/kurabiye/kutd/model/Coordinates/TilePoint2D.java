@@ -8,6 +8,10 @@ import javafx.geometry.Point2D;
  * It adjusts the tile sizes and the coordinates according to the map dimensions.
  * One can use this class to define the coordinates of the map tiles.
  * 
+ * Each tile has 4 corners, and the coordinates are defined in pixels.
+ * The map is divided into a grid of tiles, and each tile has a width and height. 
+ * 
+ * 
  * @author: Atlas Berk Polat
  * @version: 1.0
  * @since: 2025-04-23
@@ -22,9 +26,29 @@ public class TilePoint2D extends Point2D {
 
     public static final int TILE_WIDTH = MAP_WIDTH / NUMBER_OF_TILES_X; // The width of each tile in pixels
     public static final int TILE_HEIGHT = MAP_HEIGHT / NUMBER_OF_TILES_Y; // The height of each tile in pixels
+
+    private int tileX; // The x coordinate of the tile in the grid
+    private int tileY; // The y coordinate of the tile in the grid
+
+    private Point2D rightTopCorner;
+    private Point2D rightBottomCorner;
+    private Point2D leftTopCorner; // the super value store this coordinate
+    private Point2D leftBottomCorner;
+
+    private Point2D center; // the super value store this coordinate
  
     public TilePoint2D(int tileX, int tileY) {
         super(tileX * TILE_WIDTH, tileY * TILE_HEIGHT); // Convert the tile coordinates to pixel coordinates
+
+        this.rightTopCorner = new Point2D((tileX + 1) * TILE_WIDTH, tileY * TILE_HEIGHT); // Calculate the right top corner
+        this.rightBottomCorner = new Point2D((tileX + 1) * TILE_WIDTH, (tileY + 1) * TILE_HEIGHT); // Calculate the right bottom corner
+        this.leftTopCorner = new Point2D(tileX * TILE_WIDTH, tileY * TILE_HEIGHT); // Calculate the left top corner
+        this.leftBottomCorner = new Point2D(tileX * TILE_WIDTH, (tileY + 1) * TILE_HEIGHT); // Calculate the left bottom corner
+
+        this.center = new Point2D((tileX + 0.5) * TILE_WIDTH, (tileY + 0.5) * TILE_HEIGHT); // Calculate the center of the tile
+
+        this.tileX = tileX; // Set the tile x coordinate
+        this.tileY = tileY; // Set the tile y coordinate
         
         // Check if the tile coordinates are within the bounds of the map
         if (tileX < 0 || tileX >= NUMBER_OF_TILES_X) {
@@ -36,36 +60,42 @@ public class TilePoint2D extends Point2D {
     }
 
     public int getTileX() {
-        return (int)(getX() / TILE_WIDTH); // Convert the pixel coordinates to tile coordinates
+        return tileX; // Convert the pixel coordinates to tile coordinates
     }
 
     public int getTileY() {
-        return (int)(getY() / TILE_HEIGHT); // Convert the pixel coordinates to tile coordinates
+        return tileY; // Convert the pixel coordinates to tile coordinates
     }
+
+    public Point2D getRightTopCorner() {
+        return rightTopCorner; // Get the right top corner of the tile
+    }
+
+    public Point2D getRightBottomCorner() {
+        return rightBottomCorner; // Get the right bottom corner of the tile
+    }
+
+    public Point2D getLeftTopCorner() {
+        return leftTopCorner; // Get the left top corner of the tile
+    }
+
+    public Point2D getLeftBottomCorner() {
+        return leftBottomCorner; // Get the left bottom corner of the tile
+    }
+
+    public Point2D getCenter() {
+        return center; // Get the center of the tile
+    }
+
+    public static int getTileWidth() {
+        return TILE_WIDTH; // Get the width of the tile in pixels
+    }
+
+    public static int getTileHeight() {
+        return TILE_HEIGHT; // Get the height of the tile in pixels
+    }
+
     
-    /**
-     * Creates a new TilePoint2D with the specified tile X coordinate
-     * @param tileX The tile X coordinate
-     * @return A new TilePoint2D with updated tile X coordinate
-     */
-    public TilePoint2D withTileX(int tileX) {
-        // Check if the tile coordinates are within the bounds of the map
-        if (tileX < 0 || tileX >= NUMBER_OF_TILES_X) {
-            throw new IllegalArgumentException("Tile x coordinate is out of bounds: " + tileX);
-        }
-        return new TilePoint2D(tileX, getTileY());
-    }
     
-    /**
-     * Creates a new TilePoint2D with the specified tile Y coordinate
-     * @param tileY The tile Y coordinate
-     * @return A new TilePoint2D with updated tile Y coordinate
-     */
-    public TilePoint2D withTileY(int tileY) {
-        // Check if the tile coordinates are within the bounds of the map
-        if (tileY < 0 || tileY >= NUMBER_OF_TILES_Y) {
-            throw new IllegalArgumentException("Tile y coordinate is out of bounds: " + tileY);
-        }
-        return new TilePoint2D(getTileX(), tileY);
-    }
+   
 }

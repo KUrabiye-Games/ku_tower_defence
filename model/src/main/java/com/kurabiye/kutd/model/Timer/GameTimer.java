@@ -20,7 +20,8 @@ public class GameTimer {
 
     private long timeCoefficient = 1; // The time coefficient used to adjust the game speed
 
-    private static GameTimer instance; // Singleton instance of the GameTimer class
+    // Using volatile to ensure visibility across threads
+    private static volatile GameTimer instance; // Singleton instance of the GameTimer class
 
     private long lastTime; // The last time the game timer was updated
     private long deltaTime; // The time elapsed since the last update
@@ -29,44 +30,67 @@ public class GameTimer {
         lastTime = System.currentTimeMillis(); // Initialize the last time to the current time
     }
 
+    /**
+     * Thread-safe singleton implementation using double-checked locking
+     * @return The singleton instance of GameTimer
+     */
     public static GameTimer getInstance() {
+        // First check (no locking)
         if (instance == null) {
-            instance = new GameTimer(); // Create a new instance if it doesn't exist
+            // Lock for thread safety
+            synchronized (GameTimer.class) {
+                // Second check (with locking)
+                if (instance == null) {
+                    instance = new GameTimer(); // Create a new instance if it doesn't exist
+                }
+            }
         }
         return instance; // Return the singleton instance
+    }
+
+    /**
+     * Resets the singleton instance (useful for testing)
+     */
+    public static synchronized void resetInstance() {
+        instance = null;
     }
 
     /*
      * This should be called every frame to update the game timer.
      * It calculates the delta time and updates the last time.
      * 
-     * 
      */
-
-    public void update() {
+    public synchronized void update() {
         long currentTime = System.currentTimeMillis(); // Get the current time
         deltaTime = currentTime - lastTime; // Calculate the delta time
         lastTime = currentTime; // Update the last time to the current time
     }
 
 
-    /*
-        * This method returns the delta time in seconds.
-        * It divides the delta time by the time cofactor to convert it to seconds.
-        
-        * 
-        * @return The delta time in seconds
+    /**
+     * This method returns the delta time in seconds.
+     * It divides the delta time by the time cofactor to convert it to seconds.
+     * @return the delta time in seconds
      */
-
-    public long getDeltaTime() {
+    public synchronized long getDeltaTime() {
         return (deltaTime / TIME_COFACTOR_MILISEC) * timeCoefficient; // Return the delta time
     }
 
-    public long getTimeCoefficient() {
+    /**
+     * Get the time coefficient used to adjust game speed
+     * @return the time coefficient value
+     */
+    public synchronized long getTimeCoefficient() {
         return timeCoefficient; // Return the time coefficient
     }
-    public void setTimeCoefficient(long timeCoefficient) {
-        this.timeCoefficient = timeCoefficient; // Set the time coefficient
+    
+    /**
+     * Set the time coefficient to adjust game speed
+     * @param coefficient the new time coefficient
+     */
+    public synchronized void setTimeCoefficient(long coefficient) {
+        if (coefficient > 0) {
+            timeCoefficient = coefficient;
+        }
     }
-
 }

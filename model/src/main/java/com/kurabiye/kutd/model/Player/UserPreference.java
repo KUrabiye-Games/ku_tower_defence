@@ -15,11 +15,13 @@ import java.io.Serializable;
  * @since: 2025-04-23
  * 
  */
-public class UserPreference implements Serializable{
+public class UserPreference implements Serializable {
 
-    private static UserPreference instance; // Singleton instance of UserPreference
+    // Using volatile to ensure visibility across threads
+    private static volatile UserPreference instance; // Singleton instance of UserPreference
     private static final long serialVersionUID = 1L; // Serial version UID for serialization
 
+    // Game settings fields
     private String userName; // Player's name
     private float musicVolume; // Music volume level
     private float soundVolume; // Sound volume level
@@ -32,23 +34,22 @@ public class UserPreference implements Serializable{
     private int startingGold; // Starting amount of gold for the player
     private int[] goldPerEnemy; // Amount of gold earned when defeating an enemy
     private int startingHealth; // Starting hit points of the player
-    private int[] enemyHealth; // Hit points of different types of enemies
-    private float[][] damageDealt; // Damage dealt by different types of attacks, this is a 2D array where the first index is the type of the tower and the second index is the type of enemy
-    private int[] towerConstructionCost; // Construction cost of each type of tower
-    private float[] towerSellReturn; // Percentage of construction cost returned when selling each type of tower
-    private float[] towerEffectiveRange; // Effective range of each type of tower
-    private float[] towerRateOfFire; // Rate of fire for each type of tower
-    private float artilleryRange; // Range of AOE damage for artillery shells
-    private int[] enemyMovementSpeed; // Movement speed of different types of enemies
+    private int[] enemyHealth; // Health points for each type of enemy
+    private float[][] damageDealt; // Damage dealt by each tower type to each enemy type
+    private int[] towerConstructionCost; // Cost to construct each tower type
+    private float[] towerEffectiveRange; // Effective range for each tower type
+    private float[] towerRateOfFire; // Rate of fire for each tower type
+    private float artilleryRange; // Special range for artillery towers
+    private int[] enemyMovementSpeed; // Movement speed for each enemy type
+    private float[] towerSellReturn; // Percentage of cost returned when selling a tower
 
-
+    // Private constructor to enforce the singleton pattern
     private UserPreference() {
-        initializeDefaultValues(); // Initialize default values for all preferences
+        // Initialize with default values
+        initializeDefaultValues();
     }
 
-      /**
-     * Initialize default values for all preferences
-     */
+    // Initialize default values for all settings
     private void initializeDefaultValues() {
         userName = "Player";
         musicVolume = 0.5f;
@@ -57,56 +58,62 @@ public class UserPreference implements Serializable{
         numberOfGroupsPerWave = 3;
         numberOfEnemiesPerGroup = 5;
         delayBetweenWaves = 10000; // 10 seconds
-        delayBetweenGroups = 5000; // 5 seconds
-        enemyComposition = new int[]{5, 3}; // 5 goblins, 3 knights
+        delayBetweenGroups = 3000; // 3 seconds
+        enemyComposition = new int[]{1, 1, 1}; // Equal distribution of enemy types
         startingGold = 100;
-        goldPerEnemy = new int[]{5, 10}; // 5 gold per goblin, 10 gold per knight
+        goldPerEnemy = new int[]{10, 20, 30}; // Gold earned per enemy type
         startingHealth = 100;
-        enemyHealth = new int[]{50, 100}; // 50 health for goblin, 100 health for knight
-        damageDealt = new float[][]{{10, 10}, {20, 20}, {15, 15}}; // arrow, artillery, magic
-        towerConstructionCost = new int[]{50, 100, 150}; // arrow, artillery, magic
-        towerSellReturn = new float[]{0.8f, 0.7f, 0.6f}; // 80%, 70%, 60% return
-        towerEffectiveRange = new float[]{5, 4, 3}; // arrow, artillery, magic
-        towerRateOfFire = new float[]{1000, 2000, 1500}; // ms between shots
-        artilleryRange = 2;
-        enemyMovementSpeed = new int[]{2, 1}; // goblin, knight
+        enemyHealth = new int[]{50, 75, 100}; // Health for each enemy type
+        damageDealt = new float[][]{
+            {10.0f, 8.0f, 6.0f}, // Damage for tower type 1
+            {7.0f, 12.0f, 9.0f}, // Damage for tower type 2
+            {8.0f, 7.0f, 15.0f}  // Damage for tower type 3
+        };
+        towerConstructionCost = new int[]{50, 75, 100}; // Cost for each tower type
+        towerEffectiveRange = new float[]{3.0f, 4.0f, 5.0f}; // Range for each tower type
+        towerRateOfFire = new float[]{1.0f, 0.75f, 0.5f}; // Attack speed for each tower type
+        artilleryRange = 6.0f; // Special long range for artillery
+        enemyMovementSpeed = new int[]{2, 3, 5}; // Movement speed for each enemy type
+        towerSellReturn = new float[]{0.5f, 0.6f, 0.7f}; // Percentage returned when selling
     }
 
     /**
-     * Get the singleton instance of UserPreference
+     * Thread-safe singleton implementation using double-checked locking
      * @return the singleton instance of UserPreference
-     * 
-     * This method is synchronized to ensure thread safety when creating the singleton instance
-      */
-    public static synchronized UserPreference getInstance() {
+     */
+    public static UserPreference getInstance() {
+        // First check (no locking)
         if (instance == null) {
-            instance = new UserPreference(); // Create a new instance if it doesn't exist
+            // Lock for thread safety
+            synchronized (UserPreference.class) {
+                // Second check (with locking)
+                if (instance == null) {
+                    instance = new UserPreference(); // Create a new instance if it doesn't exist
+                }
+            }
         }
         return instance; // Return the singleton instance
     }
 
-    
     /**
      * Resets the singleton instance (useful for testing or when loading new preferences)
      */
-    public static void resetInstance() {
+    public static synchronized void resetInstance() {
         instance = null;
     }
-
 
     /**
      * Applies settings from a Builder to the singleton instance
      * @param builder the builder with configured settings
      */
-    public static void applySettings(Builder builder) {
+    public static synchronized void applySettings(Builder builder) {
         instance = builder.build(); // Apply the new settings
     }
 
-
-    // Getters for all the fields
+    // Getters for all fields - thread-safe by being effectively immutable after construction
 
     public static long getSerialVersionUID() {
-        return serialVersionUID; // Return the serial version UID for serialization
+        return serialVersionUID;
     }
 
     public String getUserName() {
@@ -116,100 +123,157 @@ public class UserPreference implements Serializable{
     public float getMusicVolume() {
         return musicVolume;
     }
+    
     public float getSoundVolume() {
         return soundVolume;
     }
+    
     public int getNumberOfWaves() {
         return numberOfWaves;
     }
+    
     public int getNumberOfGroupsPerWave() {
         return numberOfGroupsPerWave;
     }
+    
     public int getNumberOfEnemiesPerGroup() {
         return numberOfEnemiesPerGroup;
     }
+    
     public int getDelayBetweenWaves() {
         return delayBetweenWaves;
     }
+    
     public int getDelayBetweenGroups() {
         return delayBetweenGroups;
     }
+    
     public int[] getEnemyComposition() {
-        return enemyComposition;
+        return enemyComposition.clone(); // Return a copy to maintain immutability
     }
+    
     public int getStartingGold() {
         return startingGold;
     }
+    
     public int[] getGoldPerEnemy() {
-        return goldPerEnemy;
+        return goldPerEnemy.clone(); // Return a copy to maintain immutability
     }
+    
     public int getStartingHealth() {
         return startingHealth;
     }
+    
     public int[] getEnemyHealth() {
-        return enemyHealth;
+        return enemyHealth.clone(); // Return a copy to maintain immutability
     }
+    
     public float[][] getDamageDealt() {
-        return damageDealt;
+        // Deep copy to maintain immutability
+        float[][] copy = new float[damageDealt.length][];
+        for (int i = 0; i < damageDealt.length; i++) {
+            copy[i] = damageDealt[i].clone();
+        }
+        return copy;
     }
+    
     public int[] getTowerConstructionCost() {
-        return towerConstructionCost;
+        return towerConstructionCost.clone(); // Return a copy to maintain immutability
     }
-    public float[] getTowerSellReturn() {
-        return towerSellReturn;
-    }
+    
     public float[] getTowerEffectiveRange() {
-        return towerEffectiveRange;
+        return towerEffectiveRange.clone(); // Return a copy to maintain immutability
     }
-
+    
     public float[] getTowerRateOfFire() {
-        return towerRateOfFire;
+        return towerRateOfFire.clone(); // Return a copy to maintain immutability
     }
+    
     public float getArtilleryRange() {
         return artilleryRange;
     }
+    
     public int[] getEnemyMovementSpeed() {
-        return enemyMovementSpeed;
+        return enemyMovementSpeed.clone(); // Return a copy to maintain immutability
     }
-    // Use the Builder pattern to create an instance of UserPreference
-    // 
+    
+    public float[] getTowerSellReturn() {
+        return towerSellReturn.clone(); // Return a copy to maintain immutability
+    }
 
+    // Builder class for constructing UserPreference instances in a fluent manner
     public static class Builder {
         private UserPreference userPreference;
 
         public Builder() {
             this.userPreference = new UserPreference();
-            // Copy all fields from the existing preferences
-            this.userPreference.userName = userPreference.userName;
-            this.userPreference.musicVolume = userPreference.musicVolume;
-            this.userPreference.soundVolume = userPreference.soundVolume;
-            this.userPreference.numberOfWaves = userPreference.numberOfWaves;
-            this.userPreference.numberOfGroupsPerWave = userPreference.numberOfGroupsPerWave;
-            this.userPreference.numberOfEnemiesPerGroup = userPreference.numberOfEnemiesPerGroup;
-            this.userPreference.delayBetweenWaves = userPreference.delayBetweenWaves;
-            this.userPreference.delayBetweenGroups = userPreference.delayBetweenGroups;
-            this.userPreference.enemyComposition = userPreference.enemyComposition;
-            this.userPreference.startingGold = userPreference.startingGold;
-            this.userPreference.goldPerEnemy = userPreference.goldPerEnemy;
-            this.userPreference.startingHealth = userPreference.startingHealth;
-            this.userPreference.enemyHealth = userPreference.enemyHealth;
-            this.userPreference.damageDealt = userPreference.damageDealt;
-            this.userPreference.towerConstructionCost = userPreference.towerConstructionCost;
-            this.userPreference.towerSellReturn = userPreference.towerSellReturn;
-            this.userPreference.towerEffectiveRange = userPreference.towerEffectiveRange;
-            this.userPreference.towerRateOfFire = userPreference.towerRateOfFire;
-            this.userPreference.artilleryRange = userPreference.artilleryRange;
-            this.userPreference.enemyMovementSpeed = userPreference.enemyMovementSpeed;
         }
-
 
         /* This constructor is used to create a Builder object from an existing UserPreference object.
          * This is useful when you want to modify an existing UserPreference object using the Builder pattern.
-         * 
          */
         public Builder(UserPreference userPreference) {
-            this.userPreference = userPreference;
+            this.userPreference = new UserPreference();
+            
+            // Copy all fields from the existing preferences
+            if (userPreference != null) {
+                this.userPreference.userName = userPreference.userName;
+                this.userPreference.musicVolume = userPreference.musicVolume;
+                this.userPreference.soundVolume = userPreference.soundVolume;
+                this.userPreference.numberOfWaves = userPreference.numberOfWaves;
+                this.userPreference.numberOfGroupsPerWave = userPreference.numberOfGroupsPerWave;
+                this.userPreference.numberOfEnemiesPerGroup = userPreference.numberOfEnemiesPerGroup;
+                this.userPreference.delayBetweenWaves = userPreference.delayBetweenWaves;
+                this.userPreference.delayBetweenGroups = userPreference.delayBetweenGroups;
+                
+                if (userPreference.enemyComposition != null) {
+                    this.userPreference.enemyComposition = userPreference.enemyComposition.clone();
+                }
+                
+                this.userPreference.startingGold = userPreference.startingGold;
+                
+                if (userPreference.goldPerEnemy != null) {
+                    this.userPreference.goldPerEnemy = userPreference.goldPerEnemy.clone();
+                }
+                
+                this.userPreference.startingHealth = userPreference.startingHealth;
+                
+                if (userPreference.enemyHealth != null) {
+                    this.userPreference.enemyHealth = userPreference.enemyHealth.clone();
+                }
+                
+                if (userPreference.damageDealt != null) {
+                    this.userPreference.damageDealt = new float[userPreference.damageDealt.length][];
+                    for (int i = 0; i < userPreference.damageDealt.length; i++) {
+                        this.userPreference.damageDealt[i] = userPreference.damageDealt[i].clone();
+                    }
+                }
+                
+                if (userPreference.towerConstructionCost != null) {
+                    this.userPreference.towerConstructionCost = userPreference.towerConstructionCost.clone();
+                }
+                
+                if (userPreference.towerEffectiveRange != null) {
+                    this.userPreference.towerEffectiveRange = userPreference.towerEffectiveRange.clone();
+                }
+                
+                if (userPreference.towerRateOfFire != null) {
+                    this.userPreference.towerRateOfFire = userPreference.towerRateOfFire.clone();
+                }
+                
+                this.userPreference.artilleryRange = userPreference.artilleryRange;
+                
+                if (userPreference.enemyMovementSpeed != null) {
+                    this.userPreference.enemyMovementSpeed = userPreference.enemyMovementSpeed.clone();
+                }
+                
+                if (userPreference.towerSellReturn != null) {
+                    this.userPreference.towerSellReturn = userPreference.towerSellReturn.clone();
+                }
+            }
         }
+
+        // Builder setter methods - each returns this Builder instance for method chaining
 
         public Builder setUserName(String userName) {
             userPreference.userName = userName;
@@ -295,10 +359,12 @@ public class UserPreference implements Serializable{
             userPreference.towerRateOfFire = towerRateOfFire;
             return this;
         }
+        
         public Builder setArtilleryRange(float artilleryRange) {
             userPreference.artilleryRange = artilleryRange;
             return this;
         }
+        
         public Builder setEnemyMovementSpeed(int[] enemyMovementSpeed) {
             userPreference.enemyMovementSpeed = enemyMovementSpeed;
             return this;
@@ -312,15 +378,5 @@ public class UserPreference implements Serializable{
         public UserPreference build() {
             return userPreference;
         }
-
     }
-
-
-
-
-
-
-
-
-
 }
