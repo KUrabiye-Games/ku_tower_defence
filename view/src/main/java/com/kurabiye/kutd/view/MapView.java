@@ -11,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;;
 public class MapView {
    
     private static final int TILE_SIZE = 64;
@@ -40,23 +41,66 @@ public class MapView {
     private HBox buttonContainer;
     private int lastClickedRow = -1;
     private int lastClickedCol = -1;
+    private boolean isPaused = false;
+    private double gameSpeed = 1.0;
 
     public void start(Stage stage) {
         loadTiles();
         loadButtonIcons();
-    
+
         canvas = new Canvas(COLS * TILE_SIZE, ROWS * TILE_SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawMap(gc);
-    
-        root = new Pane(canvas);  // Changed from StackPane to Pane
-    
+
+        root = new Pane(canvas); // Changed from StackPane to Pane
+
+        //create control buttons
+        Button pauseButton = createControlButton("Pause");
+        Button speedUpButton = createControlButton("2x");
+
+        pauseButton.setOnAction(e -> {
+            isPaused = !isPaused;
+            pauseButton.setText(isPaused ? "Resume" : "Pause");
+            System.out.println("Game " + (isPaused ? "paused" : "resumed"));
+        });
+
+        speedUpButton.setOnAction(e -> {
+            gameSpeed = (gameSpeed == 1.0) ? 2.0 : 1.0;
+            speedUpButton.setText(gameSpeed == 1.0 ? "2x" : "1x");
+            System.out.println("game speed set to: " + gameSpeed + "x");
+        });
+        //create container for control buttons
+        HBox controls = new HBox(10);
+        controls.setAlignment(Pos.TOP_RIGHT);
+        controls.getChildren().addAll(pauseButton, speedUpButton);
+        controls.setLayoutX((COLS * TILE_SIZE - 180));//topright
+        controls.setLayoutY(10);
+
+        root.getChildren().add(controls);
+
         Scene scene = new Scene(root);
         stage.setTitle("Game Map");
         stage.setScene(scene);
         stage.show();
-    
+
         setupClickHandler();
+    }
+    
+    private Button createControlButton(String text) {
+        Button button = new Button(text);
+        button.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);" +
+                        "-fx-text-fill: white;" + 
+                         "-fx-font-size: 14px;" +
+                        "-fx-padding: 5 10;" +             
+                        "-fx-background-radius: 5;"
+        );
+        
+        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7);")
+        //STYLE
+        );
+        //mouse exit?
+        
+        return button;
     }
 
     private void loadTiles() {
