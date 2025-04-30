@@ -54,7 +54,7 @@ public class MapView {
 
         root = new Pane(canvas); // Changed from StackPane to Pane
 
-        //create control buttons
+        // Create control buttons
         Button pauseButton = createControlButton("Pause");
         Button speedUpButton = createControlButton("2x");
 
@@ -69,11 +69,11 @@ public class MapView {
             speedUpButton.setText(gameSpeed == 1.0 ? "2x" : "1x");
             System.out.println("game speed set to: " + gameSpeed + "x");
         });
-        //create container for control buttons
+        // Create container for control buttons
         HBox controls = new HBox(10);
         controls.setAlignment(Pos.TOP_RIGHT);
         controls.getChildren().addAll(pauseButton, speedUpButton);
-        controls.setLayoutX((COLS * TILE_SIZE - 180));//topright
+        controls.setLayoutX((COLS * TILE_SIZE - 180)); // Top right
         controls.setLayoutY(10);
 
         root.getChildren().add(controls);
@@ -95,10 +95,20 @@ public class MapView {
                         "-fx-background-radius: 5;"
         );
         
-        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: rgba(50, 50, 50, 0.7);")
-        //STYLE
-        );
-        //mouse exit?
+        button.setOnMouseEntered(e -> button.setStyle(
+            "-fx-background-color: rgba(50, 50, 50, 0.7);" +
+                        "-fx-text-fill: white;" + 
+                         "-fx-font-size: 14px;" +
+                        "-fx-padding: 5 10;" +             
+                        "-fx-background-radius: 5;"
+        ));
+
+        button.setOnMouseExited(e -> button.setStyle(
+            "-fx-background-color: rgba(0, 0, 0, 0.7);" +             
+            "-fx-text-fill: white;" +             
+            "-fx-font-size: 14px;" +             
+            "-fx-padding: 5 10;" +             
+            "-fx-background-radius: 5;"));
         
         return button;
     }
