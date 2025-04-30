@@ -1,6 +1,10 @@
 package com.kurabiye.kutd.view;
 
-import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,10 +14,13 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle; 
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -39,8 +46,11 @@ public class LoadingScreenView {
     private Label messageLabel;
     private ScheduledExecutorService scheduler;
     private double progress = 0.0;
+    private Stage stage; // Store the stage
 
     public void start(Stage stage) {
+        this.stage = stage; // Save the stage reference
+
         BorderPane root = new BorderPane();
 
         // Load background image
@@ -90,8 +100,6 @@ public class LoadingScreenView {
         vbox.getChildren().addAll(titleText, messageLabel, progressBar);
         vbox.setPadding(new Insets(20));
 
-
-
         // Animated enemies
         Pane enemiesPane = createAnimatedEnemies();
 
@@ -118,10 +126,7 @@ public class LoadingScreenView {
         Random random = new Random();
         for (int i = 0; i < 5; i++) {
             Circle enemy = new Circle(5 + random.nextInt(8));
-
-            // Create a random color for each enemy
             enemy.setFill(Color.rgb(255, 80, 80, 0.9));
-
             enemy.setCenterX(-20);
             enemy.setCenterY(50 + random.nextInt(300));
             enemy.setStroke(Color.BLACK);
@@ -192,6 +197,12 @@ public class LoadingScreenView {
         flash.setToValue(0.8);
         flash.setCycleCount(2);
         flash.setAutoReverse(true);
+
+        flash.setOnFinished(event -> {
+            // After flashing, go to MapView
+            MapView mapView = new MapView();
+            mapView.start(stage);
+        });
 
         flash.play();
 

@@ -25,7 +25,6 @@ public class LaunchScreenView {
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color:rgb(33, 33, 33);");
 
-        
         // Load all cookie PNG images
         Image cookieFullImage = new Image(getClass().getClassLoader().getResource("assets/cookie_full.png").toExternalForm());
         Image cookieBitten2Image = new Image(getClass().getClassLoader().getResource("assets/cookie_bitten2.png").toExternalForm());
