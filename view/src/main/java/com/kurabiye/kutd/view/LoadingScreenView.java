@@ -1,5 +1,4 @@
 package com.kurabiye.kutd.view;
-
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -183,20 +182,27 @@ public class LoadingScreenView {
         Rectangle flashOverlay = new Rectangle(0, 0, 600, 400);
         flashOverlay.setFill(Color.WHITE);
         flashOverlay.setOpacity(0);
-
+    
         Scene scene = progressBar.getScene();
-        ((StackPane) ((BorderPane) scene.getRoot()).getCenter()).getChildren().add(flashOverlay);
-
+        StackPane stack = (StackPane) ((BorderPane) scene.getRoot()).getCenter();
+        stack.getChildren().add(flashOverlay);
+    
         FadeTransition flash = new FadeTransition(Duration.millis(200), flashOverlay);
         flash.setFromValue(0);
         flash.setToValue(0.8);
         flash.setCycleCount(2);
         flash.setAutoReverse(true);
-
+    
+        flash.setOnFinished(e -> {
+            // Yeni MapView başlat
+            MapView mapView = new MapView();
+            Stage stage = (Stage) scene.getWindow();
+            mapView.start(stage);
+        });
+    
         flash.play();
-
-        messageLabel.setText("Welcome to Tower Defense!");
     }
+    
 
     public void shutdown() {
         if (scheduler != null && !scheduler.isShutdown()) {
