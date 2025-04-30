@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
 
-import com.kurabiye.kutd.util.ObserverPattern.*;;
 
 /*
  * This class represents an enemy in the game.
@@ -19,7 +18,7 @@ import com.kurabiye.kutd.util.ObserverPattern.*;;
  * @since: 2025-04-23
  */
 
-public class Enemy implements Observable{
+public class Enemy {
 
     public enum EnemyType { // Enum for different enemy types
         GOBLIN, // Goblin enemy type
@@ -106,46 +105,6 @@ public class Enemy implements Observable{
     public synchronized void locate(Point2D newCoordinate) {
         this.coordinate = newCoordinate; // Set the coordinate of the enemy to the new point
     }
-
-
-
-
-    // Obserbable interface methods
-    // Boilerplate code for the Observable interface
-
-
-    ArrayList<Observer> observers = new ArrayList<>(); // List of observers
-
-    @Override
-    public void addObserver(Observer observer) {
-        if (observer == null) {
-            throw new NullPointerException("Null Observer");
-        }
-        if (!observers.contains(observer)) {
-            observers.add(observer); // Add the observer to the list
-        }
-    }
-
-    @Override
-    public void removeObserver(Observer observer) {
-        
-        if (observer == null) {
-            throw new NullPointerException("Null Observer");
-        }
-        if (observers.contains(observer)) {
-            observers.remove(observer); // Remove the observer from the list
-        }
-    }
-
-    @Override
-    public void notifyObservers(Object arg) {
-        for (Observer observer : observers) {
-            observer.update(arg); // Notify each observer with the argument
-        }
-    }
-
-    
-
 
     
 

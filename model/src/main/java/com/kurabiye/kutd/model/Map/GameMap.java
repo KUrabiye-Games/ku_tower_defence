@@ -5,10 +5,12 @@ import java.util.List;
 
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Tile.Tile;
+import com.kurabiye.kutd.util.ObserverPattern.Observable;
+import com.kurabiye.kutd.util.ObserverPattern.Observer;
 
 import javafx.geometry.Point2D;
 
-public class GameMap {
+public class GameMap implements Observable{
 
     private static final Tile ERROR_TILE = new Tile(1);
 
@@ -70,7 +72,7 @@ public class GameMap {
         if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
             throw new IllegalArgumentException("Coordinates out of bounds");
         }
-        tiles[x][y] = tile; // Set the tile at the specified coordinates
+        tiles[y][x] = tile; // Set the tile at the specified coordinates
     }
 
     public TilePoint2D getstartTileCoordinates() {
@@ -325,6 +327,40 @@ public class GameMap {
             buildTilePath(); // Build the tile path if it is not already built
         }
         return tilePath; // Return the list of path tiles
+    }
+
+    /*
+     * 
+     * Boilerplate code for the Observable interface
+     */
+
+    private List<Observer> observers = new ArrayList<>(); // List of observers
+
+    @Override
+    public void addObserver(Observer observer) {
+        if (observer == null) {
+            throw new NullPointerException("Null Observer");
+        }
+        if (!observers.contains(observer)) {
+            observers.add(observer); // Add the observer to the list
+        }
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        if (observer == null) {
+            throw new NullPointerException("Null Observer");
+        }
+        if (observers.contains(observer)) {
+            observers.remove(observer); // Remove the observer from the list
+        }
+    }
+
+    @Override
+    public void notifyObservers(Object arg) {
+        for (Observer observer : observers) {
+            observer.update(arg); // Notify each observer with the argument
+        }
     }
 
     

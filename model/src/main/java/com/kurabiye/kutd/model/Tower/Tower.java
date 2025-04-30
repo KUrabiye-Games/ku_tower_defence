@@ -6,9 +6,10 @@ import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
-public abstract class Tower {
+public class Tower {
 
-    protected float[] attackPower; // Attack power of the tower for different enemy types
+
+   
     protected float range; // Range of the tower
     protected float attackSpeed; // Attack speed of the tower
 
@@ -20,10 +21,9 @@ public abstract class Tower {
     protected int sellReturn; // The amount of money returned when the tower is sold
 
 
-    public Tower(int cost, int sellReturn, float[] attackPower, float range, float attackSpeed) {
+    public Tower(int cost, int sellReturn, float range, float attackSpeed) {
         this.cost = cost; // Set the cost of the tower
         this.sellReturn = sellReturn; // Set the sell return of the tower
-        this.attackPower = attackPower; // Set the attack power of the tower
         this.range = range; // Set the range of the tower
         this.attackSpeed = attackSpeed; // Set the attack speed of the tower
     }
@@ -36,9 +36,13 @@ public abstract class Tower {
     }
 
     // and we will need to implement the attack method in the subclasses of the tower class
-    public abstract void attack(List<Enemy> enemies);
-
-    public abstract void sell(); // Abstract method for selling the tower
+    public void attack(List<Enemy> enemies){
+        // Use the attack strategy to find the target enemy
+        List<Enemy> targetEnemies = attackStrategy.findTarget(enemies);
+        // Implement the attack logic here
+        // For example, iterate through the target enemies and apply damage
+        // create a projectile and send it to the target enemy
+    }
 
     public TilePoint2D getTileCoordinate() {
         return tileCoordinate; // Get the tile coordinate of the tower

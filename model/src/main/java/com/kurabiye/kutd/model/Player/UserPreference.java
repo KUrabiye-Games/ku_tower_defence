@@ -54,23 +54,34 @@ public class UserPreference implements Serializable {
         musicVolume = 0.5f;
         soundVolume = 0.5f;
        
-        delayBetweenWaves = 10000; // 10 seconds
+        delayBetweenWaves = 5000; // 5 seconds
         delayBetweenGroups = 3000; // 3 seconds
-       
+
+        waveList = new ArrayList<>(); // Initialize with an empty list
+        ArrayList<int[]> wave1 = new ArrayList<>();
+        wave1.add(new int[]{2,0}); // Example wave with different enemy types
+        wave1.add(new int[]{3,0}); // Example group with different enemy types
+        waveList.add(wave1); // Add the first wave to the list
+        ArrayList<int[]> wave2 = new ArrayList<>();
+        wave2.add(new int[]{2,1}); // Example wave with different enemy types
+        wave2.add(new int[]{3,1}); // Example group with different enemy types
+        waveList.add(wave2); // Add the second wave to the list
+    
         startingGold = 100;
-        goldPerEnemy = new int[]{10, 20, 30}; // Gold earned per enemy type
+        goldPerEnemy = new int[]{10, 20}; // Gold earned per enemy type
         startingHealth = 100;
-        enemyHealth = new int[]{50, 75, 100}; // Health for each enemy type
+        enemyHealth = new int[]{50, 75}; // Health for each enemy type
         damageDealt = new float[][]{
-            {10.0f, 8.0f, 6.0f}, // Damage for tower type 1
-            {7.0f, 12.0f, 9.0f}, // Damage for tower type 2
-            {8.0f, 7.0f, 15.0f}  // Damage for tower type 3
+            //Enemy1 Enemy2
+            {10.0f, 8.0f}, // Damage for tower type 1
+            {7.0f, 12.0f}, // Damage for tower type 2
+            {8.0f, 7.0f}  // Damage for tower type 3
         };
         towerConstructionCost = new int[]{50, 75, 100}; // Cost for each tower type
         towerEffectiveRange = new float[]{3.0f, 4.0f, 5.0f}; // Range for each tower type
         towerRateOfFire = new float[]{1.0f, 0.75f, 0.5f}; // Attack speed for each tower type
         artilleryRange = 6.0f; // Special long range for artillery
-        enemyMovementSpeed = new int[]{2, 3, 5}; // Movement speed for each enemy type
+        enemyMovementSpeed = new int[]{2, 3}; // Movement speed for each enemy type
         towerSellReturn = new float[]{0.5f, 0.6f, 0.7f}; // Percentage returned when selling
     }
 
