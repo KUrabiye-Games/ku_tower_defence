@@ -63,6 +63,10 @@ public class MainMenuView {
         // Button actions (you can fill these later)
         playButton.setOnAction(e -> {
             // TODO: Start the game
+
+            MapView mapView = new MapView();
+            mapView.start(stage);
+
             System.out.println("Play button clicked");
         });
 
