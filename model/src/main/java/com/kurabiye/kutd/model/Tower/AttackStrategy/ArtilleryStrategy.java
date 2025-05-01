@@ -25,8 +25,8 @@ public class ArtilleryStrategy implements IAttackStrategy {
      * @return List of enemies to be attacked by the Artillery tower.
      */
     @Override
-    public List<Enemy> findTarget(List<Enemy> enemy) {
-        return enemy;
+    public Enemy findTarget(List<Enemy> enemy) {
+        return enemy.get(0); // This is a placeholder implementation. Replace with actual logic.
         // This method returns the list of enemies to be attacked by the Artillery tower
         // The specific implementation of the attack strategy will be provided in this method
     }

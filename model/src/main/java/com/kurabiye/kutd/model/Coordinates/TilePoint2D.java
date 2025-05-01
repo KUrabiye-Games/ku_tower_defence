@@ -95,6 +95,16 @@ public class TilePoint2D extends Point2D {
         return TILE_HEIGHT; // Get the height of the tile in pixels
     }
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true; // Check if the object is the same instance
+        if (!(obj instanceof TilePoint2D)) return false; // Check if the object is of the same type
+
+        TilePoint2D other = (TilePoint2D) obj; // Cast the object to TilePoint2D
+        return tileX == other.getTileX() && tileY == other.getTileY(); // Check if the tile coordinates are equal
+    }
+
     
     
    

@@ -77,6 +77,10 @@ public class EnemyFactory {
         return my_enemy;
     }
 
+    public Enemy createEnemy(int enemyType) {
+        return createEnemy(EnemyType.values()[enemyType]);
+    }
+
 
     /**
  * Transposes a 2D array using Java streams
@@ -90,6 +94,11 @@ public class EnemyFactory {
                     .mapToDouble(row -> original[row][col])
                     .toArray())
             .toArray(float[][]::new);
+    }
+
+    // set the enemy path
+    public void setEnemyPath(ArrayList<Point2D> enemyPath) {
+        this.enemyPath = enemyPath; // Set the path for enemies to follow
     }
     
     

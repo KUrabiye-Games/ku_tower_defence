@@ -2,6 +2,7 @@ package com.kurabiye.kutd.model.Wave;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import com.kurabiye.kutd.model.Player.UserPreference;
 
@@ -27,7 +28,7 @@ public class WaveInfo {
     private int[] enemyComposition; // Composition of types of enemies for a given group or wave
      */
 
-    private UserPreference userPreferences; // Singleton instance of UserPreference
+    //private UserPreference userPreferences; // Singleton instance of UserPreference
 
      private ArrayList<ArrayList<int[]>> waveDecomposition; // Number of groups per wave // Composition of types of enemies for a given group or wave
     
@@ -36,21 +37,14 @@ public class WaveInfo {
     
 
 
-    private int currentWave; // Current wave number
-    private int currentGroup; // Current group number
-    
-
-
-    public WaveInfo(){
-        this.userPreferences = UserPreference.getInstance(); // Get the singleton instance of UserPreference
+    public WaveInfo(UserPreference userPreferences) {
+        //this.userPreferences = userPreferences; // Get the singleton instance of UserPreference
 
         this.waveDecomposition = userPreferences.getWaveList(); // Get the wave decomposition from user preferences
         
         this.defaultDelayBetweenWaves = userPreferences.getDelayBetweenWaves(); // Get the delay between waves from user preferences
         this.defaultDelayBetweenGroups = userPreferences.getDelayBetweenGroups(); // Get the delay between groups from user preferences
 
-        this.currentWave = 0; // Initialize current wave to 0
-        this.currentGroup = 0; // Initialize current group to 0
     }
 
  
@@ -60,78 +54,25 @@ public class WaveInfo {
     public int getDefaultDelayBetweenGroups() {
         return defaultDelayBetweenGroups; // Return the default delay between groups
     }
-   
-    public int getCurrentWave() {
-        return currentWave; // Return the current wave number
-    }
-    public int getCurrentGroup() {
-        return currentGroup; // Return the current group number
-    }
-
-    public int getCurrentWaveNumber() {
-        return this.currentWave; // Return the current wave number  
-    }
-
-    public int getCurrentGroupNumber() {
-        return this.currentGroup; // Return the current group number
-    }
-    public int[] getCurrentEnemyDecomposition() {
-        return this.waveDecomposition.get(currentWave).get(currentGroup); // Return the current enemy decomposition
-    }
 
     public int getTotalNumberOfWaves() {
         return waveDecomposition.size(); // Return the total number of waves from user preferences
     }
 
-    public int getTotalNumberOfGroupsInCurrentWave() {
-        return waveDecomposition.get(currentWave).size(); // Return the total number of groups in the current wave
-    }
-    public int getTotalNumberOfEnemiesInCurrentWave() {
-        return this.waveDecomposition.get(currentWave).stream().flatMapToInt(Arrays::stream).sum(); // Return the total number of enemies in the current wave
-    }
-    
-    public int getTotalNumberOfEnemiesInCurrentGroup() {
-        return Arrays.stream(this.waveDecomposition.get(currentWave).get(currentGroup)).sum(); // Return the total number of groups in the current wave
+    public int getTotalNumberOfGroupsInWave(int waveIndex) {
+        return waveDecomposition.get(waveIndex).size(); // Return the total number of groups in the specified wave
     }
 
-
-    public boolean nextWave() {
-        // check if the current wave is done
-        // all groups in the current wave are done
-
-        if (currentGroup == waveDecomposition.get(currentWave).size() - 1) { // Check if the current group is the last one in the current wave
-            currentGroup = 0; // Reset current group to 0
-        } else {
-            return false; // Return false if the current group is not the last one in the current wave
-        }
-
-        if (currentWave < waveDecomposition.size() - 1) { // Check if there are more waves
-            currentWave++; // Move to the next wave
-            currentGroup = 0; // Reset current group to 0
-            return true; // Return true if there is a next wave
-        } else {
-            return false; // Return false if there are no more waves
-        }
+    public int[] getWaveGroupDecomposition(int waveIndex, int groupIndex) {
+        return waveDecomposition.get(waveIndex).get(groupIndex).clone(); // Return the decomposition of the specified wave and group clone it to avoid modification
     }
 
-    public boolean nextGroup() {
-        if (currentGroup < waveDecomposition.get(currentWave).size() - 1) { // Check if there are more groups in the current wave
-            currentGroup++; // Move to the next group
-            return true; // Return true if there is a next group
-        } else {
-            return false; // Return false if there are no more groups in the current wave
-        }
+    public int getTotalEnemyInGroup(int waveIndex, int groupIndex) {
+        return Arrays.stream(waveDecomposition.get(waveIndex).get(groupIndex)).sum(); // Return the total number of enemies in the specified group
     }
 
-
-
-
-    
-
-
-
-
-
-
-
+    public int getTotalEnemyInWave(int waveIndex) {
+        return IntStream.range(0, waveDecomposition.get(waveIndex).size())
+                .map(i -> getTotalEnemyInGroup(waveIndex, i)).sum(); // Return the total number of enemies in the specified wave
+    }
 }

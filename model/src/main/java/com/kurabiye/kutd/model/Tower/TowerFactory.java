@@ -1,6 +1,8 @@
 package com.kurabiye.kutd.model.Tower;
 
+
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.ArcherStrategy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.ArtilleryStrategy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.MageStrategy;
@@ -95,41 +97,50 @@ public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> 
         
        
         Tower tower = null;
+
+
         
         switch(type) {
             case ARCHER:
                 // Create archer tower with parameters from userPreferences
-                tower = new Tower(userPreferences.getTowerConstructionCost()[0], 
-                                       (int) userPreferences.getTowerSellReturn()[0] * userPreferences.getTowerConstructionCost()[0], 
+                tower = new Tower((int) userPreferences.getTowerSellReturn()[0] * userPreferences.getTowerConstructionCost()[0], 
                                         userPreferences.getTowerEffectiveRange()[0], 
-                                        userPreferences.getTowerRateOfFire()[0]);
+                                        userPreferences.getTowerRateOfFire()[0]
+                                        );
                 tower.setAttackStrategy(new ArcherStrategy());
+                tower.setProjectileType(ProjectileType.ARROW);
+                // Set other properties from userPreferences
+                break;
+
+            case MAGE:
+                // Create mage tower with parameters from userPreferences
+                tower = new Tower((int) userPreferences.getTowerSellReturn()[1] * userPreferences.getTowerConstructionCost()[2], 
+                                     userPreferences.getTowerEffectiveRange()[1], 
+                                     userPreferences.getTowerRateOfFire()[1]
+                                     );
+                tower.setAttackStrategy(new MageStrategy());
+                tower.setProjectileType(ProjectileType.MAGIC);
                 // Set other properties from userPreferences
                 break;
 
             case ARTILLERY:
                 // Create artillery tower with parameters from userPreferences
-                tower = new Tower(userPreferences.getTowerConstructionCost()[1], 
-                                          (int) userPreferences.getTowerSellReturn()[1] * userPreferences.getTowerConstructionCost()[1], 
-                                          userPreferences.getTowerEffectiveRange()[1], 
-                                          userPreferences.getTowerRateOfFire()[1]);
+                tower = new Tower((int) userPreferences.getTowerSellReturn()[2] * userPreferences.getTowerConstructionCost()[1], 
+                                          userPreferences.getTowerEffectiveRange()[2], 
+                                          userPreferences.getTowerRateOfFire()[2]
+                                          );
                 tower.setAttackStrategy(new ArtilleryStrategy());
+                tower.setProjectileType(ProjectileType.ARTILLERY);
                 // Set other properties from userPreferences
                 break;
                 
-            case MAGE:
-                // Create mage tower with parameters from userPreferences
-                tower = new Tower(userPreferences.getTowerConstructionCost()[2], 
-                                     (int) userPreferences.getTowerSellReturn()[2] * userPreferences.getTowerConstructionCost()[2], 
-                                     userPreferences.getTowerEffectiveRange()[2], 
-                                     userPreferences.getTowerRateOfFire()[2]);
-                tower.setAttackStrategy(new MageStrategy());
-                // Set other properties from userPreferences
-                break;
+            
             default:
                 throw new IllegalArgumentException("Invalid tower type: " + type);
                 
         }
+
+       
         
         return tower;
     }
