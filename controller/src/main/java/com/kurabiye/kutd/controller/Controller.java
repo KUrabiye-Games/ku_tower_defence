@@ -1,6 +1,10 @@
 package com.kurabiye.kutd.controller;
 
 
-public class Controller {
-
+public abstract class Controller {
+    public Controller() {
+        initialize();
+    }
+    
+    protected abstract void initialize();
 }
