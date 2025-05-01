@@ -1,82 +1,34 @@
 package com.kurabiye.kutd.controller;
 
-// import com.kurabiye.kutd.view.MainMenuView;
-// import com.kurabiye.kutd.model.GameManager;
+import com.kurabiye.kutd.model.Managers.GameManager;
+import com.kurabiye.kutd.model.Map.GameMap;
 
-// public class MainMenuController extends Controller{
+import javafx.stage.Stage;
 
-//     private MainMenuView mainMenuView;
-//     private GameManager gameManager;
+public class MainMenuController {
 
-//     public MainMenuController(MainMenuView mainMenuView) {
-//         this.mainMenuView = mainMenuView;
+
+    public MainMenuController() {
         
-//         initialize();
-//     }
+    }
 
-//     @Override
-//     protected void initialize() {
-//         mainMenuView.setPlayButtonAction(() -> onPlayButtonPressed());
-//         mainMenuView.setMapEditorButtonAction(() -> onMapEditorButtonPressed());
-//         mainMenuView.setSettingsButtonAction(() -> onSettingsButtonPressed());
-//         mainMenuView.setExitButtonAction(() -> onExitButtonPressed());
-//     }
+    // Called when the "Play Game" button is pressed
+    public GamePlayController onPlayButtonPressed() {
+       
+        GameMap defaultGameMap = GameMap.getDefaultMap(); 
+        GameManager gameManager = new GameManager(defaultGameMap);
+        GamePlayController gamePlayController = new GamePlayController(gameManager);
+        return gamePlayController;
+    }
 
-//     private void onPlayButtonPressed() {
-//         // Directly initialize GamePlayView
-//         GamePlayView gamePlayView = new GamePlayView();
-    
-//         // Let GamePlayController handle game initialization including map loading
-//         new GamePlayController(gamePlayView);
-    
-//         // Show the gameplay view
-//         gamePlayView.show();
-//     }
-    
+    // Called when the "Settings" button is clicked (can be implemented later)
+    public void openSettings() {
+        System.out.println("Opening settings...");
+    }
 
-//     private void onMapSelected(String mapName) {
-//         // Load the selected map
-//         Tile[][] selectedMap = mapPersistenceManager.loadMap(mapName);
-        
-//         if (selectedMap == null) {
-//             mainMenuView.showError("Failed to load the selected map.");
-//             return;
-//         }
-        
-//         // Initialize the Gameplay View
-//         GamePlayView gamePlayView = new GamePlayView();
-        
-//         // Pass the selected map to the GameManager and start the game
-//         gameManager.startGame(selectedMap);
-    
-//         // Create the Gameplay Controller to connect GameManager and GamePlayView
-//         new GamePlayController(gamePlayView, gameManager);
-        
-//         gamePlayView.show();
-//     }
-    
-
-//     private void onMapEditorButtonPressed() {
-//         // Initialize Map Editor independently
-//         MapEditorView mapEditorView = new MapEditorView();
-//         MapEditor mapEditor = new MapEditor();
-//         MapPersistenceManager mapPersistenceManager = new MapPersistenceManager();
-//         new MapEditorController(mapEditorView, mapEditor, mapPersistenceManager);
-//         mapEditorView.show();
-//     }
-
-//     private void onSettingsButtonPressed() {
-//         // Initialize Settings independently
-//         SettingsView settingsView = new SettingsView();
-//         SettingsManager settingsManager = new SettingsManager();
-//         new SettingsController(settingsView, settingsManager);
-//         settingsView.show();
-//     }
-
-//     private void onExitButtonPressed() {
-//         System.exit(0);
-//     }
-// }
-
-
-    
+    // Called when the "Quit" button is clicked
+    public void quitGame() {
+        System.out.println("Quitting the game...");
+        System.exit(0); // Exit the application
+    }
+}
