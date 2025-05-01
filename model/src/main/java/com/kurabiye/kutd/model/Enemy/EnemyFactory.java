@@ -83,17 +83,21 @@ public class EnemyFactory {
 
 
     /**
- * Transposes a 2D array using Java streams
+ * Transposes a 2D array 
  */
     private static float[][] transposeArray(float[][] original) {
     int rows = original.length;
     int cols = original[0].length;
     
-        return IntStream.range(0, cols)
-            .mapToObj(col -> IntStream.range(0, rows)
-                    .mapToDouble(row -> original[row][col])
-                    .toArray())
-            .toArray(float[][]::new);
+    float[][] transposed = new float[cols][rows];
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            transposed[j][i] = original[i][j];
+        }
+    }
+
+    return transposed;
     }
 
     // set the enemy path

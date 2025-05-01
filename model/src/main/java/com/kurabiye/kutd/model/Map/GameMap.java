@@ -280,6 +280,11 @@ public class GameMap implements Observable{
         
         ArrayList<Tile> neighbours = new ArrayList<>(); // List to store the neighbouring tiles
 
+        // Check if tile or its coordinate is null
+        if (tile == null || tile.getCoordinate() == null) {
+            return neighbours; // Return empty list if the tile or its coordinate is null
+        }
+
         int x = tile.getCoordinate().getTileX(); // Get the x coordinate of the tile
         int y = tile.getCoordinate().getTileY(); // Get the y coordinate of the tile
 
@@ -313,18 +318,19 @@ public class GameMap implements Observable{
         ArrayList<Point2D> pathPoints = new ArrayList<>(); // List to store the path points
 
         for (Tile tile : tilePath) {
-            pathPoints.add(tile.getCoordinate().getCenter()); // Add the tile coordinates to the path points
+            // Skip tiles with null coordinates or ERROR_TILE
+            if (tile != ERROR_TILE && tile.getCoordinate() != null) {
+                pathPoints.add(tile.getCoordinate().getCenter()); // Add the tile coordinates to the path points
+            }
         }
 
         pointPath = pathPoints; // Return the list of path points
     }
 
     public List<Point2D> getPointPath() {
-
-        // TODO:
-        // if(pointPath == null) {
-        //     buildPointPath(); // Build the point path if it is not already built
-        // }
+        if(pointPath == null) {
+            buildPointPath(); // Build the point path if it is not already built
+        }
         return pointPath; // Return the list of path points
     }
     public List<Tile> getTilePath() {
@@ -358,7 +364,9 @@ public class GameMap implements Observable{
         // Create the tiles and set their properties
         for (int i = 0; i < MAP_HEIGHT; i++) {
             for (int j = 0; j < MAP_WIDTH; j++) {
-                tiles[i][j] = new Tile(map[i][j]); // Create a new tile with code 0
+                Tile tile = new Tile(map[i][j]); // Create a new tile with code
+                tile.setCoordinate(new TilePoint2D(j, i)); // Set coordinates for the tile
+                tiles[i][j] = tile;
             }
         }
 
