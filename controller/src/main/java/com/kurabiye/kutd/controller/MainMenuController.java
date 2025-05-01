@@ -8,10 +8,10 @@ public class MainMenuController extends Controller{
     private MainMenuView mainMenuView;
     private GameManager gameManager;
 
-    public MainMenuController(MainMenuView mainMenuView, GameManager gameManager) {
+    public MainMenuController(MainMenuView mainMenuView) {
         this.mainMenuView = mainMenuView;
-        this.gameManager = gameManager;
-        // Controller's constructor already calls initialize()
+        
+        initialize();
     }
 
     @Override
@@ -23,10 +23,16 @@ public class MainMenuController extends Controller{
     }
 
     private void onPlayButtonPressed() {
-        MapSelectionView mapSelectionView = new MapSelectionView();
-        mapSelectionView.setOnMapSelected(this::onMapSelected);
-        mapSelectionView.show();
+        // Directly initialize GamePlayView
+        GamePlayView gamePlayView = new GamePlayView();
+    
+        // Let GamePlayController handle game initialization including map loading
+        new GamePlayController(gamePlayView);
+    
+        // Show the gameplay view
+        gamePlayView.show();
     }
+    
 
     private void onMapSelected(String mapName) {
         // Load the selected map
