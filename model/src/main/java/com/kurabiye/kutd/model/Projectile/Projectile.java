@@ -1,5 +1,7 @@
 package com.kurabiye.kutd.model.Projectile;
 
+import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
+
 import javafx.geometry.Point2D;
 
 public class Projectile  {
@@ -21,19 +23,71 @@ public class Projectile  {
     }
 
 
+    //private final static double EPSILON = 1; // Epsilon value for floating point comparison
+
+
     private ProjectileType projectileType; // Type of the projectile
 
-    private Point2D startCoordinate; // Starting coordinate of the projectile on the map
+    //private Point2D startCoordinate; // Starting coordinate of the projectile on the map
 
     private Point2D targetCoordinate; // Ending coordinate of the projectile on the map
 
-    private Point2D gravityFactor; // Gravity factor for the projectile's trajectory
+    private float gravityFactor; // Gravity factor for the projectile's trajectory
 
     private Point2D coordinate; // Coordinate of the projectile on the map
 
-    private int damage; // Damage dealt by the projectile
+    private Point2D speedVector;
 
-    private int speed; // Speed of the projectile
+    private float speed; // Speed of the projectile
+
+    public enum ProjectileState { // Enum for projectile states
+        MOVING, // Projectile is alive
+        STOPPED // Projectile is dead
+    }
+
+    private ProjectileState projectileState = ProjectileState.MOVING; // Projectile's alive status
+
+
+    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy) {
+        this.projectileType = projectileType;
+        //this.startCoordinate = startCoordinate;
+        this.targetCoordinate = targetCoordinate;
+        this.gravityFactor = moveStrategy.getGravityFactor(); // Get the gravity factor from the move strategy
+        this.speed = moveStrategy.getSpeed(); // Get the speed from the move strategy
+
+        this.speedVector = moveStrategy.getSpeedVector(startCoordinate, targetCoordinate, gravityFactor).multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
+   
+   
+    }
+
+
+    public ProjectileType getProjectileType() {
+        return projectileType;
+    }
+
+    public synchronized void move(double deltaTime) {
+        if (projectileState == ProjectileState.MOVING) {
+
+            speedVector.add(0, gravityFactor * deltaTime); // Update the speed vector with the gravity factor and delta time
+
+            // Update the projectile's coordinate based on the speed vector and delta time
+            coordinate = coordinate.add(speedVector.multiply(deltaTime)); // Update the coordinate of the projectile based on the speed vector and delta time
+
+            // Check if the projectile has reached its target coordinate
+            if (coordinate.distance(targetCoordinate) < speedVector.magnitude() * deltaTime) {
+                coordinate = targetCoordinate; // Set the coordinate to the target coordinate
+                projectileState = ProjectileState.STOPPED; // Stop the projectile if it has reached the target
+            }
+           
+        
+        }
+    }
+
+    
+
+
+
+
 
     
 

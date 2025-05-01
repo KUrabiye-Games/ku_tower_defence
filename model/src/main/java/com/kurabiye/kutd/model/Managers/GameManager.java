@@ -29,11 +29,14 @@ import javafx.geometry.Point2D;
 
 public class GameManager implements Runnable{
 
+    private static WaveManager waveManager; // Wave manager for handling enemy waves
+
     public enum GameState {
         INITIALIZING,
         RUNNING,
         PAUSED,
-        GAME_OVER
+        GAME_LOST,
+        GAME_WON,
     }
 
     private GameState gameState; // Current state of the game
@@ -68,6 +71,8 @@ public class GameManager implements Runnable{
         this.player = new Player(userPreferences); // Initialize the player object
 
         path = (ArrayList<Point2D>) gameMap.getPointPath(); // Get the path from the game map
+
+        this.waveManager = new WaveManager(this.userPreferences); // Initialize the wave manager
     }
 
 
@@ -79,7 +84,7 @@ public class GameManager implements Runnable{
     @Override
     public void run() {
         // Game loop
-        while (gameState != GameState.GAME_OVER) {
+        while (gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
             // Update game state
 
             // Calculate the delta time
@@ -88,7 +93,32 @@ public class GameManager implements Runnable{
 
             // Update game logic based on the delta time
 
-            // Update enemies
+            // Create new enemies
+
+            int enemyIndex = waveManager.getEnemy(deltaTime); // Get the index of the enemy to spawn
+
+            if (enemyIndex > -1) {
+                Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
+                enemies.add(enemy); // Add the enemy to the list of enemies
+            } else if (enemyIndex == -2) {
+                // No enemies left to spawn
+                gameState = GameState.GAME_WON; // Set game state to GAME_WON
+            }
+
+            // Update enemies position
+
+            for (Enemy enemy : enemies) {
+                enemy.move(deltaTime); // Update each enemy's position
+                if (enemy.hasArrived()) {
+                    enemies.remove(enemy); // Remove the enemy from the list if it has arrived
+                    player.loseHealth();
+                }
+            }
+
+
+            // Towers look for targets and attack
+
+            
 
 
 

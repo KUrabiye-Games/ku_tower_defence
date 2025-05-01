@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
+import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
 public class Tower {
@@ -36,12 +37,14 @@ public class Tower {
     }
 
     // and we will need to implement the attack method in the subclasses of the tower class
-    public void attack(List<Enemy> enemies){
+    public Projectile attack(List<Enemy> enemies){
         // Use the attack strategy to find the target enemy
-        List<Enemy> targetEnemies = attackStrategy.findTarget(enemies);
+        Enemy targetEnemy = attackStrategy.findTarget(enemies);
         // Implement the attack logic here
         // For example, iterate through the target enemies and apply damage
         // create a projectile and send it to the target enemy
+
+        new Projectile = 
     }
 
     public TilePoint2D getTileCoordinate() {
