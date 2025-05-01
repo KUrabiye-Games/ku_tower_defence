@@ -45,7 +45,7 @@ public class GameMap implements Observable{
     }
 
     public GameMap(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
-        if (tiles.length != MAP_WIDTH || tiles[0].length != MAP_HEIGHT) {
+        if (tiles.length != MAP_HEIGHT || tiles[0].length != MAP_WIDTH) {
             throw new IllegalArgumentException("Invalid tile array dimensions");
         }
         this.tiles = tiles; // Initialize the tiles array with the provided tiles
