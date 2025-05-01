@@ -183,6 +183,8 @@ public class GameMap implements Observable{
             }
 
         }
+        // TODO: Check if there are at least for buildable tiles
+
 
 
         // check if there is a single path from the starting tile to the ending tile
@@ -328,6 +330,60 @@ public class GameMap implements Observable{
         }
         return tilePath; // Return the list of path tiles
     }
+
+
+    /* Static map for the game
+     * 
+     * 
+     */
+    private static final int[][] map = {
+        { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
+        { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
+        { 4, 15, 7, 15, 7, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
+        { 8, 2, 8, 9, 10, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
+        { 5, 7, 19, 18, 5, 5, 5, 0, 1, 2, 21, 5, 5, 31, 5, 5},
+        { 5, 7, 5, 5, 20, 0, 13, 10, 15, 8, 13, 2, 5, 5, 5, 5 },
+        { 5, 4, 5, 0, 13, 10, 0, 1, 2, 5, 30, 6, 5, 5, 5, 5 },
+        { 23, 7, 15, 7, 5, 5, 4, 18, 8, 13, 13, 10, 16, 5, 18, 5 },
+        { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
+    };
+ 
+
+    public static GameMap getPrebuiltMap() {
+        Tile[][] tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
+
+        // Create the tiles and set their properties
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                tiles[i][j] = new Tile(map[i][j]); // Create a new tile with code 0
+            }
+        }
+
+        // Set the starting and ending tiles
+        TilePoint2D startTileCoordinates = new TilePoint2D(6, 8);
+        TilePoint2D endTileCoordinates = new TilePoint2D(12,0);
+
+        return new GameMap(tiles, startTileCoordinates, endTileCoordinates); // Return the static map
+    }
+
+
+    /* Convert the Game Map to an 2D array of integers
+     * using the tile codes
+     * 
+     */
+
+    public static int[][] toIntArray(GameMap gameMap) {
+        int[][] intArray = new int[MAP_HEIGHT][MAP_WIDTH]; // Initialize the integer array
+
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                intArray[i][j] = gameMap.getTile(j, i).getTileCode(); // Get the tile code and set it in the array
+            }
+        }
+
+        return intArray; // Return the integer array
+    }
+
 
     /*
      * 
