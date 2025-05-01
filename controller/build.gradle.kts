@@ -36,7 +36,6 @@ dependencies {
     
     // Project dependencies
     implementation(project(":model"))
-    implementation(project(":view"))
 }
 
 // Configure source sets - this helps with IDE recognition

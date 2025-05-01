@@ -9,7 +9,7 @@ public class MapTest {
     @Test
     public void testMapInitialization() {
         GameMap map = new GameMap(); // Create a map of size 10x10
-        assertNull(map, "Map should be initialized");
+        assertNotNull(map, "Map should be initialized");
         
     }
 

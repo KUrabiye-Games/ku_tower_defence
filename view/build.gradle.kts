@@ -30,6 +30,9 @@ dependencies {
     implementation(libs.javafx.fxml)
     implementation(libs.javafx.graphics)
     implementation(libs.javafx.media)
+
+    implementation(project(":model"))
+    implementation(project(":controller"))
 }
 
 // Configure source sets - this helps with IDE recognition

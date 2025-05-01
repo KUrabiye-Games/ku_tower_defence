@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 
 public class MainMenuView {
 
+
     public void start(Stage stage) {
         BorderPane root = new BorderPane();
 
