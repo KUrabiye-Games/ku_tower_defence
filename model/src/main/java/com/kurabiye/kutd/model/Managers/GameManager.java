@@ -63,8 +63,6 @@ public class GameManager implements Runnable{
     private ArrayList<Tower> towers; // List of towers in the game
     private ArrayList<Enemy> enemies; // List of enemies in the game
     private ArrayList<Projectile> projectiles; // List of projectiles in the game
-    
-
 
     public GameManager(GameMap gameMap) {
         this.gameState = GameState.INITIALIZING; // Initialize game state to RUNNING

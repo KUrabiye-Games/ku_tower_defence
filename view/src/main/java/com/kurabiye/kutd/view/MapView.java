@@ -25,19 +25,6 @@ public class MapView {
     private static final int GRASS_TILE_ID = 5;
     private static final int INTERACTIVE_TILE_ID = 15;
 
-
-    private final int[][] map = {
-        { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
-        { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
-        { 4, 15, 7, 15, 7, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
-        { 8, 2, 8, 9, 10, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
-        { 5, 7, 19, 18, 5, 5, 5, 0, 1, 2, 21, 5, 5, 31, 5, 5},
-        { 5, 7, 5, 5, 20, 0, 13, 10, 15, 8, 13, 2, 5, 5, 5, 5 },
-        { 5, 4, 5, 0, 13, 10, 0, 1, 2, 5, 30, 6, 5, 5, 5, 5 },
-        { 23, 7, 15, 7, 5, 5, 4, 18, 8, 13, 13, 10, 16, 5, 18, 5 },
-        { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
-    };
-
     private final Image[] tileImages = new Image[TILE_COUNT];
     private Image[] buttonImages = new Image[3]; // For the three button icons
     private Image blueButtonImage;
@@ -48,14 +35,17 @@ public class MapView {
     private int lastClickedRow = -1;
     private int lastClickedCol = -1;
     private GamePlayController controller;
+
+    private int[][] map;
     
     public void start(Stage stage, GamePlayController controller) {
         loadTiles();
         loadButtonIcons();
 
-        
-        
-    
+        this.controller = controller;
+
+        map = controller.getGameManager()
+
         canvas = new Canvas(COLS * TILE_SIZE, ROWS * TILE_SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawMap(gc);
