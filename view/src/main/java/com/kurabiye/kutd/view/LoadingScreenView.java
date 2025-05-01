@@ -200,8 +200,9 @@ public class LoadingScreenView {
 
         flash.setOnFinished(event -> {
             // After flashing, go to MapView
-            MapView mapView = new MapView();
-            mapView.start(stage);
+            MainMenuView mainMenuView = new MainMenuView();
+            mainMenuView.start(stage);
+            ((StackPane) ((BorderPane) scene.getRoot()).getCenter()).getChildren().remove(flashOverlay);
         });
 
         flash.play();

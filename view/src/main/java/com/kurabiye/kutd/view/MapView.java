@@ -4,11 +4,14 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
 public class MapView {
@@ -35,6 +38,8 @@ public class MapView {
 
     private final Image[] tileImages = new Image[TILE_COUNT];
     private Image[] buttonImages = new Image[3]; // For the three button icons
+    private Image blueButtonImage;
+    private Image iconsImage;
     private Pane root;
     private Canvas canvas;
     private HBox buttonContainer;
@@ -50,6 +55,8 @@ public class MapView {
         drawMap(gc);
     
         root = new Pane(canvas);  // Changed from StackPane to Pane
+
+        addUIElements();
     
         Scene scene = new Scene(root);
         stage.setTitle("Game Map");
@@ -82,6 +89,9 @@ public class MapView {
 
             buttonImages[i] = new Image(getClass().getResourceAsStream(path));
         }
+
+        blueButtonImage = new Image(getClass().getResourceAsStream("/assets/ui/blue-button.png"));
+        iconsImage = new Image(getClass().getResourceAsStream("/assets/ui/status-icons.png"));
     }
 
     private void drawMap(GraphicsContext gc) {
@@ -183,5 +193,26 @@ public class MapView {
             lastClickedRow = -1;
             lastClickedCol = -1;
         }
+    }
+
+    private void addUIElements() {
+        VBox buttonColumn = new VBox(10); // Vertical layout with spacing
+        buttonColumn.setLayoutX(64); // Next to icons
+        buttonColumn.setLayoutY(10);
+
+        for (int i = 0; i < 3; i++) {
+            ImageView blueButton = new ImageView(blueButtonImage);
+            blueButton.setFitWidth(120);
+            blueButton.setFitHeight(42);
+            buttonColumn.getChildren().add(blueButton);
+        }
+
+        ImageView icons = new ImageView(iconsImage);
+        icons.setFitWidth(48);
+        icons.setFitHeight(48 * 3); // Match button height
+        icons.setLayoutX(10);
+        icons.setLayoutY(10);
+
+        root.getChildren().addAll(icons, buttonColumn);
     }
 }
