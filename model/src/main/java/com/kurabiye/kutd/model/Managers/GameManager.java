@@ -1,9 +1,7 @@
 package com.kurabiye.kutd.model.Managers;
 
-import java.sql.Time;
 import java.util.ArrayList;
 
-import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.EnemyFactory;
 import com.kurabiye.kutd.model.Map.GameMap;
@@ -81,10 +79,22 @@ public class GameManager implements Runnable{
     @Override
     public void run() {
         // Game loop
-        while (true) {
+        while (gameState != GameState.GAME_OVER) {
+            // Update game state
+
+            // Calculate the delta time
+            gameTimer.update(); // Update the game timer
+            long deltaTime = gameTimer.getDeltaTime(); // Get the delta time from the game timer
+
+            // Update game logic based on the delta time
+
+            // Update enemies
 
 
-            // Check if the game is 
+
+
+
+             
            
             // Sleep for a short duration to control the frame rate
             try {

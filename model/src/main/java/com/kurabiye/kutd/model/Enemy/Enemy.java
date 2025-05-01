@@ -2,9 +2,12 @@ package com.kurabiye.kutd.model.Enemy;
 
 import javafx.geometry.Point2D;
 
+
 import java.util.ArrayList;
 
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
+
+import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 
 
 /*
@@ -21,21 +24,43 @@ import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
 public class Enemy {
 
     public enum EnemyType { // Enum for different enemy types
-        GOBLIN, // Goblin enemy type
-        KNIGHT // Knight enemy type
+        GOBLIN(0), // Goblin enemy type
+        KNIGHT(1); // Knight enemy type
+        
+        private final int value;
+        
+        EnemyType(int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
     }
 
-    protected EnemyType enemyType; // Type of the enemy
+    private EnemyType enemyType; // Type of the enemy
 
-    protected Point2D coordinate = new Point2D(0,0); // Coordinate of the enemy on the map
+    private Point2D coordinate = new Point2D(0,0); // Coordinate of the enemy on the map
 
-    protected int killReward; // Default health for enemies
+    private int killReward; // Default health for enemies
 
-    protected int health; // Enemy's health
+    private float health; // Enemy's health
 
-    protected int speed; // Enemy's speed
+    private int speed; // Enemy's speed
+
+    private float[] damageDealtOfProjectiles;
     
-    protected boolean isAlive; // Enemy's alive status
+    public enum EnemyState { // Enum for enemy states
+        ALIVE, // Enemy is alive
+        DEAD, // Enemy is dead
+        ARRIVED // Enemy has arrived at the destination
+    }
+
+    private EnemyState enemyState = EnemyState.ALIVE; // Enemy's alive status
+
+    //  Keep track of where the enemy is on the path
+    private int pathPointIndex = 0; // Index of the current path point
+
 
 
     // For the moment it will be only the center of the tiles
@@ -49,43 +74,86 @@ public class Enemy {
      * 
      */
     
-     public void setMovePath(ArrayList<Point2D> path, IMoveStrategy moveStrategy) {
+     public void setMovePathWithStrategy(ArrayList<Point2D> path, IMoveStrategy moveStrategy) {
         
          this.movePath = moveStrategy.createMovePath(path); // Create the move path using the strategy
      }
 
-    public Enemy(EnemyType enemyType, int health, int speed, int killReward) {
+    public Enemy(EnemyType enemyType, int health, int speed, int killReward, float[] damageDealtOfProjectiles) {
         this.enemyType = enemyType; // Set the type of the enemy
-        this.health = health; // Set the health of the enemy
+        this.health = (float) health; // Set the health of the enemy
         this.speed = speed; // Set the speed of the enemy
         this.killReward = killReward; // Set the kill reward for the enemy
-        this.isAlive = true; // Set alive status to true by default
+        this.damageDealtOfProjectiles = damageDealtOfProjectiles; // Set the damage dealt by projectiles
     }
 
-    public synchronized void damage(int damage) {
-        this.health -= damage; // Reduce health by damage amount
-        if (this.health <= 0) {
-            this.isAlive = false; // Set alive status to false if health is 0 or less
+    public synchronized void getDamage(ProjectileType projectileType) {
+
+        float damage = damageDealtOfProjectiles[projectileType.getValue()]; // Get the damage dealt by the projectile
+        health -= damage; // Reduce the health of the enemy by the damage dealt
+
+        if(health <= 0) {
+            enemyState = EnemyState.DEAD; // Set the enemy
         }
     }
+
     public int getKillReward() {
-        return killReward; // Get the kill reward for the enemy
+        if(enemyState == EnemyState.DEAD) {
+            return killReward; // If the enemy is dead
+        } else {
+            return 0; // If the enemy is alive
+        }
     }
 
-    public synchronized void move(Point2D target){
+    public synchronized void move(long deltaTime){
+
+        
+        if(enemyState == EnemyState.DEAD || enemyState == EnemyState.ARRIVED) {
+            return; // If the enemy is not alive, do not move
+        }
+
+        Point2D nextPoint = movePath.get(pathPointIndex); // Get the next point on the path
+
+        if(this.coordinate.distance(nextPoint) < speed * deltaTime) {
+            pathPointIndex++; // Increment the path point index
+
+            // Check if pathPointIndex is within the range of movePath
+            
+            if (pathPointIndex >= movePath.size()) {
+            // Enemy has reached the end of the path
+            enemyState = EnemyState.ARRIVED;
+            return;
+        }
+            nextPoint = movePath.get(pathPointIndex); // Get the next point on the path
+        }
+
+        Point2D distanceVector = nextPoint.subtract(coordinate); // Calculate the distance vector to the next point
+        // Normalize the distance vector
+        double distance = distanceVector.magnitude(); // Calculate the magnitude of the distance vector
+        if(distance > 0) {
+            distanceVector = distanceVector.multiply(speed * deltaTime / distance); // Scale the distance vector by speed and delta time
+        }
+        coordinate = coordinate.add(distanceVector); // Update the coordinate of the enemy
+
+
 
 
     }
 
 
     public synchronized boolean isAlive() {
-        return isAlive; // Check if the enemy is alive
+        return (enemyState == EnemyState.ALIVE); // Check if the enemy is alive
     }
 
     public synchronized boolean isDead() {
-        return !isAlive; // Check if the enemy is dead
+        return (enemyState == EnemyState.DEAD); // Check if the enemy is dead
     }
-    public synchronized int getHealth() {
+
+    public synchronized boolean hasArrived() {
+        return (enemyState == EnemyState.ARRIVED); // Check if the enemy has arrived at the destination
+    }
+
+    public synchronized float getHealth() {
         return health; // Get the health of the enemy
     }
     public int getSpeed() {
@@ -105,6 +173,12 @@ public class Enemy {
     public synchronized void locate(Point2D newCoordinate) {
         this.coordinate = newCoordinate; // Set the coordinate of the enemy to the new point
     }
+
+    public EnemyType getEnemyType() {
+        return enemyType; // Get the type of the enemy
+    }
+
+
 
     
 

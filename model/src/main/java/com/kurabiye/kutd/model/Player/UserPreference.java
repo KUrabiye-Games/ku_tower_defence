@@ -72,10 +72,10 @@ public class UserPreference implements Serializable {
         startingHealth = 100;
         enemyHealth = new int[]{50, 75}; // Health for each enemy type
         damageDealt = new float[][]{
-            //Enemy1 Enemy2
-            {10.0f, 8.0f}, // Damage for tower type 1
-            {7.0f, 12.0f}, // Damage for tower type 2
-            {8.0f, 7.0f}  // Damage for tower type 3
+            //Enemy0 Enemy1
+            {10.0f, 8.0f}, // Damage for artillery type 0
+            {7.0f, 12.0f}, // Damage for artillery type 1
+            {8.0f, 7.0f}  // Damage for artillery type 2
         };
         towerConstructionCost = new int[]{50, 75, 100}; // Cost for each tower type
         towerEffectiveRange = new float[]{3.0f, 4.0f, 5.0f}; // Range for each tower type
@@ -170,7 +170,7 @@ public class UserPreference implements Serializable {
     }
     
     public int[] getGoldPerEnemy() {
-        return goldPerEnemy.clone(); // Return a copy to maintain immutability
+        return goldPerEnemy; 
     }
     
     public int getStartingHealth() {
@@ -178,7 +178,7 @@ public class UserPreference implements Serializable {
     }
     
     public int[] getEnemyHealth() {
-        return enemyHealth.clone(); // Return a copy to maintain immutability
+        return enemyHealth; 
     }
     
     public float[][] getDamageDealt() {

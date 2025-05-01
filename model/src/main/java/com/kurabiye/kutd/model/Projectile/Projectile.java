@@ -5,9 +5,19 @@ import javafx.geometry.Point2D;
 public class Projectile  {
 
     public enum ProjectileType { // Enum for different projectile types
-        ARROW, // Arrow projectile type
-        MAGIC, // Magic projectile type
-        ARTILLERY // Artillery projectile type
+        ARROW(0), // Arrow projectile type
+        MAGIC(1), // Magic projectile type
+        ARTILLERY(2); // Artillery projectile type
+
+        private final int value;
+
+        ProjectileType(int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
     }
 
 
