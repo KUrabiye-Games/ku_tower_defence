@@ -2,15 +2,18 @@ package com.kurabiye.kutd.model.Managers;
 
 import java.util.ArrayList;
 
+import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.EnemyFactory;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Timer.GameTimer;
 import com.kurabiye.kutd.model.Tower.Tower;
 import com.kurabiye.kutd.model.Tower.TowerFactory;
+import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 
 import javafx.geometry.Point2D;
 
@@ -29,7 +32,7 @@ import javafx.geometry.Point2D;
 
 public class GameManager implements Runnable{
 
-    private static WaveManager waveManager; // Wave manager for handling enemy waves
+    private WaveManager waveManager; // Wave manager for handling enemy waves
 
     public enum GameState {
         INITIALIZING,
@@ -59,6 +62,7 @@ public class GameManager implements Runnable{
 
     private ArrayList<Tower> towers; // List of towers in the game
     private ArrayList<Enemy> enemies; // List of enemies in the game
+    private ArrayList<Projectile> projectiles; // List of projectiles in the game
     
 
 
@@ -73,6 +77,11 @@ public class GameManager implements Runnable{
         path = (ArrayList<Point2D>) gameMap.getPointPath(); // Get the path from the game map
 
         this.waveManager = new WaveManager(this.userPreferences); // Initialize the wave manager
+        this.towerFactory = TowerFactory.getInstance(); // Initialize the tower factory
+        this.enemyFactory = EnemyFactory.getInstance(); // Initialize the enemy factory
+        
+        this.towers = new ArrayList<>(); // Initialize the list of towers
+        this.enemies = new ArrayList<>(); // Initialize the list of enemies
     }
 
 
@@ -116,9 +125,39 @@ public class GameManager implements Runnable{
             }
 
 
-            // Towers look for targets and attack
+            // Towers look for targets and  create projectiles
 
-            
+
+            for (Tower tower : towers) {
+                // Check if the tower can attack     
+                    // Get the projectile from the tower
+                    Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
+                    if (projectile != null) {
+                        projectiles.add(projectile); // Add the projectile to the list of projectiles
+                    }
+                
+            }
+
+            // Update projectiles position
+
+            for (Projectile projectile : projectiles) {
+                projectile.move(deltaTime); // Update each projectile's position
+               
+            }
+
+
+            // Check for collisions between projectiles and enemies
+
+            for (Projectile projectile : projectiles) {
+                for (Enemy enemy : enemies) {
+                    if (projectile.getCoordinate().distance(enemy.getCoordinate()) < projectile.getProjectileAreaDamage()) { // Check for collision
+                        enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
+                        projectiles.remove(projectile); // Stop the projectile
+                        break; // Exit the loop after collision
+                    }
+                }
+            }
+
 
 
 
@@ -147,7 +186,7 @@ public class GameManager implements Runnable{
         // Resume game logic
     }
     public void endGame() {
-        gameState = GameState.GAME_OVER;
+        gameState = GameState.GAME_LOST;
         // Handle game over logic
     }
 
@@ -192,28 +231,31 @@ public class GameManager implements Runnable{
         player.buyTower(userPreferences.getTowerConstructionCost()[towerType]); // Deduct cost from player's gold
         // Create the tower using the TowerFactory
 
-        switch (towerType) {
-            case 0:
-                // Create an archer tower
-                break;
-            case 1:
-                
-                break;
-            case 2:
-                // Create a mage tower
-                break;
-        
-            default:
-                break;
-        }
-
-
+        Tower tower = towerFactory.create(TowerType.values()[towerType]); // Create the tower using the factory
+        // Set the tower's coordinates
+        tower.setTileCoordinate(new TilePoint2D(xCoordinate, yCoordinate));
+        // Add the tower to the list of towers
+        towers.add(tower);
 
         return true;
     }
     public boolean sellTower(int xCoordinate, int yCoordinate, int towerType) {
         // Logic to sell a tower
-        return true; // Return true if successful
+        // Check if the tower exists at the given coordinates
+
+        // loof for a tower in the list of towers
+
+        for (Tower tower : towers) {
+            if (tower.getTileCoordinate().getTileX() == xCoordinate && tower.getTileCoordinate().getTileY() == yCoordinate) {
+                // Tower found, sell it
+                player.sellTower(tower.getSellReturn()); // Add sell return to player's gold
+                towers.remove(tower); // Remove the tower from the list
+                return true; // Tower sold successfully
+            }
+        }
+
+        return false; // Tower not found at the given coordinates
+
     }
 
 

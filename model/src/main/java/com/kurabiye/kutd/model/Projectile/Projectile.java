@@ -38,6 +38,8 @@ public class Projectile  {
 
     private Point2D speedVector;
 
+    private float projectileAreaDamage = 1f; // Area damage of the projectile
+
     private float speed; // Speed of the projectile
 
     public enum ProjectileState { // Enum for projectile states
@@ -48,13 +50,14 @@ public class Projectile  {
     private ProjectileState projectileState = ProjectileState.MOVING; // Projectile's alive status
 
 
-    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy) {
+    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage) {
         this.projectileType = projectileType;
         //this.startCoordinate = startCoordinate;
         this.targetCoordinate = targetCoordinate;
         this.gravityFactor = moveStrategy.getGravityFactor(); // Get the gravity factor from the move strategy
         this.speed = moveStrategy.getSpeed(); // Get the speed from the move strategy
-
+        
+        this.projectileAreaDamage = projectileAreaDamage; // Set the area damage of the projectile
         this.speedVector = moveStrategy.getSpeedVector(startCoordinate, targetCoordinate, gravityFactor).multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
    
    
@@ -63,6 +66,10 @@ public class Projectile  {
 
     public ProjectileType getProjectileType() {
         return projectileType;
+    }
+
+    public float getProjectileAreaDamage() {
+        return projectileAreaDamage; // Get the area damage of the projectile
     }
 
     public synchronized void move(double deltaTime) {
@@ -81,6 +88,10 @@ public class Projectile  {
            
         
         }
+    }
+
+    public Point2D getCoordinate() {
+        return coordinate; // Get the current coordinate of the projectile
     }
 
     

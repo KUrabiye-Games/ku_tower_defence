@@ -1,31 +1,59 @@
 package com.kurabiye.kutd.model.Projectile;
 
 
+import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
+import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.StraightProjectileMoveStrategy;
 
 import javafx.geometry.Point2D;
 
 public class ProjectileFactory {
 
-    IProjectileMoveStrategy moveStrategy; // Move strategy for the projectiles that the factory will create
+    private static ProjectileFactory instance; // Singleton instance
 
-    public ProjectileFactory(IProjectileMoveStrategy moveStrategy) {
-        this.moveStrategy = moveStrategy; // Initialize the factory with a specific move strategy
+    private float artilleryRange;
+    
+    // Private constructor to prevent instantiation from outside
+    private ProjectileFactory() {
+        // Private constructor implementation
+        artilleryRange = UserPreference.getInstance().getArtilleryRange(); // Get the artillery range from user preferences
+    }
+    
+    // Method to get the singleton instance of the ProjectileFactory
+    public static synchronized ProjectileFactory getInstance() {
+        if (instance == null) {
+            instance = new ProjectileFactory();
+        }
+        return instance;
     }
 
-
-
     // Create a projectile of a specific type with default values
-
     public Projectile createProjectile(Projectile.ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate) {
         // Create a new projectile with the specified type and default values from user preferences
+        float projectileAreaDamage = 1f; // Default area damage for the projectile
+        IProjectileMoveStrategy moveStrategy = null; // Initialize the move strategy
+        switch (projectileType) {
+            case ARROW:
+                moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for arrow projectiles
+                break;
+            case MAGIC:
+                moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for magic projectiles
+                break;
+            case ARTILLERY:
+                moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for artillery projectiles
+                projectileAreaDamage = artilleryRange; // Set the area damage for artillery projectiles
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid projectile type: " + projectileType); // Handle invalid projectile types
+        }
+
         return new Projectile(projectileType,
                 startCoordinate, // Starting coordinate of the projectile
                 targetCoordinate, // Target coordinate of the projectile       
-                moveStrategy); // Set the move strategy for the projectile
+                moveStrategy,
+                projectileAreaDamage
+                ); // Set the move strategy for the projectile
+
+        
     }
-
-
-
-
 }
