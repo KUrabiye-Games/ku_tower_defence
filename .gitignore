@@ -14,5 +14,7 @@ build
 .classpath
 .settings/
 
+tasks.txt
+
 
 .DS_Store
