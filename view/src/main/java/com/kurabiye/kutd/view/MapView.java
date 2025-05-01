@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import com.kurabiye.kutd.controller.GamePlayController;
+import com.kurabiye.kutd.model.Map.GameMap;
 
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
@@ -44,7 +45,7 @@ public class MapView {
 
         this.controller = controller;
 
-        map = controller.getGameManager()
+        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
 
         canvas = new Canvas(COLS * TILE_SIZE, ROWS * TILE_SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
