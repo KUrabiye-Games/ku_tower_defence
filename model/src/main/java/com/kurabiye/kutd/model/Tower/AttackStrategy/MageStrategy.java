@@ -17,13 +17,18 @@ import com.kurabiye.kutd.model.Enemy.Enemy;
 public class MageStrategy implements IAttackStrategy {
     
 
-    /* * findTarget method is responsible for finding the target enemy to attack.
+    /**
+     * findTarget method is responsible for finding the target enemy to attack.
+     * The specific implementation of the attack strategy will be provided in this method.
      * 
+     * @param enemy List of enemies to attack.
+     * @return List of enemies to be attacked by the Artillery tower.
      */
     @Override
-    public List<Enemy> findTarget(List<Enemy> enemy) {
-        return enemy;
-       
+    public Enemy findTarget(List<Enemy> enemy) {
+        return enemy.get(0); // This is a placeholder implementation. Replace with actual logic.
+        // This method returns the list of enemies to be attacked by the Artillery tower
+        // The specific implementation of the attack strategy will be provided in this method
     }
 
 }

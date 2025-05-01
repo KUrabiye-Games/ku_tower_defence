@@ -77,6 +77,10 @@ public class EnemyFactory {
         return my_enemy;
     }
 
+    public Enemy createEnemy(int enemyType) {
+        return createEnemy(EnemyType.values()[enemyType]);
+    }
+
 
     /**
  * Transposes a 2D array using Java streams
