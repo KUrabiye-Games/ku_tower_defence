@@ -1,11 +1,14 @@
 package com.kurabiye.kutd.controller;
 
 import com.kurabiye.kutd.model.Managers.GameManager;
-import com.kurabiye.kutd.model.Map.GameMap;
 
 public class GamePlayController {
 
     private final GameManager gameManager;
+
+    public GameManager getGameManager() {
+        return gameManager;
+    }
 
     public GamePlayController(GameManager gameManager) {
         this.gameManager = gameManager;
