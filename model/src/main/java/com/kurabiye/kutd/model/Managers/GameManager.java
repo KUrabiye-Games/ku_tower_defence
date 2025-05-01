@@ -78,7 +78,9 @@ public class GameManager implements Runnable{
 
         this.waveManager = new WaveManager(this.userPreferences); // Initialize the wave manager
         this.towerFactory = TowerFactory.getInstance(); // Initialize the tower factory
+
         this.enemyFactory = EnemyFactory.getInstance(); // Initialize the enemy factory
+        this.enemyFactory.setEnemyPath(path); // Set the enemy path in the factory
         
         this.towers = new ArrayList<>(); // Initialize the list of towers
         this.enemies = new ArrayList<>(); // Initialize the list of enemies

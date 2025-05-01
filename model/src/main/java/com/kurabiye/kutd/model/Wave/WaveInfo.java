@@ -28,7 +28,7 @@ public class WaveInfo {
     private int[] enemyComposition; // Composition of types of enemies for a given group or wave
      */
 
-    private UserPreference userPreferences; // Singleton instance of UserPreference
+    //private UserPreference userPreferences; // Singleton instance of UserPreference
 
      private ArrayList<ArrayList<int[]>> waveDecomposition; // Number of groups per wave // Composition of types of enemies for a given group or wave
     
@@ -38,7 +38,7 @@ public class WaveInfo {
 
 
     public WaveInfo(UserPreference userPreferences) {
-        this.userPreferences = userPreferences; // Get the singleton instance of UserPreference
+        //this.userPreferences = userPreferences; // Get the singleton instance of UserPreference
 
         this.waveDecomposition = userPreferences.getWaveList(); // Get the wave decomposition from user preferences
         

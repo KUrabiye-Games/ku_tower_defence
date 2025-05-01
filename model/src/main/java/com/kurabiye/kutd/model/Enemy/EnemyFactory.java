@@ -95,6 +95,11 @@ public class EnemyFactory {
                     .toArray())
             .toArray(float[][]::new);
     }
+
+    // set the enemy path
+    public void setEnemyPath(ArrayList<Point2D> enemyPath) {
+        this.enemyPath = enemyPath; // Set the path for enemies to follow
+    }
     
     
 }

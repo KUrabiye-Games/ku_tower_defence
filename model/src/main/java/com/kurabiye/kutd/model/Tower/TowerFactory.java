@@ -1,6 +1,6 @@
 package com.kurabiye.kutd.model.Tower;
 
-import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
+
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.ArcherStrategy;
