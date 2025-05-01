@@ -15,7 +15,7 @@ public class MainMenuController {
     // Called when the "Play Game" button is pressed
     public GamePlayController onPlayButtonPressed() {
        
-        GameMap defaultGameMap = GameMap.getDefaultMap(); 
+        GameMap defaultGameMap = GameMap.getPrebuiltMap();
         GameManager gameManager = new GameManager(defaultGameMap);
         GamePlayController gamePlayController = new GamePlayController(gameManager);
         return gamePlayController;

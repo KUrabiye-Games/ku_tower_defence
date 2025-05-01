@@ -45,7 +45,7 @@ public class GameMap implements Observable{
     }
 
     public GameMap(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
-        if (tiles.length != MAP_WIDTH || tiles[0].length != MAP_HEIGHT) {
+        if (tiles.length != MAP_HEIGHT || tiles[0].length != MAP_WIDTH) {
             throw new IllegalArgumentException("Invalid tile array dimensions");
         }
         this.tiles = tiles; // Initialize the tiles array with the provided tiles
@@ -320,9 +320,11 @@ public class GameMap implements Observable{
     }
 
     public List<Point2D> getPointPath() {
-        if(pointPath == null) {
-            buildPointPath(); // Build the point path if it is not already built
-        }
+
+        // TODO:
+        // if(pointPath == null) {
+        //     buildPointPath(); // Build the point path if it is not already built
+        // }
         return pointPath; // Return the list of path points
     }
     public List<Tile> getTilePath() {

@@ -1,5 +1,8 @@
 package com.kurabiye.kutd.view;
 
+import com.kurabiye.kutd.controller.GamePlayController;
+import com.kurabiye.kutd.controller.MainMenuController;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -17,6 +20,7 @@ import javafx.stage.Stage;
 
 public class MainMenuView {
 
+    private MainMenuController controller = new MainMenuController();
 
     public void start(Stage stage) {
         BorderPane root = new BorderPane();
@@ -65,10 +69,10 @@ public class MainMenuView {
         playButton.setOnAction(e -> {
             // TODO: Start the game
 
+            GamePlayController gamePlayController = controller.onPlayButtonPressed();
             MapView mapView = new MapView();
-            mapView.start(stage);
+            mapView.start(stage, gamePlayController);
 
-            System.out.println("Play button clicked");
         });
 
         mapEditorButton.setOnAction(e -> {

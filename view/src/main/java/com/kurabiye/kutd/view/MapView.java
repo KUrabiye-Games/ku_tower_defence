@@ -12,6 +12,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import com.kurabiye.kutd.controller.GamePlayController;
+
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
 public class MapView {
@@ -45,10 +47,14 @@ public class MapView {
     private HBox buttonContainer;
     private int lastClickedRow = -1;
     private int lastClickedCol = -1;
-
-    public void start(Stage stage) {
+    private GamePlayController controller;
+    
+    public void start(Stage stage, GamePlayController controller) {
         loadTiles();
         loadButtonIcons();
+
+        
+        
     
         canvas = new Canvas(COLS * TILE_SIZE, ROWS * TILE_SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
