@@ -178,6 +178,15 @@ public class GameManager implements Runnable{
 
 
 
+
+    public GameMap getGameMap() {
+        return gameMap; // Get the game map
+    }
+
+
+
+    // Conroller methods
+
     // Controller methods
     public void pauseGame() {
         gameState = GameState.PAUSED;
@@ -261,6 +270,7 @@ public class GameManager implements Runnable{
     }
 
 
+ 
     public void startGame() {
 
         // Create a new thread using this instance (which implements Runnable)
