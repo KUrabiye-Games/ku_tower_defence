@@ -1,6 +1,8 @@
 package com.kurabiye.kutd.controller;
 
+import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameManager;
+import com.kurabiye.kutd.model.Map.GameMap;
 
 public class GamePlayController {
 
@@ -10,9 +12,17 @@ public class GamePlayController {
         return gameManager;
     }
 
-    public GamePlayController(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public GamePlayController() {
+
+        GameMap defaultGameMap = GameMap.getPrebuiltMap();
+        gameManager = new GameManager(defaultGameMap);
     }
+
+    public void setGameUpdateListener(IGameUpdateListener listener) {
+
+        this.gameManager.setGameUpdateListener(listener);
+    }
+
     public void startGame() {
         gameManager.startGame(); // Starts the game thread and logic loop
     }

@@ -2,7 +2,7 @@ package com.kurabiye.kutd.view;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.geometry.Point2D;
+import com.kurabiye.kutd.model.Coordinates.*;
 import java.util.ArrayList;
 
 import com.kurabiye.kutd.model.Enemy.Enemy;

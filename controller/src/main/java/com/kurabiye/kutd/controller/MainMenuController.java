@@ -1,5 +1,6 @@
 package com.kurabiye.kutd.controller;
 
+import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameManager;
 import com.kurabiye.kutd.model.Map.GameMap;
 
@@ -15,11 +16,10 @@ public class MainMenuController {
     // Called when the "Play Game" button is pressed
     public GamePlayController onPlayButtonPressed() {
        
-        GameMap defaultGameMap = GameMap.getPrebuiltMap();
-        GameManager gameManager = new GameManager(defaultGameMap);
-        GamePlayController gamePlayController = new GamePlayController(gameManager);
+        GamePlayController gamePlayController = new GamePlayController();
         return gamePlayController;
     }
+
 
     // Called when the "Settings" button is clicked (can be implemented later)
     public void openSettings() {

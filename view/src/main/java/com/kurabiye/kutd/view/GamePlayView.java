@@ -16,8 +16,10 @@ import java.util.ArrayList;
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Enemy.Enemy;
+import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
 
@@ -53,6 +55,8 @@ public class GamePlayView implements IGameUpdateListener {
 
         this.controller = controller;
         this.enemyView = new EnemyView();
+
+        controller.setGameUpdateListener(this);
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
 
@@ -224,18 +228,17 @@ public class GamePlayView implements IGameUpdateListener {
 
     // Method called by the controller to update the game view
     @Override
-    public void onGameUpdated() {
+    public void onGameUpdate(float deltaTime) { 
+        // This must be called on the JavaFX Application Thread 
+        // So we wrap it in Platform.runLater
+        Platform.runLater(() -> { updateView(); }); 
+    }
 
-        // Clear the canvas
-        // gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    private void updateView() {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawMap(gc);
 
-        // // Redraw the map
-        // drawMap(gc);
-
-        // // Render the enemies
-        // if (enemies != null && !enemies.isEmpty()) {
-        //     enemyView.renderEnemies(gc, enemies);
-        // }
-
+        enemyView.renderEnemies(gc, enemies);
     }
 }
