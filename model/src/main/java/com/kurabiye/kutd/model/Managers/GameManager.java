@@ -262,7 +262,7 @@ public class GameManager implements Runnable{
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep(1000); // Approximately 60 FPS
+                Thread.sleep(160); // Approximately 60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
