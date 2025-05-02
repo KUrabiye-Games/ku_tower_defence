@@ -129,11 +129,18 @@ public class GameManager implements Runnable{
 
             // Create new enemies
 
-            int enemyIndex = waveManager.getEnemy(deltaTime); // Get the index of the enemy to spawn
+            //int enemyIndex = waveManager.getEnemy(deltaTime); // Get the index of the enemy to spawn
+
+            int enemyIndex = 1;
+           
 
             if (enemyIndex > -1) {
                 Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
                 enemies.add(enemy); // Add the enemy to the list of enemies
+                if (enemyIndex == 1) {
+                    // No enemies to spawn
+                    enemyIndex = -1;
+                } 
                 System.out.println("Enemy created: " + enemy.getEnemyType() + " at position " + enemy.getCoordinate() + " (index: " + (enemies.size() - 1) + ")");
             } else if (enemyIndex == -2) {
                 // No enemies left to spawn

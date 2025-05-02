@@ -63,6 +63,8 @@ public class GamePlayView implements IGameUpdateListener {
 
         this.enemies = controller.getGameManager().getEnemies();
 
+        System.out.println("Enemies" + enemies);
+
         controller.setGameUpdateListener(this);
         controller.startGame();
 
@@ -244,6 +246,15 @@ public class GamePlayView implements IGameUpdateListener {
     }
 
     private void updateView() {
+
+        System.out.println("Update view called");
+        System.out.println("Enemies: " + enemies);
+
+        // Log positions of enemies
+        for (Enemy enemy : enemies) {
+            System.out.println("Enemy position: " + enemy.getCoordinate());
+        }
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);

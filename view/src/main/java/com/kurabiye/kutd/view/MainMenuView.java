@@ -72,7 +72,6 @@ public class MainMenuView {
             GamePlayController gamePlayController = controller.onPlayButtonPressed();
             GamePlayView mapView = new GamePlayView();
             mapView.start(stage, gamePlayController);
-
         });
 
         mapEditorButton.setOnAction(e -> {
