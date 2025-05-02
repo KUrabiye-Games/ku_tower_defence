@@ -89,6 +89,7 @@ public class GameManager implements Runnable{
         
         this.towers = new ArrayList<>(); // Initialize the list of towers
         this.enemies = new ArrayList<>(); // Initialize the list of enemies
+        this.projectiles = new ArrayList<>(); // Initialize the list of projectiles
     }
 
     public void setGameUpdateListener(IGameUpdateListener gameUpdateListener) {

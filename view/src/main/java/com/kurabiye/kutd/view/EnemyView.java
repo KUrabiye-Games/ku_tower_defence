@@ -2,6 +2,8 @@ package com.kurabiye.kutd.view;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+
 import com.kurabiye.kutd.model.Coordinates.*;
 import java.util.ArrayList;
 
@@ -13,12 +15,13 @@ import com.kurabiye.kutd.model.Player.UserPreference;
  * This class is responsible for visualizing enemies and their animations.
  */
 public class EnemyView {
-    private static final int TILE_SIZE = 64; // Same as in GamePlayView
+    private final int TILE_SIZE;
     
     // Different enemy images for different enemy types
     private Image[] enemyImages;
     
-    public EnemyView() {
+    public EnemyView(int screenWidth, int screenHeight) {
+        this.TILE_SIZE = screenWidth / 16; // Dynamically calculate tile size based on screen width
         loadEnemyImages();
     }
     
@@ -100,15 +103,14 @@ public class EnemyView {
         
         // If the image is loaded successfully
         if (enemyImages[imageIndex] != null) {
-            // Draw the enemy at its position
-            // Convert game coordinates to screen coordinates
-            double x = position.getX() - (TILE_SIZE / 2); // Center the image on the position
-            double y = position.getY() - (TILE_SIZE / 2);
+
+            gc.setFill(Color.RED);
+            gc.fillRect(position.getX(), position.getY(), TILE_SIZE, TILE_SIZE);
             
-            gc.drawImage(enemyImages[imageIndex], x, y, TILE_SIZE, TILE_SIZE);
+            gc.drawImage(enemyImages[imageIndex], position.getX(), position.getY(), TILE_SIZE, TILE_SIZE);
             
             // Draw health bar above the enemy
-            renderHealthBar(gc, enemy, x, y);
+            renderHealthBar(gc, enemy, position.getX(), position.getY());
         }
     }
     

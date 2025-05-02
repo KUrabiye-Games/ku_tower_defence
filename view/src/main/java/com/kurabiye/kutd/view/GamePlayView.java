@@ -6,7 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -25,9 +25,11 @@ import javafx.scene.input.MouseEvent;
 
 public class GamePlayView implements IGameUpdateListener {
     
-    private static final int TILE_SIZE = 64;
+    private static final int SCREEN_WIDTH = (int) Screen.getPrimary().getBounds().getWidth();
+    private static final int SCREEN_HEIGHT = (int) Screen.getPrimary().getBounds().getHeight();
     private static final int ROWS = 9;
     private static final int COLS = 16;
+    private static final int TILE_SIZE = SCREEN_WIDTH / COLS; // Dynamically calculate tile size
     private static final int TILE_COUNT = 32;
     private static final int GRASS_TILE_ID = 5;
     private static final int INTERACTIVE_TILE_ID = 15;
@@ -45,7 +47,7 @@ public class GamePlayView implements IGameUpdateListener {
 
     private EnemyView enemyView;
 
-    ArrayList<Enemy> enemies = controller.getGameManager().getEnemies();
+    ArrayList<Enemy> enemies;
 
     private int[][] map;
     
@@ -54,13 +56,19 @@ public class GamePlayView implements IGameUpdateListener {
         loadButtonIcons();
 
         this.controller = controller;
-        this.enemyView = new EnemyView();
+        this.enemyView = new EnemyView(
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT
+        );
+
+        this.enemies = controller.getGameManager().getEnemies();
 
         controller.setGameUpdateListener(this);
+        controller.startGame();
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
 
-        canvas = new Canvas(COLS * TILE_SIZE, ROWS * TILE_SIZE);
+        canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawMap(gc);
     
@@ -71,6 +79,7 @@ public class GamePlayView implements IGameUpdateListener {
         Scene scene = new Scene(root);
         stage.setTitle("Game Map");
         stage.setScene(scene);
+        stage.setMaximized(true); // Make window maximized
         stage.show();
     
         setupClickHandler();
