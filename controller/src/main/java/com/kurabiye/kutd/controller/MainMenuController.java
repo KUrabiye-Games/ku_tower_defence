@@ -22,8 +22,9 @@ public class MainMenuController {
 
 
     // Called when the "Settings" button is clicked (can be implemented later)
-    public void openSettings() {
-        System.out.println("Opening settings...");
+    public SettingsController onSettingsButtonPressed() {
+        SettingsController settingsController = new SettingsController();
+        return settingsController;
     }
 
     // Called when the "Quit" button is clicked
