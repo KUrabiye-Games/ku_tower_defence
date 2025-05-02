@@ -82,7 +82,9 @@ public class MainMenuView {
 
         settingsButton.setOnAction(e -> {
             
-
+            SettingsController settingsController = controller.onSettingsButtonPressed();
+            SettingsView settingsView = new SettingsView();
+            settingsView.show(stage, settingsController);
         });
 
         exitButton.setOnAction(e -> {
