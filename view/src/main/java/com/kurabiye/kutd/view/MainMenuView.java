@@ -80,8 +80,8 @@ public class MainMenuView {
         });
 
         settingsButton.setOnAction(e -> {
-            // TODO: Open Settings
-            System.out.println("Settings button clicked");
+            
+            
         });
 
         exitButton.setOnAction(e -> {
