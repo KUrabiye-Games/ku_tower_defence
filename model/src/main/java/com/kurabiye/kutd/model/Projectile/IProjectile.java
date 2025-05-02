@@ -1,8 +1,7 @@
 package com.kurabiye.kutd.model.Projectile;
 
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
-
-import javafx.geometry.Point2D;
 
 /**
  * Interface defining the core functionality of a Projectile in the tower defense game.

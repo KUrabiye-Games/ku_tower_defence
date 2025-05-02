@@ -3,14 +3,13 @@ package com.kurabiye.kutd.model.Tower;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Projectile.ProjectileFactory;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
-
-import javafx.geometry.Point2D;
 
 
 public class Tower implements ITower{

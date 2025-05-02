@@ -3,12 +3,11 @@ package com.kurabiye.kutd.model.Map;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.util.ObserverPattern.Observable;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
-
-import javafx.geometry.Point2D;
 
 public class GameMap implements Observable{
 

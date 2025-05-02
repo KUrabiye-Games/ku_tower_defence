@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.EnemyFactory;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
@@ -16,8 +17,6 @@ import com.kurabiye.kutd.model.Timer.GameTimer;
 import com.kurabiye.kutd.model.Tower.Tower;
 import com.kurabiye.kutd.model.Tower.TowerFactory;
 import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
-
-import javafx.geometry.Point2D;
 
 /* GameManager.java
  * This class is responsible for managing the game state, including
