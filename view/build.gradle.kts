@@ -33,6 +33,7 @@ dependencies {
 
     implementation(project(":model"))
     implementation(project(":controller"))
+    implementation(project(":util"))
 }
 
 // Configure source sets - this helps with IDE recognition

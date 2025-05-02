@@ -116,7 +116,10 @@ public class LoadingScreenView {
         stage.show();
 
         // Simulate loading with a progress bar
-        simulateLoading();
+        //simulateLoading();
+        // TODO:
+        MainMenuView mainMenuView = new MainMenuView();
+        mainMenuView.start(stage);
     }
 
     private Pane createAnimatedEnemies() {
