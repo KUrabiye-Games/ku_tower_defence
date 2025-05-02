@@ -25,7 +25,7 @@ public class WaveManager {
     // This number is not spesified in the user preferences, so it is hardcoded.
     // It is the time between enemy spawns in seconds.
 
-    private static final long GRACE_WAIT_TIME = 4; // Time in milliseconds between waves
+    private static final long GRACE_WAIT_TIME = 1; // Time in milliseconds between waves
     private static final long ENEMY_SPAWN_TIME = 1; // Time in milliseconds between enemy spawns
     
 

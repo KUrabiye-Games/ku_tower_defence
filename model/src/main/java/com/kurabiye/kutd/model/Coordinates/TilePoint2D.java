@@ -1,10 +1,8 @@
 package com.kurabiye.kutd.model.Coordinates;
 
-import javafx.geometry.Point2D;
-
 /**
  * This is the specific class that represents a tile coordinate in the game.
- * It extends JavaFX's Point2D and adds tile-specific functionality.
+ * It extends our custom Point2D and adds tile-specific functionality.
  * It adjusts the tile sizes and the coordinates according to the map dimensions.
  * One can use this class to define the coordinates of the map tiles.
  * 

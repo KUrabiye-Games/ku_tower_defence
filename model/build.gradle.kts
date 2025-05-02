@@ -9,8 +9,6 @@ plugins {
     // Apply the java plugin to add support for Java
     java
 
-    // Plugin for JavaFX support
-    id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
 repositories {
@@ -24,8 +22,6 @@ dependencies {
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    // JavaFX dependencies
-    implementation(libs.javafx.graphics)
 
     // Add your util subproject dependency
     implementation(project(":util"))
@@ -41,11 +37,7 @@ sourceSets {
     }
 }
 
-// Configure JavaFX plugin
-javafx {
-    version = "22" // Use latest compatible version
-    modules = listOf("javafx.controls", "javafx.fxml", "javafx.media", "javafx.graphics")
-}
+
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {

@@ -1,11 +1,10 @@
 package com.kurabiye.kutd.model.Projectile;
 
 
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.StraightProjectileMoveStrategy;
-
-import javafx.geometry.Point2D;
 
 public class ProjectileFactory {
 

@@ -1,12 +1,7 @@
 package com.kurabiye.kutd.model.Enemy;
 
-import javafx.geometry.Point2D;
-
-
-import java.util.ArrayList;
-
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
-
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 
 
@@ -21,7 +16,7 @@ import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
  * @since: 2025-04-23
  */
 
-public class Enemy {
+public class Enemy implements IEnemy {
 
     public enum EnemyType { // Enum for different enemy types
         GOBLIN(0), // Goblin enemy type

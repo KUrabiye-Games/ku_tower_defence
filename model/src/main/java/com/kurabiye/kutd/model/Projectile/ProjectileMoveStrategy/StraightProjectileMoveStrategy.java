@@ -1,6 +1,6 @@
 package com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy;
 
-import javafx.geometry.Point2D;
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 public class StraightProjectileMoveStrategy implements IProjectileMoveStrategy {
 

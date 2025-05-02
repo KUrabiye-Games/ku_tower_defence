@@ -2,7 +2,7 @@ package com.kurabiye.kutd.model.Enemy.MoveStrategy;
 
 import java.util.ArrayList;
 
-import javafx.geometry.Point2D;
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 public interface IMoveStrategy {
 
