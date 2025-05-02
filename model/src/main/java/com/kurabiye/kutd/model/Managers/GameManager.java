@@ -219,7 +219,7 @@ public class GameManager implements Runnable{
 
            
                 if (gameUpdateListener != null) {
-                    gameUpdateListener.onGameUpdate(); // Call the update method on the listener
+                    gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
                 }
                 
             
