@@ -65,7 +65,7 @@ public class GameMap implements Observable{
         if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
             throw new IllegalArgumentException("Coordinates out of bounds");
         }
-        return tiles[x][y]; // Return the tile at the specified coordinates
+        return tiles[y][x]; // Return the tile at the specified coordinates
     }
 
     public synchronized void setTile(int x, int y, Tile tile) {

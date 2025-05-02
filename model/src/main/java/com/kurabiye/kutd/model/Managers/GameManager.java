@@ -1,6 +1,7 @@
 package com.kurabiye.kutd.model.Managers;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
@@ -116,17 +117,18 @@ public class GameManager implements Runnable{
 
             // Update enemies position
 
-            for (Enemy enemy : enemies) {
-                enemy.move(deltaTime); // Update each enemy's position
+            Iterator<Enemy> enemyIterator = enemies.iterator(); // Create an iterator for the list of enemies
+            while (enemyIterator.hasNext()) {
+                Enemy enemy = enemyIterator.next(); // Get the next enemy
                 if (enemy.hasArrived()) {
-                    enemies.remove(enemy); // Remove the enemy from the list if it has arrived
-                    player.loseHealth();
+                    enemyIterator.remove(); // Remove the enemy from the list if it is out of bounds
+                    player.loseHealth(); // Deduct health from the player
                 }
             }
 
-
             // Towers look for targets and  create projectiles
 
+        
 
             for (Tower tower : towers) {
                 // Check if the tower can attack     
@@ -148,15 +150,45 @@ public class GameManager implements Runnable{
 
             // Check for collisions between projectiles and enemies
 
+            // Keep track of projectiles that need to be removed
+            // Keep track of the enemies that are dead and need to be removed
+            ArrayList<Enemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
+            ArrayList<Projectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
+
             for (Projectile projectile : projectiles) {
+
+                // Check if any collision occurred
+                boolean collisionOccurred = false; // Flag to check if a collision occurred
+
                 for (Enemy enemy : enemies) {
                     if (projectile.getCoordinate().distance(enemy.getCoordinate()) < projectile.getProjectileAreaDamage()) { // Check for collision
                         enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
-                        projectiles.remove(projectile); // Stop the projectile
-                        break; // Exit the loop after collision
+                        
+                        if (enemy.isDead()) {
+                            player.earnGold(enemy.getKillReward()); // Add gold to the player for killing the enemy
+                            enemiesToRemove.add(enemy); // Mark the enemy for removal
+                        }
+                        collisionOccurred = true; // Set the collision flag to true
+                        
+                        if(projectile.getProjectileAreaDamage() <= 1f){
+                            projectilesToRemove.add(projectile); // Mark the projectile for removal
+                            break; // Exit the loop if a collision occurred
+                        }
                     }
                 }
+
+                if(collisionOccurred) {
+                    // Remove the projectile if it has collided with an enemy
+                    projectilesToRemove.add(projectile); // Mark the projectile for removal
+                }
             }
+
+
+            // Remove dead enemies from the list
+            enemies.removeAll(enemiesToRemove); // Remove the marked enemies from the list
+            // Remove projectiles that have collided with enemies
+            projectiles.removeAll(projectilesToRemove); // Remove the marked projectiles from the list
+            // Remove projectiles that have reached their target
 
 
 
