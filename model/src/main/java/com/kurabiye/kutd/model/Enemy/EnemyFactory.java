@@ -74,6 +74,8 @@ public class EnemyFactory {
 
         }
 
+        my_enemy.locate(enemyPath.get(0)); // Set the initial position of the enemy to the first point in the path
+
         return my_enemy;
     }
 
