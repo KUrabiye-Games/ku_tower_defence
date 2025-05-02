@@ -23,6 +23,7 @@ public class MainMenuController {
 
     // Called when the "Settings" button is clicked (can be implemented later)
     public SettingsController onSettingsButtonPressed() {
+        
         SettingsController settingsController = new SettingsController();
         return settingsController;
     }
