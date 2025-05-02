@@ -44,7 +44,7 @@ public interface IEnemy {
      * 
      * @param deltaTime Time passed since last update in milliseconds
      */
-    void move(long deltaTime);
+    void move(double deltaTime);
     
     /**
      * Checks if the enemy is alive

@@ -6,6 +6,7 @@ import java.util.List;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Tile.Tile;
+import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.util.ObserverPattern.Observable;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 
@@ -224,63 +225,85 @@ public class GameMap implements Observable{
      */
 
     private void buildTilePath() {
+        System.out.println("buildTilePath(): Starting path building...");
         
-
         ArrayList<Tile> my_path = new ArrayList<>(); // List to store the path tiles
 
         Tile addTile = tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()]; // Get the starting tile
-
+        System.out.println("buildTilePath(): Starting tile at position (" + startTileCoordinates.getTileX() + "," + 
+                          startTileCoordinates.getTileY() + ") with code " + addTile.getTileCode());
         
         my_path.add(addTile); // Add the starting tile to the path
+        System.out.println("buildTilePath(): Added starting tile to path");
         
 
         do{
+            System.out.println("buildTilePath(): Processing tile at (" + addTile.getCoordinate().getTileX() + 
+                              "," + addTile.getCoordinate().getTileY() + ") with code " + addTile.getTileCode());
             
-
             ArrayList<Tile> neighbours = neighbours(addTile); // Get the neighbouring tiles
+            System.out.println("buildTilePath(): Found " + neighbours.size() + " neighboring tiles");
 
             // Check if only single one of the neighbours is a path tile and not already in the path
 
             int pathCount = 0; // Counter for path tiles
+            
 
             for (Tile neighbour : neighbours) {
                 if (neighbour.isPathTile() && !my_path.contains(neighbour)) {
                     pathCount++; // Increment the path tile counter
                     addTile = neighbour; // Set the next tile to the neighbour
+
+                    System.out.println("buildTilePath(): Found valid path tile at (" + 
+                                      neighbour.getCoordinate().getTileX() + "," + 
+                                      neighbour.getCoordinate().getTileY() + ") with code " + 
+                                      neighbour.getTileCode());
                 }
             }
 
             if (pathCount > 1) {
+                System.out.println("buildTilePath(): ERROR - Multiple path options found (" + pathCount + ")");
                 my_path.add(ERROR_TILE); // Add the error tile to the path if there are multiple path tiles
                 break; // Break the loop if there are multiple path tiles
             }
             if (pathCount == 0) {
+                System.out.println("buildTilePath(): ERROR - No valid path found");
                 my_path.add(ERROR_TILE); // Add the error tile to the path if there are no path tiles
                 break; // Break the loop if there are no path tiles
             }
             if (pathCount == 1) {
                 my_path.add(addTile); // Add the next tile to the path
-
+                System.out.println("buildTilePath(): Added next tile to path at (" + 
+                                  addTile.getCoordinate().getTileX() + "," + 
+                                  addTile.getCoordinate().getTileY() + ")");
             }
 
-
-
-            
+            // Check if we've reached the end tile
+            if (addTile.getCoordinate().getTileX() == endTileCoordinates.getTileX() && 
+                addTile.getCoordinate().getTileY() == endTileCoordinates.getTileY()) {
+                System.out.println("buildTilePath(): Reached end tile!");
+            }
 
         }while (addTile != tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()]); // Loop until the end tile is reached
 
-
-
+        System.out.println("buildTilePath(): Path complete with " + my_path.size() + " tiles");
+        if (my_path.contains(ERROR_TILE)) {
+            System.out.println("buildTilePath(): WARNING - Path contains ERROR_TILE");
+        }
 
         tilePath = my_path; // Return the list of path tiles
     }
 
     private ArrayList<Tile> neighbours(Tile tile) {
+        System.out.println("neighbours(): Finding neighbors for tile at position " + 
+                          (tile != null && tile.getCoordinate() != null ? 
+                           "(" + tile.getCoordinate().getTileX() + "," + tile.getCoordinate().getTileY() + ")" : "null"));
         
         ArrayList<Tile> neighbours = new ArrayList<>(); // List to store the neighbouring tiles
 
         // Check if tile or its coordinate is null
         if (tile == null || tile.getCoordinate() == null) {
+            System.out.println("neighbours(): Tile or coordinate is null, returning empty list");
             return neighbours; // Return empty list if the tile or its coordinate is null
         }
 
@@ -290,20 +313,36 @@ public class GameMap implements Observable{
         // Check the neighbouring tiles in all 4 directions
 
         if (x > 0) { // Check left
-            neighbours.add(tiles[y][x - 1]);
+            Tile leftTile = tiles[y][x - 1];
+            neighbours.add(leftTile);
+            System.out.println("neighbours(): Added left neighbor at (" + (x-1) + "," + y + 
+                              ") with code " + leftTile.getTileCode() + 
+                              ", isPath: " + leftTile.isPathTile());
         }
         if (x < MAP_WIDTH - 1) { // Check right
-            neighbours.add(tiles[y][x + 1]);
+            Tile rightTile = tiles[y][x + 1];
+            neighbours.add(rightTile);
+            System.out.println("neighbours(): Added right neighbor at (" + (x+1) + "," + y + 
+                              ") with code " + rightTile.getTileCode() + 
+                              ", isPath: " + rightTile.isPathTile());
         }
         if (y > 0) { // Check up
-            neighbours.add(tiles[y - 1][x]);
+            Tile upTile = tiles[y - 1][x];
+            neighbours.add(upTile);
+            System.out.println("neighbours(): Added up neighbor at (" + x + "," + (y-1) + 
+                              ") with code " + upTile.getTileCode() + 
+                              ", isPath: " + upTile.isPathTile());
         }
         if (y < MAP_HEIGHT - 1) { // Check down
-            neighbours.add(tiles[y + 1][x]);
+            Tile downTile = tiles[y + 1][x];
+            neighbours.add(downTile);
+            System.out.println("neighbours(): Added down neighbor at (" + x + "," + (y+1) + 
+                              ") with code " + downTile.getTileCode() + 
+                              ", isPath: " + downTile.isPathTile());
         }
 
+        System.out.println("neighbours(): Returning " + neighbours.size() + " neighboring tiles");
         return neighbours; // Return the list of neighbouring tiles
-        
     }
 
 
@@ -346,24 +385,25 @@ public class GameMap implements Observable{
      */
     private static final int[][] map = {
         { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
-        { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
-        { 4, 15, 7, 15, 7, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
-        { 8, 2, 8, 9, 10, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
+        { 0, 13, 13, 13, 13, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
+        { 4, 15, 5, 15, 5, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
+        { 8, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
         { 5, 7, 19, 18, 5, 5, 5, 0, 1, 2, 21, 5, 5, 31, 5, 5},
         { 5, 7, 5, 5, 20, 0, 13, 10, 15, 8, 13, 2, 5, 5, 5, 5 },
-        { 5, 4, 5, 0, 13, 10, 0, 1, 2, 5, 30, 6, 5, 5, 5, 5 },
-        { 23, 7, 15, 7, 5, 5, 4, 18, 8, 13, 13, 10, 16, 5, 18, 5 },
+        { 5, 4, 5, 0, 13, 10, 5, 5, 5, 5, 30, 6, 5, 5, 5, 5 },
+        { 23, 7, 15, 7, 5, 5, 0, 1, 13, 13, 13, 10, 16, 5, 18, 5 },
         { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
     };
  
 
     public static GameMap getPrebuiltMap() {
         Tile[][] tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
+        TileFactory tileFactory = new TileFactory();
 
         // Create the tiles and set their properties
         for (int i = 0; i < MAP_HEIGHT; i++) {
             for (int j = 0; j < MAP_WIDTH; j++) {
-                Tile tile = new Tile(map[i][j]); // Create a new tile with code
+                Tile tile = tileFactory.create(map[i][j]); // Create a new tile with code using factory
                 tile.setCoordinate(new TilePoint2D(j, i)); // Set coordinates for the tile
                 tiles[i][j] = tile;
             }
@@ -373,7 +413,12 @@ public class GameMap implements Observable{
         TilePoint2D startTileCoordinates = new TilePoint2D(6, 8);
         TilePoint2D endTileCoordinates = new TilePoint2D(12,0);
 
-        return new GameMap(tiles, startTileCoordinates, endTileCoordinates); // Return the static map
+        GameMap my_map = new GameMap(tiles, startTileCoordinates, endTileCoordinates); // Return the static map
+
+        my_map.buildTilePath(); // Build the tile path
+        my_map.buildPointPath(); // Build the point path
+
+        return my_map; // Return the static map
     }
 
 

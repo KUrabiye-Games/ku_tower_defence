@@ -239,7 +239,7 @@ public class GamePlayView implements IGameUpdateListener {
 
     // Method called by the controller to update the game view
     @Override
-    public void onGameUpdate(float deltaTime) { 
+    public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
         Platform.runLater(() -> { updateView(); }); 

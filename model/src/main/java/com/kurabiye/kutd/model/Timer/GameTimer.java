@@ -16,15 +16,15 @@ public class GameTimer {
 
 
     
-    private static final long TIME_COFACTOR_MILISEC = 1000; // The time cofactor used to convert seconds to milliseconds
+    private static final double TIME_COFACTOR_MILISEC = 1000; // The time cofactor used to convert seconds to milliseconds
 
-    private long timeCoefficient = 1; // The time coefficient used to adjust the game speed
+    private double timeCoefficient = 1; // The time coefficient used to adjust the game speed
 
     // Using volatile to ensure visibility across threads
     private static volatile GameTimer instance; // Singleton instance of the GameTimer class
 
-    private long lastTime; // The last time the game timer was updated
-    private long deltaTime; // The time elapsed since the last update
+    private double lastTime; // The last time the game timer was updated
+    private double deltaTime; // The time elapsed since the last update
 
     private GameTimer() {
         lastTime = System.currentTimeMillis(); // Initialize the last time to the current time
@@ -76,7 +76,7 @@ public class GameTimer {
      * It divides the delta time by the time cofactor to convert it to seconds.
      * @return the delta time in seconds
      */
-    public synchronized long getDeltaTime() {
+    public synchronized double getDeltaTime() {
         return (deltaTime / TIME_COFACTOR_MILISEC) * timeCoefficient; // Return the delta time
     }
 
@@ -84,7 +84,7 @@ public class GameTimer {
      * Get the time coefficient used to adjust game speed
      * @return the time coefficient value
      */
-    public synchronized long getTimeCoefficient() {
+    public synchronized double getTimeCoefficient() {
         return timeCoefficient; // Return the time coefficient
     }
     
@@ -92,7 +92,7 @@ public class GameTimer {
      * Set the time coefficient to adjust game speed
      * @param coefficient the new time coefficient
      */
-    public synchronized void setTimeCoefficient(long coefficient) {
+    public synchronized void setTimeCoefficient(double coefficient) {
         if (coefficient > 0) {
             timeCoefficient = coefficient;
         }

@@ -102,7 +102,7 @@ public class Enemy implements IEnemy {
         }
     }
 
-    public synchronized void move(long deltaTime){
+    public synchronized void move(double deltaTime){
 
         
         if(enemyState == EnemyState.DEAD || enemyState == EnemyState.ARRIVED) {

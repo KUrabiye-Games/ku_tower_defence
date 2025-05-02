@@ -34,6 +34,11 @@ import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 public class GameManager implements Runnable{
 
     private WaveManager waveManager; // Wave manager for handling enemy waves
+    
+
+    // TODO: Debugging: Remove this flag later
+    // Add a flag to control test enemy spawning
+    private boolean hasSpawnedTestEnemy = false;
 
     public enum GameState {
         INITIALIZING,
@@ -106,55 +111,64 @@ public class GameManager implements Runnable{
 
     @Override
     public void run() {
+        System.out.println("GameManager.run(): Game loop starting");
         // Game loop
         while (gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
             // Update game state
+            System.out.println("GameManager.run(): Current game state: " + gameState);
 
             if (gameState == GameState.PAUSED) {
                 // Pause game logic
+                System.out.println("GameManager.run(): Game is paused");
                 try {
                     Thread.sleep(100); // Sleep for a short duration to avoid busy waiting
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 continue; // Skip the rest of the loop if the game is paused
-                
             }
 
             // Calculate the delta time
             gameTimer.update(); // Update the game timer
-            long deltaTime = gameTimer.getDeltaTime(); // Get the delta time from the game timer
-
-            // Update game logic based on the delta time
+            double deltaTime = gameTimer.getDeltaTime(); // Get the delta time from the game timer
+            System.out.println("GameManager.run(): Delta time: " + deltaTime);
 
             // Create new enemies
-
-            //int enemyIndex = waveManager.getEnemy(deltaTime); // Get the index of the enemy to spawn
-
+            System.out.println("GameManager.run(): Checking if we should spawn an enemy");
+            System.out.println("GameManager.run(): hasSpawnedTestEnemy = " + hasSpawnedTestEnemy);
+            
+            // Using our test enemy code
             int enemyIndex = 1;
            
-
-            if (enemyIndex > -1) {
+            if (enemyIndex > -1 && !hasSpawnedTestEnemy) {
+                System.out.println("GameManager.run(): Spawning test enemy (type: KNIGHT)");
                 Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
                 enemies.add(enemy); // Add the enemy to the list of enemies
-                if (enemyIndex == 1) {
-                    // No enemies to spawn
-                    enemyIndex = -1;
-                } 
-                System.out.println("Enemy created: " + enemy.getEnemyType() + " at position " + enemy.getCoordinate() + " (index: " + (enemies.size() - 1) + ")");
+               
+                // DEBUG:
+                enemyIndex = -1;
+                hasSpawnedTestEnemy = true;
+
+                System.out.println("GameManager.run(): Enemy created: " + enemy.getEnemyType() + " at position " + enemy.getCoordinate() + " (index: " + (enemies.size() - 1) + ")");
+                System.out.println("GameManager.run(): hasSpawnedTestEnemy set to true");
             } else if (enemyIndex == -2) {
                 // No enemies left to spawn
+                System.out.println("GameManager.run(): No enemies left to spawn, game won");
                 gameState = GameState.GAME_WON; // Set game state to GAME_WON
             }
 
             // Update enemies position
-
+            System.out.println("GameManager.run(): Updating enemy positions. Current count: " + enemies.size());
+            
             Iterator<Enemy> enemyIterator = enemies.iterator(); // Create an iterator for the list of enemies
             int enemyIndex2 = 0;
             while (enemyIterator.hasNext()) {
                 Enemy enemy = enemyIterator.next(); // Get the next enemy
                 Point2D oldPosition = enemy.getCoordinate();
                 enemy.move(deltaTime); // Update the enemy's position
+
+                // Print the delta time
+                System.out.println("Delta time: " + deltaTime + " seconds");
                 
                 // Log the position update
                 System.out.println("Enemy " + enemyIndex2 + " (" + enemy.getEnemyType() + ") moved from " + oldPosition + " to " + enemy.getCoordinate());
@@ -170,6 +184,8 @@ public class GameManager implements Runnable{
 
             // Towers look for targets and  create projectiles
 
+            // Print the number of enemies
+            System.out.println("Number of total enemies: " + enemies.size());
         
 
             for (Tower tower : towers) {
@@ -246,11 +262,12 @@ public class GameManager implements Runnable{
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep(16); // Approximately 60 FPS
+                Thread.sleep(1000); // Approximately 60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println("GameManager.run(): Game loop ended with state: " + gameState);
     }
 
 
@@ -266,14 +283,17 @@ public class GameManager implements Runnable{
 
     // Controller methods
     public void pauseGame() {
+        System.out.println("GameManager.pauseGame(): Pausing the game");
         gameState = GameState.PAUSED;
         // Pause game logic
     }
     public void resumeGame() {
+        System.out.println("GameManager.resumeGame(): Resuming the game");
         gameState = GameState.RUNNING;
         // Resume game logic
     }
     public void endGame() {
+        System.out.println("GameManager.endGame(): Ending the game");
         gameState = GameState.GAME_LOST;
         // Handle game over logic
     }
@@ -284,7 +304,7 @@ public class GameManager implements Runnable{
 
     public void speedUpGame() {
         // Increase game speed
-        long currentTimeCoefficient = gameTimer.getTimeCoefficient();
+        double currentTimeCoefficient = gameTimer.getTimeCoefficient();
         if (currentTimeCoefficient < 4) { // Limit the maximum speed to 4x
             gameTimer.setTimeCoefficient(currentTimeCoefficient * 2);
         }
@@ -292,30 +312,35 @@ public class GameManager implements Runnable{
     }
     public void slowDownGame() {
         // Decrease game speed
-        long currentTimeCoefficient = gameTimer.getTimeCoefficient();
+        double currentTimeCoefficient = gameTimer.getTimeCoefficient();
         if (currentTimeCoefficient > 0.25) { // Limit the minimum speed to 0.25x
             gameTimer.setTimeCoefficient(currentTimeCoefficient / 2);
         }
     }
 
     public boolean buildTower(int xCoordinate, int yCoordinate, int towerType) {
+        System.out.println("GameManager.buildTower(): Attempting to build tower type " + towerType + " at position (" + xCoordinate + "," + yCoordinate + ")");
         
         //check if the tile is buildable
 
         Tile tile = gameMap.getTile(xCoordinate, yCoordinate);
         if (tile == null) {
+            System.out.println("GameManager.buildTower(): Invalid tile coordinates");
             return false; // Invalid tile coordinates
         }
         if (!tile.isBuildableTile()) {
+            System.out.println("GameManager.buildTower(): Tile is not buildable");
             return false; // Tile is not buildable
         }
 
         // Check if the player has enough resources
 
         if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[towerType]) { // Example cost check
+            System.out.println("GameManager.buildTower(): Not enough gold. Required: " + userPreferences.getTowerConstructionCost()[towerType] + ", Available: " + player.getCurrentGold());
             return false; // Not enough gold
         }
 
+        System.out.println("GameManager.buildTower(): Deducting " + userPreferences.getTowerConstructionCost()[towerType] + " gold from player");
         player.buyTower(userPreferences.getTowerConstructionCost()[towerType]); // Deduct cost from player's gold
         // Create the tower using the TowerFactory
 
@@ -324,6 +349,7 @@ public class GameManager implements Runnable{
         tower.setTileCoordinate(new TilePoint2D(xCoordinate, yCoordinate));
         // Add the tower to the list of towers
         towers.add(tower);
+        System.out.println("GameManager.buildTower(): Tower built successfully. Total towers: " + towers.size());
 
         return true;
     }
@@ -349,15 +375,18 @@ public class GameManager implements Runnable{
 
  
     public void startGame() {
-
+        System.out.println("GameManager.startGame(): Starting the game");
+        
         // Create a new thread using this instance (which implements Runnable)
         Thread gameThread = new Thread(this);
         // Start the thread, which will call the run() method
 
         gameState = GameState.RUNNING; // Set the game state to RUNNING
         gameTimer.resetTimer();
+        System.out.println("GameManager.startGame(): Game timer reset");
+        
         gameThread.start();
-
+        System.out.println("GameManager.startGame(): Game thread started");
     }
 
 
