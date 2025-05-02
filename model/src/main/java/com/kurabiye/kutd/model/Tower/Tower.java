@@ -13,7 +13,7 @@ import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 import javafx.geometry.Point2D;
 
 
-public class Tower {
+public class Tower implements ITower{
 
 
    

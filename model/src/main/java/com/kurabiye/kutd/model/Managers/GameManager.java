@@ -6,6 +6,7 @@ import java.util.Iterator;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.EnemyFactory;
+import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
@@ -64,7 +65,11 @@ public class GameManager implements Runnable{
     private ArrayList<Tower> towers; // List of towers in the game
     private ArrayList<Enemy> enemies; // List of enemies in the game
     private ArrayList<Projectile> projectiles; // List of projectiles in the game
+
+
+    // The callback for the view update method
     
+    private IGameUpdateListener gameUpdateListener; // Listener for game updates
 
 
     public GameManager(GameMap gameMap) {
@@ -87,6 +92,12 @@ public class GameManager implements Runnable{
         this.enemies = new ArrayList<>(); // Initialize the list of enemies
     }
 
+    public void setGameUpdateListener(IGameUpdateListener gameUpdateListener) {
+        this.gameUpdateListener = gameUpdateListener; // Set the game update listener
+    }
+
+
+
 
     /* Do not use this method directly.
      * 
@@ -98,6 +109,17 @@ public class GameManager implements Runnable{
         // Game loop
         while (gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
             // Update game state
+
+            if (gameState == GameState.PAUSED) {
+                // Pause game logic
+                try {
+                    Thread.sleep(100); // Sleep for a short duration to avoid busy waiting
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                continue; // Skip the rest of the loop if the game is paused
+                
+            }
 
             // Calculate the delta time
             gameTimer.update(); // Update the game timer
@@ -196,7 +218,12 @@ public class GameManager implements Runnable{
 
 
 
-
+           
+                if (gameUpdateListener != null) {
+                    gameUpdateListener.onGameUpdate(); // Call the update method on the listener
+                }
+                
+            
              
            
             // Sleep for a short duration to control the frame rate
@@ -298,9 +325,42 @@ public class GameManager implements Runnable{
         // Create a new thread using this instance (which implements Runnable)
         Thread gameThread = new Thread(this);
         // Start the thread, which will call the run() method
+
+        gameState = GameState.RUNNING; // Set the game state to RUNNING
+        gameTimer.resetTimer();
         gameThread.start();
 
     }
+
+
+    // Info provider methods for the view
+
+
+    public ArrayList<Tower> getTowers() {
+        return towers; // Return the list of towers
+    }
+
+    public ArrayList<Enemy> getEnemies() {
+        return enemies; // Return the list of enemies
+    }
+
+    public ArrayList<Projectile> getProjectiles() {
+        return projectiles; // Return the list of projectiles
+    }
+
+    public Player getPlayer() {
+        return player; // Return the player object
+    }
+
+    public GameTimer getGameTimer() {
+        return gameTimer; // Return the game timer
+    }
+
+    public UserPreference getUserPreferences() {
+        return userPreferences; // Return the user preferences
+    }
+
+
 
 
  

@@ -66,6 +66,10 @@ public class GameTimer {
         lastTime = currentTime; // Update the last time to the current time
     }
 
+    public synchronized void resetTimer() {
+        lastTime = System.currentTimeMillis(); // Reset the last time to the current time
+    }
+
 
     /**
      * This method returns the delta time in seconds.
