@@ -103,9 +103,6 @@ public class EnemyView {
         
         // If the image is loaded successfully
         if (enemyImages[imageIndex] != null) {
-
-            gc.setFill(Color.RED);
-            gc.fillRect(position.getX(), position.getY(), TILE_SIZE, TILE_SIZE);
             
             gc.drawImage(enemyImages[imageIndex], position.getX(), position.getY(), TILE_SIZE, TILE_SIZE);
             

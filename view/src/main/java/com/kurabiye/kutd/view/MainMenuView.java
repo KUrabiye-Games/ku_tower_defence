@@ -2,6 +2,7 @@ package com.kurabiye.kutd.view;
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.controller.MainMenuController;
+import com.kurabiye.kutd.controller.SettingsController;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -80,8 +81,10 @@ public class MainMenuView {
         });
 
         settingsButton.setOnAction(e -> {
-            // TODO: Open Settings
-            System.out.println("Settings button clicked");
+            
+            SettingsController settingsController = controller.onSettingsButtonPressed();
+            SettingsView settingsView = new SettingsView();
+            settingsView.show(stage, settingsController);
         });
 
         exitButton.setOnAction(e -> {
