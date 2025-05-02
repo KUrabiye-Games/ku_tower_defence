@@ -134,6 +134,7 @@ public class GameManager implements Runnable{
             if (enemyIndex > -1) {
                 Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
                 enemies.add(enemy); // Add the enemy to the list of enemies
+                System.out.println("Enemy created: " + enemy.getEnemyType() + " at position " + enemy.getCoordinate() + " (index: " + (enemies.size() - 1) + ")");
             } else if (enemyIndex == -2) {
                 // No enemies left to spawn
                 gameState = GameState.GAME_WON; // Set game state to GAME_WON
@@ -142,11 +143,21 @@ public class GameManager implements Runnable{
             // Update enemies position
 
             Iterator<Enemy> enemyIterator = enemies.iterator(); // Create an iterator for the list of enemies
+            int enemyIndex2 = 0;
             while (enemyIterator.hasNext()) {
                 Enemy enemy = enemyIterator.next(); // Get the next enemy
+                Point2D oldPosition = enemy.getCoordinate();
+                enemy.move(deltaTime); // Update the enemy's position
+                
+                // Log the position update
+                System.out.println("Enemy " + enemyIndex2 + " (" + enemy.getEnemyType() + ") moved from " + oldPosition + " to " + enemy.getCoordinate());
+                
                 if (enemy.hasArrived()) {
+                    System.out.println("Enemy " + enemyIndex2 + " has arrived at destination and will be removed");
                     enemyIterator.remove(); // Remove the enemy from the list if it is out of bounds
                     player.loseHealth(); // Deduct health from the player
+                } else {
+                    enemyIndex2++; // Only increment if the enemy wasn't removed
                 }
             }
 
