@@ -16,12 +16,14 @@ import com.kurabiye.kutd.model.Player.UserPreference;
  */
 public class EnemyView {
     private final int TILE_SIZE;
+    private final int COLS = 16; // Number of columns in the game map
+    private final int ROWS = 9; // Number of rows in the game map
     
     // Different enemy images for different enemy types
     private Image[] enemyImages;
     
-    public EnemyView(int screenWidth, int screenHeight) {
-        this.TILE_SIZE = screenWidth / 16; // Dynamically calculate tile size based on screen width
+    public EnemyView(int tileSize) {
+        this.TILE_SIZE = tileSize;
         loadEnemyImages();
     }
     
@@ -97,17 +99,25 @@ public class EnemyView {
         // Get the enemy's current position
         Point2D position = enemy.getCoordinate();
         
+        // Transform model coordinates to view coordinates
+        double modelWidth = 1920;  // The width used in the model
+        double modelHeight = 1080; // The height used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
+        
+        // Scale positions from model space to view space
+        double viewX = position.getX() * scaleFactor;
+        double viewY = position.getY() * scaleFactor;
+        
         // Determine which image to use based on enemy type
         Enemy.EnemyType enemyType = enemy.getEnemyType();
         int imageIndex = enemyType.getValue();
         
         // If the image is loaded successfully
         if (enemyImages[imageIndex] != null) {
-            
-            gc.drawImage(enemyImages[imageIndex], position.getX(), position.getY(), TILE_SIZE, TILE_SIZE);
+            gc.drawImage(enemyImages[imageIndex], viewX, viewY, TILE_SIZE, TILE_SIZE);
             
             // Draw health bar above the enemy
-            renderHealthBar(gc, enemy, position.getX(), position.getY());
+            renderHealthBar(gc, enemy, viewX, viewY);
         }
     }
     

@@ -25,11 +25,32 @@ import javafx.scene.input.MouseEvent;
 
 public class GamePlayView implements IGameUpdateListener {
     
+    // Reference dimensions that the game was designed for
+    private static final int REFERENCE_WIDTH = 1920;
+    private static final int REFERENCE_HEIGHT = 1080;
+    
+    // The actual screen dimensions
     private static final int SCREEN_WIDTH = (int) Screen.getPrimary().getBounds().getWidth();
     private static final int SCREEN_HEIGHT = (int) Screen.getPrimary().getBounds().getHeight();
+    
+    // Keep the map grid fixed at 16x9
     private static final int ROWS = 9;
     private static final int COLS = 16;
-    private static final int TILE_SIZE = SCREEN_WIDTH / COLS; // Dynamically calculate tile size
+    
+    // Calculate scaling factors
+    private static final double SCALE_X = (double) SCREEN_WIDTH / REFERENCE_WIDTH;
+    private static final double SCALE_Y = (double) SCREEN_HEIGHT / REFERENCE_HEIGHT;
+    
+    // Use the smaller scaling factor to maintain aspect ratio
+    private static final double SCALE = Math.min(SCALE_X, SCALE_Y);
+    
+    // Calculate the tile size based on the scale
+    private static final int TILE_SIZE = (int) (REFERENCE_WIDTH / COLS * SCALE);
+    
+    // Calculate the actual canvas size
+    private static final int CANVAS_WIDTH = TILE_SIZE * COLS;
+    private static final int CANVAS_HEIGHT = TILE_SIZE * ROWS;
+    
     private static final int TILE_COUNT = 32;
     private static final int GRASS_TILE_ID = 5;
     private static final int INTERACTIVE_TILE_ID = 15;
@@ -56,32 +77,36 @@ public class GamePlayView implements IGameUpdateListener {
         loadButtonIcons();
 
         this.controller = controller;
-        this.enemyView = new EnemyView(
-            SCREEN_WIDTH,
-            SCREEN_HEIGHT
-        );
+        this.enemyView = new EnemyView(TILE_SIZE);  // Pass just the tile size
 
         this.enemies = controller.getGameManager().getEnemies();
-
-        System.out.println("Enemies" + enemies);
 
         controller.setGameUpdateListener(this);
         controller.startGame();
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
 
-        canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+        // Create canvas with the calculated dimensions
+        canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawMap(gc);
     
-        root = new Pane(canvas);  // Changed from StackPane to Pane
-
+        // Create root pane to center the canvas
+        root = new Pane();
+        root.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        
+        // Position canvas in the center if it's smaller than the screen
+        canvas.setLayoutX((SCREEN_WIDTH - CANVAS_WIDTH) / 2);
+        canvas.setLayoutY((SCREEN_HEIGHT - CANVAS_HEIGHT) / 2);
+        
+        root.getChildren().add(canvas);
+        
         addUIElements();
     
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
         stage.setTitle("Game Map");
         stage.setScene(scene);
-        stage.setMaximized(true); // Make window maximized
+        stage.setMaximized(true);
         stage.show();
     
         setupClickHandler();
