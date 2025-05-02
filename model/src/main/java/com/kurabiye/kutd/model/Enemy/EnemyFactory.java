@@ -32,13 +32,14 @@ public class EnemyFactory {
     
     // Pre-defined damage values for different projectile types against different enemy types
     // Format: [ProjectileType][EnemyType]
-    private static final float[][] DEFAULT_DAMAGE_VALUES = transposeArray(userPreferences.getDamageDealt());
+    private final float[][] DEFAULT_DAMAGE_VALUES;
 
     private ArrayList<Point2D> enemyPath; // Path for enemies to follow
     
     // Private constructor to prevent instantiation from outside
     private EnemyFactory() {
         // Private constructor for singleton pattern
+        DEFAULT_DAMAGE_VALUES = transposeArray(userPreferences.getDamageDealt());
     }
     
     // Get the singleton instance of EnemyFactory

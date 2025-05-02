@@ -9,7 +9,13 @@ public class StraightProjectileMoveStrategy implements IProjectileMoveStrategy {
         
         Point2D speedVector = targetPoint.subtract(startingPoint); // Calculate the speed vector from the starting point to the target point
         
-        speedVector = speedVector.normalize(); // Normalize the speed vector to get the direction of movement
+        double length = speedVector.magnitude(); // Get the length of the speed vector
+
+        if (length > 0) {
+            speedVector = speedVector.normalize(); // Normalize the speed vector to get the direction
+        } else {
+            return new Point2D(0, 0); // If the length is zero, return a zero vector
+        }
 
         return speedVector; // Return the normalized speed vector
     }

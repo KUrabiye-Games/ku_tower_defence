@@ -77,6 +77,11 @@ public class Projectile  {
 
             speedVector.add(0, gravityFactor * deltaTime); // Update the speed vector with the gravity factor and delta time
 
+            // Check if the speed vector is zero
+            if (speedVector.magnitude() == 0) {
+                return;
+            }
+
             // Update the projectile's coordinate based on the speed vector and delta time
             coordinate = coordinate.add(speedVector.multiply(deltaTime)); // Update the coordinate of the projectile based on the speed vector and delta time
 

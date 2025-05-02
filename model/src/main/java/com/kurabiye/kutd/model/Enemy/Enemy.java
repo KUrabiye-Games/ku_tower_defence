@@ -64,7 +64,7 @@ public class Enemy {
 
 
     // For the moment it will be only the center of the tiles
-    protected ArrayList<Point2D> movePath = new ArrayList<Point2D>(); // Path of the enemy
+    private ArrayList<Point2D> movePath = new ArrayList<Point2D>(); // Path of the enemy
 
 
     /*
