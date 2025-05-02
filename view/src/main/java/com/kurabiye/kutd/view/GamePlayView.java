@@ -12,12 +12,16 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
+
 import com.kurabiye.kutd.controller.GamePlayController;
+import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Map.GameMap;
 
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
-public class MapView {
+
+public class GamePlayView implements IGameUpdateListener {
    
     private static final int TILE_SIZE = 64;
     private static final int ROWS = 9;
@@ -37,6 +41,10 @@ public class MapView {
     private int lastClickedCol = -1;
     private GamePlayController controller;
 
+    private EnemyView enemyView;
+
+    ArrayList<Enemy> enemies = controller.getGameManager().getEnemies();
+
     private int[][] map;
     
     public void start(Stage stage, GamePlayController controller) {
@@ -44,6 +52,7 @@ public class MapView {
         loadButtonIcons();
 
         this.controller = controller;
+        this.enemyView = new EnemyView();
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
 
@@ -211,5 +220,22 @@ public class MapView {
         icons.setLayoutY(10);
 
         root.getChildren().addAll(icons, buttonColumn);
+    }
+
+    // Method called by the controller to update the game view
+    @Override
+    public void onGameUpdated() {
+
+        // Clear the canvas
+        // gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        // // Redraw the map
+        // drawMap(gc);
+
+        // // Render the enemies
+        // if (enemies != null && !enemies.isEmpty()) {
+        //     enemyView.renderEnemies(gc, enemies);
+        // }
+
     }
 }

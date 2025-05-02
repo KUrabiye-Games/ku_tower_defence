@@ -140,7 +140,7 @@ public class Enemy {
 
     }
 
-
+    
     public synchronized boolean isAlive() {
         return (enemyState == EnemyState.ALIVE); // Check if the enemy is alive
     }

@@ -70,7 +70,7 @@ public class MainMenuView {
             // TODO: Start the game
 
             GamePlayController gamePlayController = controller.onPlayButtonPressed();
-            MapView mapView = new MapView();
+            GamePlayView mapView = new GamePlayView();
             mapView.start(stage, gamePlayController);
 
         });
