@@ -20,6 +20,12 @@ public class SettingsView {
 
         // UI Controls
         TextField usernameField = new TextField(current.getUserName());
+        TextField delayBetweenWavesField = new TextField(String.valueOf(current.getDelayBetweenWaves()));
+        TextField delayBetweenGroupsField = new TextField(String.valueOf(current.getDelayBetweenGroups()));
+        TextField startingGoldField = new TextField(String.valueOf(current.getStartingGold()));
+        TextField startingHealthField = new TextField(String.valueOf(current.getStartingHealth()));
+        TextField artilleryRangeField = new TextField(String.valueOf(current.getArtilleryRange()));
+
         Slider musicVolumeSlider = new Slider(0, 1, current.getMusicVolume());
         musicVolumeSlider.setShowTickMarks(true);
         musicVolumeSlider.setShowTickLabels(true);
@@ -58,13 +64,22 @@ public class SettingsView {
 
         // Actions
         applyButton.setOnAction(e -> {
-            UserPreference.Builder builder = new UserPreference.Builder()
+            try {
+                UserPreference.Builder builder = new UserPreference.Builder()
                     .setUserName(usernameField.getText())
-                    .setMusicVolume((float)musicVolumeSlider.getValue())
-                    .setSoundVolume((float)soundVolumeSlider.getValue());
-
-            controller.applyPreferences(builder);
-            showAlert("Preferences applied!");
+                    .setMusicVolume((float) musicVolumeSlider.getValue())
+                    .setSoundVolume((float) soundVolumeSlider.getValue())
+                    .setDelayBetweenWaves(Integer.parseInt(delayBetweenWavesField.getText()))
+                    .setDelayBetweenGroups(Integer.parseInt(delayBetweenGroupsField.getText()))
+                    .setStartingGold(Integer.parseInt(startingGoldField.getText()))
+                    .setStartingHealth(Integer.parseInt(startingHealthField.getText()))
+                    .setArtilleryRange(Float.parseFloat(artilleryRangeField.getText()));
+        
+                controller.applyPreferences(builder);
+                showAlert("Preferences applied!");
+            } catch (NumberFormatException ex) {
+                showAlert("Invalid input: please enter numeric values where appropriate.");
+            }
         });
 
         resetButton.setOnAction(e -> {
@@ -75,6 +90,11 @@ public class SettingsView {
             usernameField.setText(defaults.getUserName());
             musicVolumeSlider.setValue(defaults.getMusicVolume());
             soundVolumeSlider.setValue(defaults.getSoundVolume());
+            delayBetweenWavesField.setText(String.valueOf(defaults.getDelayBetweenWaves()));
+            delayBetweenGroupsField.setText(String.valueOf(defaults.getDelayBetweenGroups()));
+            startingGoldField.setText(String.valueOf(defaults.getStartingGold()));
+            startingHealthField.setText(String.valueOf(defaults.getStartingHealth()));
+            artilleryRangeField.setText(String.valueOf(defaults.getArtilleryRange()));
 
             showAlert("Preferences reset to defaults.");
         });
@@ -89,6 +109,11 @@ public class SettingsView {
                 new Label("Username:"), usernameField,
                 new Label("Music Volume:"), musicVolumeSlider,
                 new Label("Sound Volume:"), soundVolumeSlider,
+                new Label("Delay Between Waves (ms):"), delayBetweenWavesField,
+                new Label("Delay Between Groups (ms):"), delayBetweenGroupsField,
+                new Label("Starting Gold:"), startingGoldField,
+                new Label("Starting Health:"), startingHealthField,
+                new Label("Artillery Range:"), artilleryRangeField,
                 new HBox(10, applyButton, resetButton),
                 new HBox(10, returnButton)
         );
