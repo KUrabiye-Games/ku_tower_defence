@@ -22,7 +22,7 @@ import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
 
 public class GamePlayView implements IGameUpdateListener {
-   
+    
     private static final int TILE_SIZE = 64;
     private static final int ROWS = 9;
     private static final int COLS = 16;

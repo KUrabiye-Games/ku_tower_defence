@@ -1,5 +1,7 @@
 package com.kurabiye.kutd.model.Enemy;
 
+import java.util.ArrayList;
+
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
@@ -135,7 +137,7 @@ public class Enemy implements IEnemy {
 
     }
 
-    
+
     public synchronized boolean isAlive() {
         return (enemyState == EnemyState.ALIVE); // Check if the enemy is alive
     }
