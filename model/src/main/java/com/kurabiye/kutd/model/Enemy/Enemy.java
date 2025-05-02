@@ -1,5 +1,7 @@
 package com.kurabiye.kutd.model.Enemy;
 
+import java.util.ArrayList;
+
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
