@@ -35,7 +35,7 @@ import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 public class GameManager implements Runnable{
 
 
-    private static final int TARGET_FPS = 60; // Target frames per second
+    private static final int TARGET_FPS = 2; // Target frames per second
 
     private WaveManager waveManager; // Wave manager for handling enemy waves
     
