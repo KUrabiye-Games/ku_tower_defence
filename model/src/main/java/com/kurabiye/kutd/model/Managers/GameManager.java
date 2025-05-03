@@ -138,7 +138,7 @@ public class GameManager implements Runnable{
             System.out.println("GameManager.run(): hasSpawnedTestEnemy = " + hasSpawnedTestEnemy);
             
             // Using our test enemy code
-            int enemyIndex = 1;
+            int enemyIndex = 0;
            
             if (enemyIndex > -1 && !hasSpawnedTestEnemy) {
                 System.out.println("GameManager.run(): Spawning test enemy (type: KNIGHT)");
@@ -262,7 +262,7 @@ public class GameManager implements Runnable{
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep(1000); // Approximately 60 FPS
+                Thread.sleep(60); // Approximately 60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

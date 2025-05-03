@@ -32,17 +32,17 @@ public class EnemyView {
      */
     private void loadEnemyImages() {
         // We need images for each enemy type from the enum
-        enemyImages = new Image[Enemy.EnemyType.values().length];
+        enemyImages = new Image[Enemy.EnemyType.values().length * 6];
         
         for (Enemy.EnemyType type : Enemy.EnemyType.values()) {
-            String path = "/assets/enemies/" + type.name().toLowerCase() + ".png";
-            // Safely load image or use a placeholder if file not found
-            try {
-                enemyImages[type.getValue()] = new Image(getClass().getResourceAsStream(path));
-            } catch (Exception e) {
-                System.err.println("Could not load enemy image: " + path);
-                // Create a fallback colored circle image
-                enemyImages[type.getValue()] = createFallbackImage(type);
+            for (int i = 0; i < 6; i++) {
+                String imagePath = String.format("/assets/enemies/%s%d.png", type.name().toLowerCase(), i);
+                try {
+                    enemyImages[type.getValue() * 6 + i] = new Image(getClass().getResourceAsStream(imagePath));
+                } catch (Exception e) {
+                    // If the image cannot be loaded, create a fallback image
+                    enemyImages[type.getValue() * 6 + i] = createFallbackImage(type);
+                }
             }
         }
     }
@@ -79,9 +79,9 @@ public class EnemyView {
      * @param gc GraphicsContext to draw on
      * @param enemies List of enemies to render
      */
-    public void renderEnemies(GraphicsContext gc, ArrayList<Enemy> enemies) {
+    public void renderEnemies(GraphicsContext gc, ArrayList<Enemy> enemies, int enemyImage) {
         for (Enemy enemy : enemies) {
-            renderEnemy(gc, enemy);
+            renderEnemy(gc, enemy, enemyImage);
         }
     }
     
@@ -90,7 +90,7 @@ public class EnemyView {
      * @param gc GraphicsContext to draw on
      * @param enemy Enemy to render
      */
-    private void renderEnemy(GraphicsContext gc, Enemy enemy) {
+    private void renderEnemy(GraphicsContext gc, Enemy enemy, int enemyImage) {
         // Skip rendering dead enemies or those that have arrived at destination
         if (enemy.isDead() || enemy.hasArrived()) {
             return;
@@ -114,11 +114,12 @@ public class EnemyView {
         
         // Determine which image to use based on enemy type
         Enemy.EnemyType enemyType = enemy.getEnemyType();
-        int imageIndex = enemyType.getValue();
+        int imageEIndex = enemyType.getValue();
         
         // If the image is loaded successfully
-        if (enemyImages[imageIndex] != null) {
-            gc.drawImage(enemyImages[imageIndex], viewX - TILE_SIZE/2, viewY - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
+        if (enemyImages[imageEIndex * 6 + enemyImage] != null) {
+            System.out.println("Rendering enemy: " + enemyImage);
+            gc.drawImage(enemyImages[enemyType.getValue() * 6 + enemyImage], viewX - TILE_SIZE/2, viewY - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
             
             // Draw health bar above the enemy
             renderHealthBar(gc, enemy, viewX - TILE_SIZE/2, viewY - TILE_SIZE/2);

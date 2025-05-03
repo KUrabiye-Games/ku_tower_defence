@@ -357,10 +357,22 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
-        Platform.runLater(() -> { updateView(); });
+        Platform.runLater(() -> { updateView(deltaTime); });
     }
 
-    private void updateView() {
+
+    private double pastTime = 0.0;
+
+    private void updateView(double deltaTime) {
+
+        // print pastTime and deltaTime
+        System.out.println("pastTime: " + pastTime);
+        pastTime += deltaTime;
+        
+        int imgNum = ((int) (pastTime * 6)) % 6;
+
+        // print imgNum
+        System.out.println("imgNum: " + imgNum);
 
         System.out.println("Update view called");
         System.out.println("Enemies: " + enemies);
@@ -377,7 +389,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         // Draw towers
         towerView.renderTowers(gc, towers);
         // Draw enemies
-        enemyView.renderEnemies(gc, enemies);
+        enemyView.renderEnemies(gc, enemies, imgNum);
     }
 
     @Override
