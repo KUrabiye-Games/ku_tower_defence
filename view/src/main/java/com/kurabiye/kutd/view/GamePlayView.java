@@ -23,6 +23,7 @@ import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.Tower;
 
@@ -84,6 +85,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     ArrayList<Enemy> enemies;
     ArrayList<Tower> towers;
+    // Projectiles projectiles;
+
+    ArrayList<Projectile> projectiles;
 
     private int currentGold;
     private int currentHealth;
@@ -104,6 +108,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
+        this.projectiles = controller.getGameManager().getProjectiles();
         this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         this.currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         this.currentWave = controller.getGameManager().getCurrentWaveIndex();
@@ -478,6 +483,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         for (Enemy enemy : enemies) {
             System.out.println("Enemy position: " + enemy.getCoordinate());
         }
+
+        
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -487,6 +494,39 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         towerView.renderTowers(gc, towers);
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
+
+        // Draw projectiles as small red dots
+        gc.setFill(Color.RED);
+        for (Projectile projectile : projectiles) {
+            // Log projectile coordinates for debugging
+            System.out.println("Drawing projectile at coordinate: " + projectile.getCoordinate());
+            
+            // Get the actual pixel coordinates on the canvas
+            // Note: projectile.getCoordinate() returns game world coordinates, not screen coordinates
+            double x = projectile.getCoordinate().getX();
+            double y = projectile.getCoordinate().getY();
+            
+            // Draw the projectile as a red dot (5 pixels radius)
+            gc.fillOval(x - 5, y - 5, 10, 10);
+            
+            // Alternative approach with larger, more visible projectiles
+            // Draw a second, more visible projectile indicator based on type
+            switch(projectile.getProjectileType()) {
+                case ARROW:
+                    gc.setFill(Color.DARKGREEN);
+                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    break;
+                case MAGIC:
+                    gc.setFill(Color.BLUE);
+                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    break;
+                case ARTILLERY:
+                    gc.setFill(Color.ORANGE);
+                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    break;
+            }
+        }
+        // End of projectile rendering
     }
 
     @Override

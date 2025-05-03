@@ -44,7 +44,7 @@ public class Tower implements ITower{
 
     public void setTileCoordinate(TilePoint2D tileCoordinate) {
         this.tileCoordinate = tileCoordinate; // Set the tile coordinate of the tower
-        this.attackPoint = new Point2D(tileCoordinate.getCenter().getX(), (tileCoordinate.getCenter().getY() + TilePoint2D.getTileHeight() / 2)); // Update the attack point of the tower
+        this.attackPoint = new Point2D(tileCoordinate.getCenter().getX(), (tileCoordinate.getCenter().getY() - TilePoint2D.getTileHeight() / 4 )); // Update the attack point of the tower
     }
 
 

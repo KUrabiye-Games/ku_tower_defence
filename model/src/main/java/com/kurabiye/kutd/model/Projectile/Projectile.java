@@ -37,7 +37,7 @@ public class Projectile  {
 
     private Point2D speedVector;
 
-    private float projectileAreaDamage = 1f; // Area damage of the projectile
+    private float projectileAreaDamage = 100f; // Area damage of the projectile
 
     private float speed; // Speed of the projectile
 

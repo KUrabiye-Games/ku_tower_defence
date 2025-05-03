@@ -34,6 +34,9 @@ import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 
 public class GameManager implements Runnable{
 
+
+    private static final int TARGET_FPS = 60; // Target frames per second
+
     private WaveManager waveManager; // Wave manager for handling enemy waves
     
 
@@ -119,8 +122,16 @@ public class GameManager implements Runnable{
     @Override
     public void run() {
         System.out.println("GameManager.run(): Game loop starting");
+
+
+        
         // Game loop
         while (gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
+
+            gameTimer.resetTimer();
+            while (gameState != GameState.PAUSED) {
+                
+            
             // Update game state
             System.out.println("GameManager.run(): Current game state: " + gameState);
 
@@ -230,6 +241,12 @@ public class GameManager implements Runnable{
                 for (Enemy enemy : enemies) {
                     double distance = projectile.getCoordinate().distance(enemy.getCoordinate());
                     float damageRadius = projectile.getProjectileAreaDamage();
+
+                    // Console log for debugging
+
+                    System.out.println("Checking collision: Projectile at " + projectile.getCoordinate() + 
+                                       " with enemy at " + enemy.getCoordinate() + 
+                                       " (distance: " + distance + ", damage radius: " + damageRadius + ")");
                     
                     if (distance < damageRadius) { // Check for collision
                         collisionCount++;
@@ -282,10 +299,12 @@ public class GameManager implements Runnable{
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep(160); // Approximately 60 FPS
+                Thread.sleep(1000/TARGET_FPS); // Approximately 60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+         }
         }
         System.out.println("GameManager.run(): Game loop ended with state: " + gameState);
     }

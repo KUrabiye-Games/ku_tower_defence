@@ -27,7 +27,7 @@ public class StraightProjectileMoveStrategy implements IProjectileMoveStrategy {
 
     @Override
     public float getSpeed() {
-        return 15.0f;
+        return 450.0f;
     }
 
 
