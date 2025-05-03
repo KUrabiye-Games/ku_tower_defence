@@ -3,6 +3,7 @@ package com.kurabiye.kutd.model.Projectile;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.ArtilleryProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.StraightProjectileMoveStrategy;
 
@@ -29,7 +30,7 @@ public class ProjectileFactory {
     // Create a projectile of a specific type with default values
     public Projectile createProjectile(Projectile.ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate) {
         // Create a new projectile with the specified type and default values from user preferences
-        float projectileAreaDamage = 30f; // Default area damage for the projectile
+        float projectileAreaDamage = 20f; // Default area damage for the projectile
         IProjectileMoveStrategy moveStrategy = null; // Initialize the move strategy
         switch (projectileType) {
             case ARROW:
@@ -39,8 +40,8 @@ public class ProjectileFactory {
                 moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for magic projectiles
                 break;
             case ARTILLERY:
-                moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for artillery projectiles
-                projectileAreaDamage = artilleryRange * 20; // Set the area damage for artillery projectiles
+                moveStrategy = new ArtilleryProjectileMoveStrategy(); // Set the move strategy for artillery projectiles
+                projectileAreaDamage = artilleryRange * projectileAreaDamage; // Set the area damage for artillery projectiles
                 break;
             default:
                 throw new IllegalArgumentException("Invalid projectile type: " + projectileType); // Handle invalid projectile types

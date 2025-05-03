@@ -119,7 +119,25 @@ public class EnemyView {
         // If the image is loaded successfully
         if (enemyImages[imageEIndex * 6 + enemyImage] != null) {
             System.out.println("Rendering enemy: " + enemyImage);
-            gc.drawImage(enemyImages[enemyType.getValue() * 6 + enemyImage], viewX - TILE_SIZE/2, viewY - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
+
+            // Atlas:
+            // Draw the enemy image
+            // According to the enemy speed vector, we can determine the direction
+            // and image reflection might be needed
+            // I will use dot product to determine the direction
+
+            enemy.getMoveDirection().dotProduct(new Point2D(1, 0));
+            if (enemy.getMoveDirection().dotProduct(new Point2D(1, 0)) < 0) {
+                // Flip the image horizontally
+                gc.scale(-1, 1);
+                gc.drawImage(enemyImages[enemyType.getValue() * 6 + enemyImage], -centeredX - TILE_SIZE, centeredY, TILE_SIZE, TILE_SIZE);
+                gc.scale(-1, 1); // Reset scale
+            } else {
+                // Draw normally
+                gc.drawImage(enemyImages[enemyType.getValue() * 6 + enemyImage], centeredX, centeredY, TILE_SIZE, TILE_SIZE);
+            }
+
+           
             
             // Draw health bar above the enemy
             renderHealthBar(gc, enemy, viewX - TILE_SIZE/2, viewY - TILE_SIZE/2);
@@ -145,10 +163,12 @@ public class EnemyView {
         // Calculate health percentage
         double healthPercentage = currentHealth / maxHealth;
         
+        x = x + TILE_SIZE / 4; // Center the health bar above the enemy
+
         // Bar dimensions
-        double barWidth = TILE_SIZE;
+        double barWidth = TILE_SIZE / 2;
         double barHeight = 5;
-        double barY = y - 10; // Position above the enemy
+        double barY = y + 10; // Position above the enemy
         
         // Draw background (empty health)
         gc.setFill(javafx.scene.paint.Color.RED);
