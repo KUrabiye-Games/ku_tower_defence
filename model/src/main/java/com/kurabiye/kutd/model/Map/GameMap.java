@@ -32,6 +32,9 @@ public class GameMap implements Observable{
      */ 
     private Tile[][] tiles; // 2D array representing the tiles on the map it will
 
+    private int startTileDirection = -1; // Direction of the starting tile
+    private int endTileDirection = -1; // Direction of the ending tile
+
     private TilePoint2D startTileCoordinates; // Starting tile of the map
     private TilePoint2D endTileCoordinates; // Ending tile of the map
 
@@ -52,6 +55,65 @@ public class GameMap implements Observable{
 
         this.startTileCoordinates = startTileCoordinates; // Set the starting tile
         this.endTileCoordinates = endTileCoordinates; // Set the ending tile
+
+        int[] startTileDirections = tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()].getTileDirections();
+        int[] endTileDirections = tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()].getTileDirections();
+
+
+        // Set up the starting and ending tile directions
+        // If the starting tile in on the bottom edge and the tile has a direction 3 then set the staring tile direction to 3
+        
+
+        if (startTileCoordinates.getTileY() == MAP_HEIGHT - 1 && (startTileDirections[0] == 3 || startTileDirections[1] == 3)) {
+            startTileDirection = 3;
+        }
+        // If the starting the starting tile is on the left edge and the tile has a direction 0 then set the staring tile direction to 0
+
+        if (startTileCoordinates.getTileX() == 0 && (startTileDirections[0] == 0 || startTileDirections[1] == 0)) {
+            startTileDirection = 0;
+        }
+
+        // If the starting the starting tile is on the right edge and the tile has a direction 2 then set the staring tile direction to 2
+        if (startTileCoordinates.getTileX() == MAP_WIDTH - 1 && (startTileDirections[0] == 2 || startTileDirections[1] == 2)) {
+            startTileDirection = 2;
+        }
+
+        // If the starting the starting tile is on the top edge and the tile has a direction 1 then set the staring tile direction to 1
+        if (startTileCoordinates.getTileY() == 0 && (startTileDirections[0] == 1 || startTileDirections[1] == 1)) {
+            startTileDirection = 1;
+        }
+
+        if (startTileDirection == -1) {
+            throw new IllegalArgumentException("Invalid starting tile direction");
+        }
+
+        // Do the same for the ending tile
+
+
+        if (endTileCoordinates.getTileY() == MAP_HEIGHT - 1 && (endTileDirections[0] == 1 || endTileDirections[1] == 1)) {
+            endTileDirection = 1;
+        }
+
+        if (endTileCoordinates.getTileX() == 0 && (endTileDirections[0] == 0 || endTileDirections[1] == 0)) {
+            endTileDirection = 0;
+        }
+
+        if (endTileCoordinates.getTileX() == MAP_WIDTH - 1 && (endTileDirections[0] == 2 || endTileDirections[1] == 2)) {
+            endTileDirection = 2;
+
+        }
+
+        if (endTileCoordinates.getTileY() == 0 && (endTileDirections[0] == 3 || endTileDirections[1] == 3)) {
+            endTileDirection = 3;
+        }
+
+        if (endTileDirection == -1) {
+            throw new IllegalArgumentException("Invalid ending tile direction");
+        }
+
+
+
+
     }
 
 
@@ -237,45 +299,79 @@ public class GameMap implements Observable{
         System.out.println("buildTilePath(): Added starting tile to path");
         
 
+        int currentToDirection = findOtherEndTile(addTile, startTileDirection); // Set the current direction to the starting tile direction
+
+       
+
+
+
         do{
             System.out.println("buildTilePath(): Processing tile at (" + addTile.getCoordinate().getTileX() + 
                               "," + addTile.getCoordinate().getTileY() + ") with code " + addTile.getTileCode());
             
-            ArrayList<Tile> neighbours = neighbours(addTile); // Get the neighbouring tiles
-            System.out.println("buildTilePath(): Found " + neighbours.size() + " neighboring tiles");
+           
+           
 
             // Check if only single one of the neighbours is a path tile and not already in the path
 
-            int pathCount = 0; // Counter for path tiles
-            
+            /*
+             * Tile directions
+             *      1
+             * 0 - Tile - 2
+             *      3
+             */
 
-            for (Tile neighbour : neighbours) {
-                if (neighbour.isPathTile() && !my_path.contains(neighbour)) {
-                    pathCount++; // Increment the path tile counter
-                    addTile = neighbour; // Set the next tile to the neighbour
+             Tile targetTile = null; // Initialize the target tile
 
-                    System.out.println("buildTilePath(): Found valid path tile at (" + 
-                                      neighbour.getCoordinate().getTileX() + "," + 
-                                      neighbour.getCoordinate().getTileY() + ") with code " + 
-                                      neighbour.getTileCode());
-                }
+           if(currentToDirection == 1){
+                targetTile = tiles[addTile.getCoordinate().getTileY() - 1][addTile.getCoordinate().getTileX()]; // Get the tile above
+
+           }else if(currentToDirection == 2){
+                targetTile = tiles[addTile.getCoordinate().getTileY()][addTile.getCoordinate().getTileX() + 1]; // Get the tile to the right
+           }else if(currentToDirection == 3){
+                targetTile = tiles[addTile.getCoordinate().getTileY() + 1][addTile.getCoordinate().getTileX()]; // Get the tile below
+           }else if(currentToDirection == 0){
+                targetTile = tiles[addTile.getCoordinate().getTileY()][addTile.getCoordinate().getTileX() - 1]; // Get the tile to the left
+           }else{
+
+                // add the error tile to the path
+                my_path.add(ERROR_TILE); // Add the error tile to the path
+                System.out.println("buildTilePath(): ERROR - Invalid direction");
+                break; // Exit the loop if the direction is invalid
             }
 
-            if (pathCount > 1) {
-                System.out.println("buildTilePath(): ERROR - Multiple path options found (" + pathCount + ")");
-                my_path.add(ERROR_TILE); // Add the error tile to the path if there are multiple path tiles
-                break; // Break the loop if there are multiple path tiles
-            }
-            if (pathCount == 0) {
-                System.out.println("buildTilePath(): ERROR - No valid path found");
-                my_path.add(ERROR_TILE); // Add the error tile to the path if there are no path tiles
-                break; // Break the loop if there are no path tiles
-            }
-            if (pathCount == 1) {
-                my_path.add(addTile); // Add the next tile to the path
-                System.out.println("buildTilePath(): Added next tile to path at (" + 
-                                  addTile.getCoordinate().getTileX() + "," + 
-                                  addTile.getCoordinate().getTileY() + ")");
+            if (targetTile != null && targetTile.isPathTile() && !my_path.contains(targetTile)) {
+                // Check if the target tile has a connection in the current direction
+
+                if(convertDirection(currentToDirection) == targetTile.getTileDirections()[0] || 
+                    convertDirection(currentToDirection) == targetTile.getTileDirections()[1]) {
+                    // If the target tile is a path tile and not already in the path, add it to the path
+
+                    System.out.println("buildTilePath(): Found valid tile at (" + targetTile.getCoordinate().getTileX() + 
+                                      "," + targetTile.getCoordinate().getTileY() + ") with code " + targetTile.getTileCode());
+
+                    
+                    my_path.add(targetTile); // Add the target tile to the path
+
+                    addTile = targetTile; // Update the current tile to the target tile
+
+                    currentToDirection = findOtherEndTile(addTile, convertDirection(currentToDirection)); // Update the current direction to the target tile direction
+                   }else{
+
+                    // We've hit a dead end or loop in the path
+                    System.out.println("buildTilePath(): ERROR - Hit a dead end or invalid tile at direction " + currentToDirection);
+                    my_path.add(ERROR_TILE);
+                    break;
+
+                   }
+
+                
+                
+            } else {
+                // We've hit a dead end or loop in the path
+                System.out.println("buildTilePath(): ERROR - Hit a dead end or invalid tile at direction " + currentToDirection);
+                my_path.add(ERROR_TILE);
+                break;
             }
 
             // Check if we've reached the end tile
@@ -294,55 +390,29 @@ public class GameMap implements Observable{
         tilePath = my_path; // Return the list of path tiles
     }
 
-    private ArrayList<Tile> neighbours(Tile tile) {
-        System.out.println("neighbours(): Finding neighbors for tile at position " + 
-                          (tile != null && tile.getCoordinate() != null ? 
-                           "(" + tile.getCoordinate().getTileX() + "," + tile.getCoordinate().getTileY() + ")" : "null"));
-        
-        ArrayList<Tile> neighbours = new ArrayList<>(); // List to store the neighbouring tiles
-
-        // Check if tile or its coordinate is null
-        if (tile == null || tile.getCoordinate() == null) {
-            System.out.println("neighbours(): Tile or coordinate is null, returning empty list");
-            return neighbours; // Return empty list if the tile or its coordinate is null
+    private int findOtherEndTile(Tile tile, int direction) {
+        // Find the other end tile of the path
+        int otherEndTile = -1;
+        if(tile.getTileDirections()[0] == direction) {
+            otherEndTile = tile.getTileDirections()[1]; // Get the other end tile in the opposite direction
+        } else if (tile.getTileDirections()[1] == direction) {
+            otherEndTile = tile.getTileDirections()[0]; // Get the other end tile in the opposite direction
         }
+        return otherEndTile;
+    }
 
-        int x = tile.getCoordinate().getTileX(); // Get the x coordinate of the tile
-        int y = tile.getCoordinate().getTileY(); // Get the y coordinate of the tile
-
-        // Check the neighbouring tiles in all 4 directions
-
-        if (x > 0) { // Check left
-            Tile leftTile = tiles[y][x - 1];
-            neighbours.add(leftTile);
-            System.out.println("neighbours(): Added left neighbor at (" + (x-1) + "," + y + 
-                              ") with code " + leftTile.getTileCode() + 
-                              ", isPath: " + leftTile.isPathTile());
+    private int convertDirection(int direction) {
+        // Convert the direction to the opposite direction
+        if (direction == 0) {
+            return 2; // Convert left to right
+        } else if (direction == 1) {
+            return 3; // Convert up to down
+        } else if (direction == 2) {
+            return 0; // Convert right to left
+        } else if (direction == 3) {
+            return 1; // Convert down to up
         }
-        if (x < MAP_WIDTH - 1) { // Check right
-            Tile rightTile = tiles[y][x + 1];
-            neighbours.add(rightTile);
-            System.out.println("neighbours(): Added right neighbor at (" + (x+1) + "," + y + 
-                              ") with code " + rightTile.getTileCode() + 
-                              ", isPath: " + rightTile.isPathTile());
-        }
-        if (y > 0) { // Check up
-            Tile upTile = tiles[y - 1][x];
-            neighbours.add(upTile);
-            System.out.println("neighbours(): Added up neighbor at (" + x + "," + (y-1) + 
-                              ") with code " + upTile.getTileCode() + 
-                              ", isPath: " + upTile.isPathTile());
-        }
-        if (y < MAP_HEIGHT - 1) { // Check down
-            Tile downTile = tiles[y + 1][x];
-            neighbours.add(downTile);
-            System.out.println("neighbours(): Added down neighbor at (" + x + "," + (y+1) + 
-                              ") with code " + downTile.getTileCode() + 
-                              ", isPath: " + downTile.isPathTile());
-        }
-
-        System.out.println("neighbours(): Returning " + neighbours.size() + " neighboring tiles");
-        return neighbours; // Return the list of neighbouring tiles
+        return -1; // Invalid direction
     }
 
 
@@ -383,7 +453,7 @@ public class GameMap implements Observable{
      * 
      * 
      */
-    private static final int[][] map = {
+    /*private static final int[][] map = {
         { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
         { 0, 13, 13, 13, 13, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
         { 4, 15, 5, 15, 5, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
@@ -393,7 +463,20 @@ public class GameMap implements Observable{
         { 5, 4, 5, 0, 13, 10, 5, 5, 5, 5, 30, 6, 5, 5, 5, 5 },
         { 23, 7, 15, 7, 5, 5, 0, 1, 13, 13, 13, 10, 16, 5, 18, 5 },
         { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
+    };*/
+
+    private static final int[][] map = {
+        { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
+        { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
+        { 4, 15, 7, 15, 7, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
+        { 8, 2, 8, 9, 10, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
+        { 5, 7, 19, 18, 5, 5, 5, 0, 1, 2, 21, 5, 5, 31, 5, 5},
+        { 5, 7, 5, 5, 20, 0, 13, 10, 15, 8, 13, 2, 5, 5, 5, 5 },
+        { 5, 4, 5, 0, 13, 10, 0, 1, 2, 5, 30, 6, 5, 5, 5, 5 },
+        { 23, 7, 15, 7, 5, 5, 4, 18, 8, 13, 13, 10, 16, 5, 18, 5 },
+        { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
     };
+ 
  
 
     public static GameMap getPrebuiltMap() {

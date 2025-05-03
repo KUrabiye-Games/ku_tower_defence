@@ -47,6 +47,55 @@ public class TileFactory implements CodeFactory<Tile> {
 
         if(isIn(code, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14})) {
             tile.setPathTile(true);
+
+            /*
+             * Set up the tile directions
+             *         1
+             *    0 - Tile - 2
+             *         3
+             */
+
+             int dir1 = -1;
+             int dir2 = -1;
+            
+            // 0
+            if (isIn(code, new int[]{1, 2, 9, 10, 13, 14})) {
+                dir1 = 0; // Set direction 1 to 0
+                
+            }
+            // 1
+            if (isIn(code, new int[]{4, 6, 7, 8, 10, 11})) {
+                if (dir1 == -1) {
+                    dir1 = 1; // Set direction 1 to 1            
+                }else {
+                    dir2 = 1; // Set direction 2 to 1
+                }
+            }
+
+            // 2
+
+            if (isIn(code, new int[]{0, 1, 8, 9, 12, 13})) {
+                if (dir1 == -1) {
+                    dir1 = 2; // Set direction 1 to 2
+                }else {
+                    dir2 = 2; // Set direction 2 to 2
+                }
+            }
+
+            // 3
+
+            if (isIn(code, new int[]{0, 2, 3, 4, 6, 7})) {
+                if (dir1 == -1) {
+                    dir1 = 3; // Set direction 1 to 3
+                }else {
+                    dir2 = 3; // Set direction 2 to 3
+                }
+            }
+
+
+            int[] tileDirections = new int[]{dir1, dir2};
+
+            tile.setTileDirections(tileDirections);
         }
 
         if(code == 15) {
