@@ -78,6 +78,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private boolean isGameAccelerated = false;
     private Pane root;
     private Canvas canvas;
+    private GraphicsContext gc;
     private HBox buttonContainer;
     private int lastClickedRow = -1;
     private int lastClickedCol = -1;
@@ -125,7 +126,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         // Create canvas with the calculated dimensions
         canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc = canvas.getGraphicsContext2D();
         drawMap(gc);
     
         // Create root pane to center the canvas
@@ -584,12 +585,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         
         
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        // GraphicsContext gc = canvas.getGraphicsContext2D();
+        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
         // Draw towers
-        towerView.renderTowers(gc, towers);
+        // towerView.renderTowers(gc, towers);
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
 
@@ -637,9 +639,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         System.out.println("Observer update called with argument: " + arg);
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
-        GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
+        
         
     }
 }
