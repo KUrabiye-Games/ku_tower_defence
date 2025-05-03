@@ -52,6 +52,10 @@ public class Tower implements ITower{
         this.projectileType = projectileType; // Set the projectile type
     }
 
+    public ProjectileType getProjectileType() {
+        return projectileType; // Get the projectile type
+    }
+
     public void setAttackStrategy(IAttackStrategy attackStrategy) {
         this.attackStrategy = attackStrategy; // Set the attack strategy
     }

@@ -6,11 +6,16 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 
@@ -18,9 +23,12 @@ import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
-import com.kurabiye.kutd.util.ObserverPattern.Observer;
+import com.kurabiye.kutd.util.ObserverPattern.Observer;import com.kurabiye.kutd.model.Tower.Tower;
+
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.input.MouseEvent;
 
 public class GamePlayView implements IGameUpdateListener, Observer {
@@ -67,8 +75,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private GamePlayController controller;
 
     private EnemyView enemyView;
+    private TowerView towerView;
 
     ArrayList<Enemy> enemies;
+    ArrayList<Tower> towers;
+
+    private int currentGold;
+    private int currentHealth;
+    private int currentWave;
 
     private int[][] map;
     
@@ -78,8 +92,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         this.controller = controller;
         this.enemyView = new EnemyView(TILE_SIZE);  // Pass just the tile size
+        this.towerView = new TowerView(TILE_SIZE);  // Pass just the tile size
 
         this.enemies = controller.getGameManager().getEnemies();
+        this.towers = controller.getGameManager().getTowers();
+        this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
+        this.currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
+        this.currentWave = controller.getGameManager().getCurrentWaveIndex();
+
 
         controller.setGameUpdateListener(this);
         controller.setPlayerObserver(this);
@@ -230,8 +250,34 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private void handleButtonClick(int buttonId, int row, int col) {
         System.out.println("Button " + buttonId + " clicked on tile at row " + row + ", col " + col);
-        // Here you can add whatever functionality you want for each button
-        // For example, change the map tile, trigger an action, etc.
+        
+        // Map button IDs to tower types (0=Magic/Star, 1=Artillery/Bomb, 2=Archer/Arrow)
+        int towerType;
+        switch(buttonId) {
+            case 0: // Star button - creates Magic tower
+                towerType = 1; // MAGIC tower type
+                break;
+            case 1: // Bomb button - creates Artillery tower
+                towerType = 2; // ARTILLERY tower type
+                break;
+            case 2: // Arrow button - creates Archer tower
+                towerType = 0; // ARROW tower type
+                break;
+            default:
+                System.out.println("Unknown button ID: " + buttonId);
+                return;
+        }
+        
+        // Tell the controller to build a tower of the selected type
+        boolean success = controller.buildTower(col, row, towerType);
+
+        System.out.println("Tower List: " + towers);
+        
+        if (success) {
+            System.out.println("Tower of type " + towerType + " built at row " + row + ", col " + col);
+        } else {
+            System.out.println("Failed to build tower at row " + row + ", col " + col);
+        }
         
         // After handling, remove the buttons
         if (buttonContainer != null) {
@@ -247,12 +293,55 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         buttonColumn.setLayoutX(64); // Next to icons
         buttonColumn.setLayoutY(10);
 
+        Text goldText = new Text(""+currentGold);
+        goldText.setFill(Color.WHITE);
+        goldText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
+        goldText.setTextOrigin(VPos.CENTER);
+
+        Text healthText = new Text(""+currentHealth);
+        healthText.setFill(Color.WHITE);
+        healthText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
+        healthText.setTextOrigin(VPos.CENTER);
+
+        Text waveText = new Text(""+currentWave);
+        waveText.setFill(Color.WHITE);
+        waveText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
+        waveText.setTextOrigin(VPos.CENTER);
+
         for (int i = 0; i < 3; i++) {
             ImageView blueButton = new ImageView(blueButtonImage);
             blueButton.setFitWidth(120);
             blueButton.setFitHeight(42);
-            buttonColumn.getChildren().add(blueButton);
-        }
+            
+            // For the first button (gold button), create a stack pane to overlay text and image
+            if (i == 0) {
+                StackPane goldButton = new StackPane();
+                goldButton.getChildren().addAll(blueButton, goldText);
+                StackPane.setAlignment(goldText, Pos.CENTER);
+                
+                // Add margin to adjust vertical position if needed
+                StackPane.setMargin(goldText, new Insets(-10, 0, 0, 0)); // Adjust top margin as needed
+                
+                buttonColumn.getChildren().add(goldButton);
+            } else {
+                buttonColumn.getChildren().add(blueButton);
+            }
+
+            // Add the health and wave buttons
+            if (i == 1) {
+                StackPane healthButton = new StackPane();
+                healthButton.getChildren().addAll(blueButton, healthText);
+                StackPane.setAlignment(healthText, Pos.CENTER);
+                StackPane.setMargin(healthText, new Insets(-10, 0, 0, 0));
+                buttonColumn.getChildren().add(healthButton);
+            } else if (i == 2) {
+                StackPane waveButton = new StackPane();
+                waveButton.getChildren().addAll(blueButton, waveText);
+                StackPane.setAlignment(waveText, Pos.CENTER);
+                StackPane.setMargin(waveText, new Insets(-10, 0, 0, 0));
+                buttonColumn.getChildren().add(waveButton);
+            }
+        }  
 
         ImageView icons = new ImageView(iconsImage);
         icons.setFitWidth(48);
@@ -268,7 +357,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
-        Platform.runLater(() -> { updateView(); }); 
+        Platform.runLater(() -> { updateView(); });
     }
 
     private void updateView() {
@@ -280,11 +369,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         for (Enemy enemy : enemies) {
             System.out.println("Enemy position: " + enemy.getCoordinate());
         }
-
+        
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
+        // Draw towers
+        towerView.renderTowers(gc, towers);
+        // Draw enemies
         enemyView.renderEnemies(gc, enemies);
     }
 

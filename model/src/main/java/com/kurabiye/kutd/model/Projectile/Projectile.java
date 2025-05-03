@@ -98,6 +98,11 @@ public class Projectile  {
         return coordinate; // Get the current coordinate of the projectile
     }
 
+    // Get the projectile's speed vector
+    public Point2D getSpeedVector() {
+        return speedVector; // Get the speed vector of the projectile
+    }
+
     
 
 
