@@ -13,6 +13,7 @@ import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Tile.Tile;
+import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Timer.GameTimer;
 import com.kurabiye.kutd.model.Tower.Tower;
 import com.kurabiye.kutd.model.Tower.TowerFactory;
@@ -71,6 +72,10 @@ public class GameManager implements Runnable{
     private ArrayList<Projectile> projectiles; // List of projectiles in the game
 
 
+    // Tile Factory to build new Towers
+    private TileFactory tileFactory; // Tile factory for creating tiles
+
+
     // The callback for the view update method
     
     private IGameUpdateListener gameUpdateListener; // Listener for game updates
@@ -95,6 +100,8 @@ public class GameManager implements Runnable{
         this.towers = new ArrayList<>(); // Initialize the list of towers
         this.enemies = new ArrayList<>(); // Initialize the list of enemies
         this.projectiles = new ArrayList<>(); // Initialize the list of projectiles
+
+        this.tileFactory = new TileFactory(); // Initialize the tile factory
     }
 
     public void setGameUpdateListener(IGameUpdateListener gameUpdateListener) {
@@ -351,6 +358,27 @@ public class GameManager implements Runnable{
         towers.add(tower);
         System.out.println("GameManager.buildTower(): Tower built successfully. Total towers: " + towers.size());
 
+
+        int tileCode;
+
+        if (towerType == 0) {
+            tileCode = 20; // Example tile code for tower type 0
+        } else if (towerType == 1) {
+            tileCode = 21; // Example tile code for tower type 1
+        } else if (towerType == 2) {
+            tileCode = 26; // Example tile code for tower type 2
+        } else {
+            System.out.println("GameManager.buildTower(): Invalid tower type");
+            return false; // Invalid tower type
+            
+        }
+
+        Tile towerTile = tileFactory.create(tileCode); // Create the tower tile using the factory
+
+
+
+        gameMap.setTile(xCoordinate, yCoordinate, towerTile);
+
         return true;
     }
     public boolean sellTower(int xCoordinate, int yCoordinate, int towerType) {
@@ -368,6 +396,14 @@ public class GameManager implements Runnable{
             }
         }
 
+        // Remove the tile from the map
+
+        
+
+        Tile buildableTile = this.tileFactory.create(15); // Create a buildable tile using the factory
+
+        gameMap.setTile(xCoordinate, yCoordinate, buildableTile); // Set the tile to a buildable tile
+    
         return false; // Tower not found at the given coordinates
 
     }
