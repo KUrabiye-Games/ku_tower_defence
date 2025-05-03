@@ -417,9 +417,12 @@ public class GameManager implements Runnable{
         return userPreferences; // Return the user preferences
     }
 
+    public int getCurrentWaveIndex() {
+        return waveManager.getCurrentWaveIndex(); // Return the current wave index
+    }
 
-
-
- 
+    public int getCurrentGroupIndex() {
+        return waveManager.getCurrentGroupIndex(); // Return the current group index
+    }
 
 }

@@ -2,6 +2,7 @@ package com.kurabiye.kutd.controller;
 
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameManager;
+import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Map.GameMap;
 
 public class GamePlayController {
@@ -21,6 +22,10 @@ public class GamePlayController {
     public void setGameUpdateListener(IGameUpdateListener listener) {
 
         this.gameManager.setGameUpdateListener(listener);
+    }
+
+    public void setPlayerObserver(Observer observer){
+        this.gameManager.getPlayer().addObserver(observer);
     }
 
     public void startGame() {

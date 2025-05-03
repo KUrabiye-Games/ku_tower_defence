@@ -108,6 +108,10 @@ public class EnemyView {
         double viewX = position.getX() * scaleFactor;
         double viewY = position.getY() * scaleFactor;
         
+        // Center the enemy image on the path point by offsetting half the tile size
+        double centeredX = viewX - (TILE_SIZE / 2);
+        double centeredY = viewY - (TILE_SIZE / 2);
+        
         // Determine which image to use based on enemy type
         Enemy.EnemyType enemyType = enemy.getEnemyType();
         int imageIndex = enemyType.getValue();
