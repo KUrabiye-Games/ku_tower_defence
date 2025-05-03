@@ -73,6 +73,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image pauseImage;      // Pause button image
     private Image accelerateImage; // Speed up image
     private Image settingsImage;   // Settings image
+    private Button playPauseButton;
+    private boolean isGamePlaying = true;
+    private boolean isGameAccelerated = false;
     private Pane root;
     private Canvas canvas;
     private HBox buttonContainer;
@@ -135,7 +138,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         root.getChildren().add(canvas);
         
-        addUIElements();
+        addUIElements(stage);
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
         stage.setTitle("Game Map");
@@ -307,7 +310,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         }
     }
 
-    private void addUIElements() {
+    private void addUIElements(Stage stage) {
         VBox buttonColumn = new VBox(10); // Vertical layout with spacing
         buttonColumn.setLayoutX(64); // Next to icons
         buttonColumn.setLayoutY(10);
@@ -369,7 +372,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         icons.setLayoutY(10);
 
         // Create control buttons for the top-right corner
-        HBox controlButtons = createControlButtons();
+        HBox controlButtons = createControlButtons(stage);
         // Position at top-right with a margin
         controlButtons.setLayoutX(CANVAS_WIDTH - 200); // Adjust based on total width of buttons
         controlButtons.setLayoutY(20);
@@ -377,46 +380,55 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         root.getChildren().addAll(icons, buttonColumn, controlButtons);
     }
 
-    private HBox createControlButtons() {
+    private HBox createControlButtons(Stage stage) {
         HBox container = new HBox(10); // 10 pixels spacing between buttons
         
-        // Create play/pause button with initial play image
-        Button playPauseButton = createControlButton(pauseImage);
+        // Create play/pause button with initial play image and store reference
+        playPauseButton = createControlButton(pauseImage);
+        
         // Create accelerate button
         Button accelerateButton = createControlButton(accelerateImage);
         // Create settings button
         Button settingsButton = createControlButton(settingsImage);
         
         // Set up the play/pause toggle functionality
-        final boolean[] isPlaying = {true}; // Game starts in playing state
-        
         playPauseButton.setOnAction(e -> {
-            if (!isPlaying[0]) {
-                // Change to pause state
+            if (isGamePlaying) {
+                // Currently playing, pause the game
                 controller.pauseGame();
                 ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
+                
+                // Show pause menu
+                showPauseMenu(stage);
             } else {
-                // Change to play state
+                // Currently paused, resume the game
                 controller.resumeGame();
                 ((ImageView)playPauseButton.getGraphic()).setImage(pauseImage);
             }
-            isPlaying[0] = !isPlaying[0];
+            isGamePlaying = !isGamePlaying;
         });
         
         // Set up accelerate button
         accelerateButton.setOnAction(e -> {
-            controller.speedUpGame();
+            if (isGameAccelerated) {
+                // Currently accelerated, slow down the game
+                controller.slowDownGame();
+            } else {
+                // Currently normal speed, speed up the game
+                controller.speedUpGame();
+            }
+            isGameAccelerated = !isGameAccelerated;
         });
 
         // Set up settings button
         settingsButton.setOnAction(e -> {
             // Pause the game
             controller.pauseGame();
-            isPlaying[0] = false;
+            isGamePlaying = false;
             ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
             
-            // TODO: Open settings menu
-            System.out.println("Settings button clicked");
+            // Show pause menu
+            showPauseMenu(stage);
         });
         
         container.getChildren().addAll(playPauseButton, accelerateButton, settingsButton);
@@ -450,6 +462,91 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         button.setOnMouseExited(e -> {
             button.setOpacity(1.0); // Restore full opacity
         });
+        
+        return button;
+    }
+
+    private void showPauseMenu(Stage stage) {
+        // Create a semi-transparent overlay
+        Pane overlay = new Pane();
+        overlay.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+        
+        // Create the pause menu container
+        VBox pauseMenu = new VBox(15);
+        pauseMenu.setAlignment(Pos.CENTER);
+        pauseMenu.setStyle(
+            "-fx-background-color: rgba(50, 50, 50, 0.9);" +
+            "-fx-background-radius: 15;" +
+            "-fx-padding: 20px;"
+        );
+        pauseMenu.setMaxWidth(300);
+        pauseMenu.setMaxHeight(250);
+        
+        // Create the pause menu title
+        Text pauseTitle = new Text("GAME PAUSED");
+        pauseTitle.setFont(Font.font("System", FontWeight.BOLD, 24));
+        pauseTitle.setFill(Color.WHITE);
+        
+        // Create buttons
+        Button resumeButton = createPauseMenuButton("Resume Game");
+        Button mainMenuButton = createPauseMenuButton("Return to Main Menu");
+        
+        // Add action handlers
+        resumeButton.setOnAction(event -> {
+            // Resume game
+            controller.resumeGame();
+            root.getChildren().remove(overlay);
+            
+            // Update the play/pause button state using the class field
+            ((ImageView)playPauseButton.getGraphic()).setImage(pauseImage);
+            isGamePlaying = true;
+        });
+        
+        mainMenuButton.setOnAction(event -> {
+            // End the current game
+            controller.endGame();
+            
+            // Return to main menu
+            MainMenuView mainMenuView = new MainMenuView();
+            mainMenuView.start(stage);
+        });
+        
+        // Add all elements to the pause menu
+        pauseMenu.getChildren().addAll(pauseTitle, resumeButton, mainMenuButton);
+        
+        // Center the pause menu on screen
+        pauseMenu.setLayoutX((SCREEN_WIDTH - 300) / 2);
+        pauseMenu.setLayoutY((SCREEN_HEIGHT - 250) / 2);
+        
+        // Add overlay and pause menu to the root
+        overlay.getChildren().add(pauseMenu);
+        root.getChildren().add(overlay);
+    }
+    
+    private Button createPauseMenuButton(String text) {
+        Button button = new Button(text);
+        button.setPrefWidth(200);
+        button.setPrefHeight(40);
+        button.setFont(Font.font("System", FontWeight.BOLD, 14));
+        
+        button.setStyle(
+            "-fx-background-color: rgb(0, 218, 142);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8px;"
+        );
+        
+        button.setOnMouseEntered(e -> button.setStyle(
+            "-fx-background-color: rgb(34, 220, 155);" + 
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8px;"
+        ));
+        
+        button.setOnMouseExited(e -> button.setStyle(
+            "-fx-background-color: rgb(0, 218, 142);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8px;"
+        ));
         
         return button;
     }
