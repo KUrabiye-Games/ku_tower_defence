@@ -18,12 +18,12 @@ import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
-
+import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
 
-public class GamePlayView implements IGameUpdateListener {
+public class GamePlayView implements IGameUpdateListener, Observer {
     
     // Reference dimensions that the game was designed for
     private static final int REFERENCE_WIDTH = 1920;
@@ -82,6 +82,7 @@ public class GamePlayView implements IGameUpdateListener {
         this.enemies = controller.getGameManager().getEnemies();
 
         controller.setGameUpdateListener(this);
+        controller.setPlayerObserver(this);
         controller.startGame();
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
@@ -285,5 +286,11 @@ public class GamePlayView implements IGameUpdateListener {
         drawMap(gc);
 
         enemyView.renderEnemies(gc, enemies);
+    }
+
+    @Override
+    public void update(Object arg) {
+        
+        System.out.println("Observer update called with argument: " + arg);
     }
 }
