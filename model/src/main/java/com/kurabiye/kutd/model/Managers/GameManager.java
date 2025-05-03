@@ -442,17 +442,12 @@ public class GameManager implements Runnable{
                 // Tower found, sell it
                 player.sellTower(tower.getSellReturn()); // Add sell return to player's gold
                 towers.remove(tower); // Remove the tower from the list
+                Tile buildableTile = this.tileFactory.create(15); // Create a buildable tile using the factory
+                gameMap.setTile(xCoordinate, yCoordinate, buildableTile);
                 return true; // Tower sold successfully
             }
         }
 
-        // Remove the tile from the map
-
-        
-
-        Tile buildableTile = this.tileFactory.create(15); // Create a buildable tile using the factory
-
-        gameMap.setTile(xCoordinate, yCoordinate, buildableTile); // Set the tile to a buildable tile
     
         return false; // Tower not found at the given coordinates
 

@@ -134,8 +134,9 @@ public class GameMap implements Observable{
         if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
             throw new IllegalArgumentException("Coordinates out of bounds");
         }
+        tiles[y][x] = tile;
         notifyObservers(tile);
-        tiles[y][x] = tile; // Set the tile at the specified coordinates
+         // Set the tile at the specified coordinates
     }
 
     public TilePoint2D getstartTileCoordinates() {
