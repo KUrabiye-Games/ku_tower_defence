@@ -432,6 +432,42 @@ public class GameMap implements Observable{
             }
         }
 
+        // Add on point to the beginning and end of the path
+        // So that enemy spawn does not happen on the visible path
+
+        Point2D startPoint = pathPoints.get(0); // Get the starting point
+
+
+        if(startTileDirection == 0) {
+            pathPoints.add(0, startPoint.add(new Point2D(-3 * MAP_WIDTH, 0)));
+        }
+        else if(startTileDirection == 1) {
+            pathPoints.add(0, startPoint.add(new Point2D(0, -3 * MAP_HEIGHT)));
+        }
+        else if(startTileDirection == 2) {
+            pathPoints.add(0, startPoint.add(new Point2D(3 * MAP_WIDTH, 0)));
+        }
+        else if(startTileDirection == 3) {
+            pathPoints.add(0, startPoint.add(new Point2D(0, 3 * MAP_HEIGHT)));
+        }
+
+
+        Point2D endPoint = pathPoints.get(pathPoints.size() - 1); // Get the ending point
+
+        if(endTileDirection == 0) {
+            pathPoints.add(endPoint.add(new Point2D(-4 * MAP_WIDTH, 0)));
+        }
+        else if(endTileDirection == 1) {
+            pathPoints.add(endPoint.add(new Point2D(0, -4 * MAP_HEIGHT)));
+        }
+        else if(endTileDirection == 2) {
+            pathPoints.add(endPoint.add(new Point2D(4 * MAP_WIDTH, 0)));
+        }
+        else if(endTileDirection == 3) {
+            pathPoints.add(endPoint.add(new Point2D(0, 4 * MAP_HEIGHT)));
+        }
+
+
         pointPath = pathPoints; // Return the list of path points
     }
 

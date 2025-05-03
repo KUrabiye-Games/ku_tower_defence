@@ -52,7 +52,24 @@ public class GoblinMoveStrategy implements IMoveStrategy {
             // check if the tiles create a straight line
             if(difVect1.dotProduct(difVect2) > THRESHOLD) {
                 // if they are in the same line, add the middle tile to the new path
-                newPath.add(mid);
+                
+                // slightly change the mid point
+
+                // check if the straigth line is horizontal or vertical
+
+                Point2D newMid = new Point2D(mid.getX(), mid.getY());
+
+                if(Math.abs(difVect1.getX()) > Math.abs(difVect1.getY())) {
+                    // horizontal line
+                    newMid.add(newMid.getX() * (random.nextDouble() * 0.5 - 1), 0);
+                } else {
+                    // vertical line
+                    newMid.add(0, newMid.getY() * (random.nextDouble() * 0.5 - 1));
+                }
+
+                newPath.add(newMid);
+
+
             } else {
                 
                 // if not in the same line, find the middle of the end and start tiles
@@ -65,7 +82,7 @@ public class GoblinMoveStrategy implements IMoveStrategy {
                 // this is the new middle point
 
                 // pick a random number between 0.25 and 0.5
-                double randomNum = random.nextDouble() * 0.25 + 0.25;
+                double randomNum = random.nextDouble() * 0.4 + 0.25;
 
                 Point2D mPoint2D2 = mid.interpolate(mPoint2D, randomNum);
 
