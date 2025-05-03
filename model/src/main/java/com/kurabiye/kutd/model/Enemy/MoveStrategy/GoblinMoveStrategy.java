@@ -1,6 +1,7 @@
 package com.kurabiye.kutd.model.Enemy.MoveStrategy;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 
@@ -19,6 +20,9 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
  */
 
 public class GoblinMoveStrategy implements IMoveStrategy {
+
+
+    Random random = new Random();
 
 
     private static final double THRESHOLD = 10; // Threshold for checking if two points are equal
@@ -57,7 +61,13 @@ public class GoblinMoveStrategy implements IMoveStrategy {
 
                 // then find the middle of mPoint2D and mid
 
-                Point2D mPoint2D2 = mid.midpoint(mPoint2D);
+                // pick a random point between mid and mPoint2D
+                // this is the new middle point
+
+                // pick a random number between 0.25 and 0.5
+                double randomNum = random.nextDouble() * 0.25 + 0.25;
+
+                Point2D mPoint2D2 = mid.interpolate(mPoint2D, randomNum);
 
                 // add the middle point to the new path
 
@@ -68,9 +78,6 @@ public class GoblinMoveStrategy implements IMoveStrategy {
         return newPath;
         
     }
-    // GoblinMoveStrategy class implements the IMoveStrategy interface
-    // This class defines the move strategy for the Goblin enemy
-
 
 
 }

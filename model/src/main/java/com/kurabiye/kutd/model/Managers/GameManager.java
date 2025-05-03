@@ -34,8 +34,14 @@ import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 
 public class GameManager implements Runnable{
 
+
+    private static final int TARGET_FPS = 60; // Target frames per second
+
     private WaveManager waveManager; // Wave manager for handling enemy waves
     
+    // Thread management
+    private Thread gameThread; // Reference to the game thread
+    private volatile boolean running = true; // Flag to control thread execution
 
     // TODO: Debugging: Remove this flag later
     // Add a flag to control test enemy spawning
@@ -49,7 +55,7 @@ public class GameManager implements Runnable{
         GAME_WON,
     }
 
-    private GameState gameState; // Current state of the game
+    private volatile GameState gameState; // Current state of the game
 
     private GameTimer gameTimer; // Game time
 
@@ -119,8 +125,19 @@ public class GameManager implements Runnable{
     @Override
     public void run() {
         System.out.println("GameManager.run(): Game loop starting");
+
         // Game loop
-        while (gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
+        while (running && gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
+
+            gameTimer.resetTimer();
+            while (running && gameState != GameState.PAUSED) {
+                
+            // Check if thread has been requested to stop
+            if (!running) {
+                System.out.println("GameManager.run(): Thread stop requested, exiting game loop");
+                break;
+            }
+            
             // Update game state
             System.out.println("GameManager.run(): Current game state: " + gameState);
 
@@ -143,22 +160,25 @@ public class GameManager implements Runnable{
             // Create new enemies
             System.out.println("GameManager.run(): Checking if we should spawn an enemy");
             System.out.println("GameManager.run(): hasSpawnedTestEnemy = " + hasSpawnedTestEnemy);
-            
             // Using our test enemy code
-            int enemyIndex = 0;
+            int enemyIndex = waveManager.getEnemy(deltaTime); // Get the index of the enemy to spawn
+            
+            /*if (!hasSpawnedTestEnemy) {
+                enemyIndex = 0; // Set to 0 to spawn a test enemy
+            }*/
+            // */ print the enemy index
+            System.out.println("GameManager.run(): Enemy index: " + enemyIndex);
            
-            if (enemyIndex > -1 && !hasSpawnedTestEnemy) {
+            if (enemyIndex > -1) {
                 System.out.println("GameManager.run(): Spawning test enemy (type: KNIGHT)");
                 Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
                 enemies.add(enemy); // Add the enemy to the list of enemies
                
-                // DEBUG:
-                enemyIndex = -1;
-                hasSpawnedTestEnemy = true;
+               
 
                 System.out.println("GameManager.run(): Enemy created: " + enemy.getEnemyType() + " at position " + enemy.getCoordinate() + " (index: " + (enemies.size() - 1) + ")");
                 System.out.println("GameManager.run(): hasSpawnedTestEnemy set to true");
-            } else if (enemyIndex == -2) {
+            } else if (enemyIndex == -2 && enemies.size() == 0) {
                 // No enemies left to spawn
                 System.out.println("GameManager.run(): No enemies left to spawn, game won");
                 gameState = GameState.GAME_WON; // Set game state to GAME_WON
@@ -189,54 +209,75 @@ public class GameManager implements Runnable{
                 }
             }
 
-            // Towers look for targets and  create projectiles
-
-            // Print the number of enemies
+            // Towers look for targets and create projectiles
             System.out.println("Number of total enemies: " + enemies.size());
+            System.out.println("Number of towers: " + towers.size());
+            System.out.println("Number of projectiles: " + projectiles.size());
         
-
             for (Tower tower : towers) {
                 // Check if the tower can attack     
-                    // Get the projectile from the tower
-                    Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
-                    if (projectile != null) {
-                        projectiles.add(projectile); // Add the projectile to the list of projectiles
-                    }
-                
+                // Get the projectile from the tower
+                Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
+                if (projectile != null) {
+                    projectiles.add(projectile); // Add the projectile to the list of projectiles
+                    System.out.println("New projectile created of type " + projectile.getProjectileType() + 
+                                       " at " + projectile.getCoordinate() + 
+                                       " heading to " + projectile.getSpeedVector());
+                }
             }
 
             // Update projectiles position
-
+            System.out.println("Updating positions of " + projectiles.size() + " projectiles");
             for (Projectile projectile : projectiles) {
+                Point2D oldPos = projectile.getCoordinate();
                 projectile.move(deltaTime); // Update each projectile's position
-               
+                System.out.println("Projectile moved from " + oldPos + " to " + projectile.getCoordinate());
             }
 
-
             // Check for collisions between projectiles and enemies
+            System.out.println("Checking for collisions...");
 
             // Keep track of projectiles that need to be removed
             // Keep track of the enemies that are dead and need to be removed
             ArrayList<Enemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
             ArrayList<Projectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
+            int collisionCount = 0;
 
             for (Projectile projectile : projectiles) {
-
                 // Check if any collision occurred
                 boolean collisionOccurred = false; // Flag to check if a collision occurred
 
                 for (Enemy enemy : enemies) {
-                    if (projectile.getCoordinate().distance(enemy.getCoordinate()) < projectile.getProjectileAreaDamage()) { // Check for collision
+                    double distance = projectile.getCoordinate().distance(enemy.getCoordinate());
+                    float damageRadius = projectile.getProjectileAreaDamage();
+
+                    // Console log for debugging
+
+                    System.out.println("Checking collision: Projectile at " + projectile.getCoordinate() + 
+                                       " with enemy at " + enemy.getCoordinate() + 
+                                       " (distance: " + distance + ", damage radius: " + damageRadius + ")");
+                    
+                    if (distance < damageRadius) { // Check for collision
+                        collisionCount++;
+                        System.out.println("Collision detected! Projectile at " + projectile.getCoordinate() + 
+                                           " hit enemy at " + enemy.getCoordinate() + 
+                                           " (distance: " + distance + ", damage radius: " + damageRadius + ")");
+                        
+                        System.out.println("Enemy health before damage: " + enemy.getHealth());
                         enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
+                        System.out.println("Enemy health after damage: " + enemy.getHealth());
                         
                         if (enemy.isDead()) {
-                            player.earnGold(enemy.getKillReward()); // Add gold to the player for killing the enemy
+                            int reward = enemy.getKillReward();
+                            System.out.println("Enemy killed! Player earned " + reward + " gold");
+                            player.earnGold(reward); // Add gold to the player for killing the enemy
                             enemiesToRemove.add(enemy); // Mark the enemy for removal
                         }
                         collisionOccurred = true; // Set the collision flag to true
                         
                         if(projectile.getProjectileAreaDamage() <= 1f){
                             projectilesToRemove.add(projectile); // Mark the projectile for removal
+                            System.out.println("Single-target projectile marked for removal");
                             break; // Exit the loop if a collision occurred
                         }
                     }
@@ -245,34 +286,34 @@ public class GameManager implements Runnable{
                 if(collisionOccurred) {
                     // Remove the projectile if it has collided with an enemy
                     projectilesToRemove.add(projectile); // Mark the projectile for removal
+                    System.out.println("Projectile marked for removal after collision");
                 }
             }
 
+            System.out.println("Total collisions this frame: " + collisionCount);
+            System.out.println("Enemies to remove: " + enemiesToRemove.size());
+            System.out.println("Projectiles to remove: " + projectilesToRemove.size());
 
             // Remove dead enemies from the list
             enemies.removeAll(enemiesToRemove); // Remove the marked enemies from the list
             // Remove projectiles that have collided with enemies
             projectiles.removeAll(projectilesToRemove); // Remove the marked projectiles from the list
-            // Remove projectiles that have reached their target
-
-
             
+            System.out.println("After cleanup - Enemies: " + enemies.size() + ", Projectiles: " + projectiles.size());
 
-
-           
-                if (gameUpdateListener != null) {
-                    gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
-                }
-                
-            
+            if (gameUpdateListener != null) {
+                gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
+            }
              
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep(60); // Approximately 60 FPS
+                Thread.sleep(1000/TARGET_FPS); // Approximately 60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+         }
         }
         System.out.println("GameManager.run(): Game loop ended with state: " + gameState);
     }
@@ -302,6 +343,7 @@ public class GameManager implements Runnable{
     public void endGame() {
         System.out.println("GameManager.endGame(): Ending the game");
         gameState = GameState.GAME_LOST;
+        running = false; // Stop the game loop
         // Handle game over logic
     }
 
@@ -309,10 +351,18 @@ public class GameManager implements Runnable{
         return gameState;
     }
 
+    public void returnToMainMenu() {
+        System.out.println("GameManager.returnToMainMenu(): Returning to main menu");
+        gameState = GameState.INITIALIZING;
+        running = false; // Stop the game loop
+        // Handle return to main menu logic
+        
+    }
+
     public void speedUpGame() {
         // Increase game speed
         double currentTimeCoefficient = gameTimer.getTimeCoefficient();
-        if (currentTimeCoefficient < 4) { // Limit the maximum speed to 4x
+        if (currentTimeCoefficient < 2) { // Limit the maximum speed to 4x
             gameTimer.setTimeCoefficient(currentTimeCoefficient * 2);
         }
        
@@ -320,7 +370,7 @@ public class GameManager implements Runnable{
     public void slowDownGame() {
         // Decrease game speed
         double currentTimeCoefficient = gameTimer.getTimeCoefficient();
-        if (currentTimeCoefficient > 0.25) { // Limit the minimum speed to 0.25x
+        if (currentTimeCoefficient > 0.5) { // Limit the minimum speed to 0.25x
             gameTimer.setTimeCoefficient(currentTimeCoefficient / 2);
         }
     }
@@ -414,7 +464,7 @@ public class GameManager implements Runnable{
         System.out.println("GameManager.startGame(): Starting the game");
         
         // Create a new thread using this instance (which implements Runnable)
-        Thread gameThread = new Thread(this);
+        gameThread = new Thread(this);
         // Start the thread, which will call the run() method
 
         gameState = GameState.RUNNING; // Set the game state to RUNNING
@@ -425,6 +475,39 @@ public class GameManager implements Runnable{
         System.out.println("GameManager.startGame(): Game thread started");
     }
 
+    public void killGameThread() {
+        System.out.println("GameManager.killGameThread(): Attempting to kill game thread");
+        if (gameThread != null && gameThread.isAlive()) {
+            running = false; // Signal the thread to stop
+            gameState = GameState.GAME_LOST; // Force game state to end
+            
+            try {
+                // Wait for the thread to die, but with a timeout
+                gameThread.join(1000);
+                
+                // If the thread is still alive after timeout, interrupt it
+                if (gameThread.isAlive()) {
+                    System.out.println("GameManager.killGameThread(): Thread didn't terminate normally, interrupting");
+                    gameThread.interrupt();
+                    gameThread.join(1000); // Give it a second chance to terminate
+                }
+                
+                System.out.println("GameManager.killGameThread(): Game thread successfully terminated");
+            } catch (InterruptedException e) {
+                System.out.println("GameManager.killGameThread(): Interrupted while waiting for game thread to terminate");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("GameManager.killGameThread(): No active game thread to kill");
+        }
+        
+        // Clear game resources
+        enemies.clear();
+        projectiles.clear();
+        
+        // Reset the game timer
+        gameTimer.resetTimer();
+    }
 
     // Info provider methods for the view
 

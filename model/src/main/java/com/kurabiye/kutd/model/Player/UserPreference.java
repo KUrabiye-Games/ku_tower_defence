@@ -54,8 +54,8 @@ public class UserPreference implements Serializable {
         musicVolume = 0.5f;
         soundVolume = 0.5f;
        
-        delayBetweenWaves = 5000; // 5 seconds
-        delayBetweenGroups = 3000; // 3 seconds
+        delayBetweenWaves = 8; // 5 seconds
+        delayBetweenGroups = 4; // 3 seconds
 
         waveList = new ArrayList<>(); // Initialize with an empty list
         ArrayList<int[]> wave1 = new ArrayList<>();

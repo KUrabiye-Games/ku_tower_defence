@@ -44,7 +44,7 @@ public class Tower implements ITower{
 
     public void setTileCoordinate(TilePoint2D tileCoordinate) {
         this.tileCoordinate = tileCoordinate; // Set the tile coordinate of the tower
-        this.attackPoint = new Point2D(tileCoordinate.getCenter().getX(), (tileCoordinate.getCenter().getY() + TilePoint2D.getTileHeight() / 2)); // Update the attack point of the tower
+        this.attackPoint = new Point2D(tileCoordinate.getCenter().getX(), (tileCoordinate.getCenter().getY() - TilePoint2D.getTileHeight() / 4 )); // Update the attack point of the tower
     }
 
 
@@ -75,26 +75,43 @@ public class Tower implements ITower{
         }
         lastAttackTime = 0; // Reset the last attack time
         
+        // Guard against empty lists
+        if (enemies == null || enemies.isEmpty()) {
+            return null; // No enemies to attack
+        }
 
         // Filter the enemies based on the range of the tower
-
         ArrayList<Enemy> filteredEnemies = enemies.stream()
-                .filter(enemy -> enemy.getCoordinate().distance(tileCoordinate) <= range)
+                .filter(enemy -> enemy.getCoordinate().distance(tileCoordinate.getCenter()) <= range)
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
+        // If no enemies in range, return null
         if (filteredEnemies.isEmpty()) {
             return null; // No enemies in range
         }
-        Enemy targetEnemy = attackStrategy.findTarget(filteredEnemies);
-
-        if (targetEnemy == null) {
-            return null; // No target found
-            
+        
+        // Check if attackStrategy is null
+        if (attackStrategy == null) {
+            System.out.println("Tower attack strategy is null!");
+            return null;
         }
-        // Create a projectile using the projectile factory
+        
+        try {
+            Enemy targetEnemy = attackStrategy.findTarget(filteredEnemies);
 
-        return projectileFactory.createProjectile(projectileType, attackPoint, targetEnemy.getCoordinate()); // Create a projectile using the factory
-
+            if (targetEnemy == null) {
+                return null; // No target found
+            }
+            
+            // Create a projectile using the projectile factory
+            // Add console logging for debugging
+            System.out.println("Creating projectile of type: " + projectileType + " at point: " + attackPoint + " targeting enemy at: " + targetEnemy.getCoordinate());
+            return projectileFactory.createProjectile(projectileType, attackPoint, targetEnemy.getCoordinate()); // Create a projectile using the factory
+        } catch (Exception e) {
+            System.out.println("Error in tower attack: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public TilePoint2D getTileCoordinate() {

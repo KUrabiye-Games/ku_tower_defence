@@ -29,7 +29,7 @@ public class ProjectileFactory {
     // Create a projectile of a specific type with default values
     public Projectile createProjectile(Projectile.ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate) {
         // Create a new projectile with the specified type and default values from user preferences
-        float projectileAreaDamage = 1f; // Default area damage for the projectile
+        float projectileAreaDamage = 30f; // Default area damage for the projectile
         IProjectileMoveStrategy moveStrategy = null; // Initialize the move strategy
         switch (projectileType) {
             case ARROW:
@@ -40,7 +40,7 @@ public class ProjectileFactory {
                 break;
             case ARTILLERY:
                 moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for artillery projectiles
-                projectileAreaDamage = artilleryRange; // Set the area damage for artillery projectiles
+                projectileAreaDamage = artilleryRange * 20; // Set the area damage for artillery projectiles
                 break;
             default:
                 throw new IllegalArgumentException("Invalid projectile type: " + projectileType); // Handle invalid projectile types

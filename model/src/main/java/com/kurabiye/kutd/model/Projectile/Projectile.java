@@ -37,7 +37,7 @@ public class Projectile  {
 
     private Point2D speedVector;
 
-    private float projectileAreaDamage = 1f; // Area damage of the projectile
+    private float projectileAreaDamage = 30f; // Area damage of the projectile
 
     private float speed; // Speed of the projectile
 
@@ -58,6 +58,8 @@ public class Projectile  {
         
         this.projectileAreaDamage = projectileAreaDamage; // Set the area damage of the projectile
         this.speedVector = moveStrategy.getSpeedVector(startCoordinate, targetCoordinate, gravityFactor).multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
+
+        this.coordinate = startCoordinate; // Set the starting coordinate of the projectile
    
    
     }

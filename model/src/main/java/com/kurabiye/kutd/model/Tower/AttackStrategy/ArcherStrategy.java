@@ -21,12 +21,16 @@ public class ArcherStrategy implements IAttackStrategy {
      * The specific implementation of the attack strategy will be provided in this method.
      * 
      * @param enemy List of enemies to attack.
-     * @return List of enemies to be attacked by the Artillery tower.
+     * @return Enemy to be attacked by the tower, or null if no valid target.
      */
     @Override
-    public Enemy findTarget(List<Enemy> enemy) {
-        return enemy.get(0); // This is a placeholder implementation. Replace with actual logic.
-        // This method returns the list of enemies to be attacked by the Artillery tower
-        // The specific implementation of the attack strategy will be provided in this method
+    public Enemy findTarget(List<Enemy> enemies) {
+        if (enemies == null || enemies.isEmpty()) {
+            return null;
+        }
+        // For now, just return the first enemy in the list
+        // In a more advanced implementation, this could select the enemy closest to the end
+        // or with the lowest health, etc.
+        return enemies.get(0);
     }
 }

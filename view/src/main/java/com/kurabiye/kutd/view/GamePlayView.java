@@ -23,6 +23,7 @@ import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.Tower;
 
@@ -68,6 +69,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image[] buttonImages = new Image[3]; // For the three button icons
     private Image blueButtonImage;
     private Image iconsImage;
+    private Image playImage;       // Play button image
+    private Image pauseImage;      // Pause button image
+    private Image accelerateImage; // Speed up image
+    private Image settingsImage;   // Settings image
+    private Button playPauseButton;
+    private boolean isGamePlaying = true;
+    private boolean isGameAccelerated = false;
     private Pane root;
     private Canvas canvas;
     private GraphicsContext gc;
@@ -81,6 +89,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     ArrayList<Enemy> enemies;
     ArrayList<Tower> towers;
+    // Projectiles projectiles;
+
+    ArrayList<Projectile> projectiles;
 
     private int currentGold;
     private int currentHealth;
@@ -101,6 +112,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
+        this.projectiles = controller.getGameManager().getProjectiles();
         this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         this.currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         this.currentWave = controller.getGameManager().getCurrentWaveIndex();
@@ -123,11 +135,11 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         // Position canvas in the center if it's smaller than the screen
         canvas.setLayoutX((SCREEN_WIDTH - CANVAS_WIDTH) / 2);
-        canvas.setLayoutY((SCREEN_HEIGHT - CANVAS_HEIGHT) / 2);
+        canvas.setLayoutY(0); // Set to top of screen
         
         root.getChildren().add(canvas);
         
-        addUIElements();
+        addUIElements(stage);
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
         stage.setTitle("Game Map");
@@ -164,6 +176,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         blueButtonImage = new Image(getClass().getResourceAsStream("/assets/ui/blue-button.png"));
         iconsImage = new Image(getClass().getResourceAsStream("/assets/ui/status-icons.png"));
+
+        // Load control button images
+        playImage = new Image(getClass().getResourceAsStream("/assets/buttons/play.png"));
+        pauseImage = new Image(getClass().getResourceAsStream("/assets/buttons/pause.png"));
+        accelerateImage = new Image(getClass().getResourceAsStream("/assets/buttons/accelerate.png"));
+        settingsImage = new Image(getClass().getResourceAsStream("/assets/buttons/settings.png"));
     }
 
     private void drawMap(GraphicsContext gc) {
@@ -293,7 +311,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         }
     }
 
-    private void addUIElements() {
+    private void addUIElements(Stage stage) {
         VBox buttonColumn = new VBox(10); // Vertical layout with spacing
         buttonColumn.setLayoutX(64); // Next to icons
         buttonColumn.setLayoutY(10);
@@ -354,7 +372,184 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         icons.setLayoutX(10);
         icons.setLayoutY(10);
 
-        root.getChildren().addAll(icons, buttonColumn);
+        // Create control buttons for the top-right corner
+        HBox controlButtons = createControlButtons(stage);
+        // Position at top-right with a margin
+        controlButtons.setLayoutX(CANVAS_WIDTH - 200); // Adjust based on total width of buttons
+        controlButtons.setLayoutY(20);
+ 
+        root.getChildren().addAll(icons, buttonColumn, controlButtons);
+    }
+
+    private HBox createControlButtons(Stage stage) {
+        HBox container = new HBox(10); // 10 pixels spacing between buttons
+        
+        // Create play/pause button with initial play image and store reference
+        playPauseButton = createControlButton(pauseImage);
+        
+        // Create accelerate button
+        Button accelerateButton = createControlButton(accelerateImage);
+        // Create settings button
+        Button settingsButton = createControlButton(settingsImage);
+        
+        // Set up the play/pause toggle functionality
+        playPauseButton.setOnAction(e -> {
+            if (isGamePlaying) {
+                // Currently playing, pause the game
+                controller.pauseGame();
+                ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
+                
+                // Show pause menu
+                showPauseMenu(stage);
+            } else {
+                // Currently paused, resume the game
+                controller.resumeGame();
+                ((ImageView)playPauseButton.getGraphic()).setImage(pauseImage);
+            }
+            isGamePlaying = !isGamePlaying;
+        });
+        
+        // Set up accelerate button
+        accelerateButton.setOnAction(e -> {
+            if (isGameAccelerated) {
+                // Currently accelerated, slow down the game
+                controller.slowDownGame();
+            } else {
+                // Currently normal speed, speed up the game
+                controller.speedUpGame();
+            }
+            isGameAccelerated = !isGameAccelerated;
+        });
+
+        // Set up settings button
+        settingsButton.setOnAction(e -> {
+            // Pause the game
+            controller.pauseGame();
+            isGamePlaying = false;
+            ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
+            
+            // Show pause menu
+            showPauseMenu(stage);
+        });
+        
+        container.getChildren().addAll(playPauseButton, accelerateButton, settingsButton);
+        return container;
+    }
+
+    private Button createControlButton(Image image) {
+        Button button = new Button();
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(52);
+        imageView.setFitHeight(52);
+        button.setGraphic(imageView);
+        
+        // Remove button background, padding, and border
+        button.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-background-insets: 0;" +
+            "-fx-background-radius: 0;" +
+            "-fx-padding: 0;" +
+            "-fx-border-color: transparent;" +
+            "-fx-border-width: 0;" +
+            "-fx-focus-color: transparent;" +
+            "-fx-faint-focus-color: transparent;"
+        );
+        
+        // Keep the transparent style on hover
+        button.setOnMouseEntered(e -> {
+            button.setOpacity(0.8); // Slight transparency on hover for visual feedback
+        });
+        
+        button.setOnMouseExited(e -> {
+            button.setOpacity(1.0); // Restore full opacity
+        });
+        
+        return button;
+    }
+
+    private void showPauseMenu(Stage stage) {
+        // Create a semi-transparent overlay
+        Pane overlay = new Pane();
+        overlay.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+        
+        // Create the pause menu container
+        VBox pauseMenu = new VBox(15);
+        pauseMenu.setAlignment(Pos.CENTER);
+        pauseMenu.setStyle(
+            "-fx-background-color: rgba(50, 50, 50, 0.9);" +
+            "-fx-background-radius: 15;" +
+            "-fx-padding: 20px;"
+        );
+        pauseMenu.setMaxWidth(300);
+        pauseMenu.setMaxHeight(250);
+        
+        // Create the pause menu title
+        Text pauseTitle = new Text("GAME PAUSED");
+        pauseTitle.setFont(Font.font("System", FontWeight.BOLD, 24));
+        pauseTitle.setFill(Color.WHITE);
+        
+        // Create buttons
+        Button resumeButton = createPauseMenuButton("Resume Game");
+        Button mainMenuButton = createPauseMenuButton("Return to Main Menu");
+        
+        // Add action handlers
+        resumeButton.setOnAction(event -> {
+            // Resume game
+            controller.resumeGame();
+            root.getChildren().remove(overlay);
+            
+            // Update the play/pause button state using the class field
+            ((ImageView)playPauseButton.getGraphic()).setImage(pauseImage);
+            isGamePlaying = true;
+        });
+        
+        mainMenuButton.setOnAction(event -> {
+            // End the current game
+            controller.endGame();
+            
+            // Return to main menu
+            MainMenuView mainMenuView = new MainMenuView();
+            mainMenuView.start(stage);
+        });
+        
+        // Add all elements to the pause menu
+        pauseMenu.getChildren().addAll(pauseTitle, resumeButton, mainMenuButton);
+        
+        // Center the pause menu on screen
+        pauseMenu.setLayoutX((SCREEN_WIDTH - 300) / 2);
+        pauseMenu.setLayoutY((SCREEN_HEIGHT - 250) / 2);
+        
+        // Add overlay and pause menu to the root
+        overlay.getChildren().add(pauseMenu);
+        root.getChildren().add(overlay);
+    }
+    
+    private Button createPauseMenuButton(String text) {
+        Button button = new Button(text);
+        button.setPrefWidth(200);
+        button.setPrefHeight(40);
+        button.setFont(Font.font("System", FontWeight.BOLD, 14));
+        
+        button.setStyle(
+            "-fx-background-color: rgb(0, 218, 142);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8px;"
+        );
+        
+        button.setOnMouseEntered(e -> button.setStyle(
+            "-fx-background-color: rgb(34, 220, 155);" + 
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8px;"
+        ));
+        
+        button.setOnMouseExited(e -> button.setStyle(
+            "-fx-background-color: rgb(0, 218, 142);" +
+            "-fx-text-fill: white;" +
+            "-fx-background-radius: 8px;"
+        ));
+        
+        return button;
     }
 
     // Method called by the controller to update the game view
@@ -362,6 +557,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
+        System.out.println("onGameUpdate called with deltaTime: " + deltaTime);
         Platform.runLater(() -> { updateView(deltaTime); });
     }
 
@@ -386,6 +582,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         for (Enemy enemy : enemies) {
             System.out.println("Enemy position: " + enemy.getCoordinate());
         }
+
+        
         
         // GraphicsContext gc = canvas.getGraphicsContext2D();
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
@@ -396,6 +594,39 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         // towerView.renderTowers(gc, towers);
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
+
+        // Draw projectiles as small red dots
+        gc.setFill(Color.RED);
+        for (Projectile projectile : projectiles) {
+            // Log projectile coordinates for debugging
+            System.out.println("Drawing projectile at coordinate: " + projectile.getCoordinate());
+            
+            // Get the actual pixel coordinates on the canvas
+            // Note: projectile.getCoordinate() returns game world coordinates, not screen coordinates
+            double x = projectile.getCoordinate().getX();
+            double y = projectile.getCoordinate().getY();
+            
+            // Draw the projectile as a red dot (5 pixels radius)
+            gc.fillOval(x - 5, y - 5, 10, 10);
+            
+            // Alternative approach with larger, more visible projectiles
+            // Draw a second, more visible projectile indicator based on type
+            switch(projectile.getProjectileType()) {
+                case ARROW:
+                    gc.setFill(Color.DARKGREEN);
+                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    break;
+                case MAGIC:
+                    gc.setFill(Color.BLUE);
+                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    break;
+                case ARTILLERY:
+                    gc.setFill(Color.ORANGE);
+                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    break;
+            }
+        }
+        // End of projectile rendering
     }
 
     @Override

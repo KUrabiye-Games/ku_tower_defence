@@ -46,6 +46,7 @@ public class GamePlayController {
 
     public void endGame() {
         gameManager.endGame();
+        terminateGameThread(); // Terminates the game thread
     }
 
     public void speedUpGame() {
@@ -62,6 +63,10 @@ public class GamePlayController {
 
     public boolean sellTower(int x, int y, int towerType) {
         return gameManager.sellTower(x, y, towerType);
+    }
+
+    private void terminateGameThread() {
+        gameManager.killGameThread();
     }
 
 }
