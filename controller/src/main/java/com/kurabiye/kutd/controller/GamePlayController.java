@@ -28,6 +28,10 @@ public class GamePlayController {
         this.gameManager.getPlayer().addObserver(observer);
     }
 
+    public void setGameMapObserver(Observer observer){
+        this.gameManager.getGameMap().addObserver(observer);
+    }
+
     public void startGame() {
         gameManager.startGame(); // Starts the game thread and logic loop
     }
