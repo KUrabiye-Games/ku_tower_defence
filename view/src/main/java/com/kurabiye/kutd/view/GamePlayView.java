@@ -68,6 +68,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image[] buttonImages = new Image[3]; // For the three button icons
     private Image blueButtonImage;
     private Image iconsImage;
+    private Image playImage;       // Play button image
+    private Image pauseImage;      // Pause button image
+    private Image accelerateImage; // Speed up image
+    private Image settingsImage;   // Settings image
     private Pane root;
     private Canvas canvas;
     private HBox buttonContainer;
@@ -106,6 +110,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         controller.setGameUpdateListener(this);
         controller.setPlayerObserver(this);
+        controller.setGameMapObserver(this);
         controller.startGame();
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
@@ -121,7 +126,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         // Position canvas in the center if it's smaller than the screen
         canvas.setLayoutX((SCREEN_WIDTH - CANVAS_WIDTH) / 2);
-        canvas.setLayoutY((SCREEN_HEIGHT - CANVAS_HEIGHT) / 2);
+        canvas.setLayoutY(0); // Set to top of screen
         
         root.getChildren().add(canvas);
         
@@ -162,6 +167,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         blueButtonImage = new Image(getClass().getResourceAsStream("/assets/ui/blue-button.png"));
         iconsImage = new Image(getClass().getResourceAsStream("/assets/ui/status-icons.png"));
+
+        // Load control button images
+        playImage = new Image(getClass().getResourceAsStream("/assets/buttons/play.png"));
+        pauseImage = new Image(getClass().getResourceAsStream("/assets/buttons/pause.png"));
+        accelerateImage = new Image(getClass().getResourceAsStream("/assets/buttons/accelerate.png"));
+        settingsImage = new Image(getClass().getResourceAsStream("/assets/buttons/settings.png"));
     }
 
     private void drawMap(GraphicsContext gc) {
@@ -352,7 +363,90 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         icons.setLayoutX(10);
         icons.setLayoutY(10);
 
-        root.getChildren().addAll(icons, buttonColumn);
+        // Create control buttons for the top-right corner
+        HBox controlButtons = createControlButtons();
+        // Position at top-right with a margin
+        controlButtons.setLayoutX(CANVAS_WIDTH - 200); // Adjust based on total width of buttons
+        controlButtons.setLayoutY(20);
+ 
+        root.getChildren().addAll(icons, buttonColumn, controlButtons);
+    }
+
+    private HBox createControlButtons() {
+        HBox container = new HBox(10); // 10 pixels spacing between buttons
+        
+        // Create play/pause button with initial play image
+        Button playPauseButton = createControlButton(pauseImage);
+        // Create accelerate button
+        Button accelerateButton = createControlButton(accelerateImage);
+        // Create settings button
+        Button settingsButton = createControlButton(settingsImage);
+        
+        // Set up the play/pause toggle functionality
+        final boolean[] isPlaying = {true}; // Game starts in playing state
+        
+        playPauseButton.setOnAction(e -> {
+            if (!isPlaying[0]) {
+                // Change to pause state
+                controller.pauseGame();
+                ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
+            } else {
+                // Change to play state
+                controller.resumeGame();
+                ((ImageView)playPauseButton.getGraphic()).setImage(pauseImage);
+            }
+            isPlaying[0] = !isPlaying[0];
+        });
+        
+        // Set up accelerate button
+        accelerateButton.setOnAction(e -> {
+            controller.speedUpGame();
+        });
+
+        // Set up settings button
+        settingsButton.setOnAction(e -> {
+            // Pause the game
+            controller.pauseGame();
+            isPlaying[0] = false;
+            ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
+            
+            // TODO: Open settings menu
+            System.out.println("Settings button clicked");
+        });
+        
+        container.getChildren().addAll(playPauseButton, accelerateButton, settingsButton);
+        return container;
+    }
+
+    private Button createControlButton(Image image) {
+        Button button = new Button();
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(52);
+        imageView.setFitHeight(52);
+        button.setGraphic(imageView);
+        
+        // Remove button background, padding, and border
+        button.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-background-insets: 0;" +
+            "-fx-background-radius: 0;" +
+            "-fx-padding: 0;" +
+            "-fx-border-color: transparent;" +
+            "-fx-border-width: 0;" +
+            "-fx-focus-color: transparent;" +
+            "-fx-faint-focus-color: transparent;"
+        );
+        
+        // Keep the transparent style on hover
+        button.setOnMouseEntered(e -> {
+            button.setOpacity(0.8); // Slight transparency on hover for visual feedback
+        });
+        
+        button.setOnMouseExited(e -> {
+            button.setOpacity(1.0); // Restore full opacity
+        });
+        
+        return button;
     }
 
     // Method called by the controller to update the game view
@@ -403,5 +497,11 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         goldText.setText(String.valueOf(currentGold));
         healthText.setText(String.valueOf(currentHealth));
         System.out.println("Observer update called with argument: " + arg);
+
+        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawMap(gc);
+        
     }
 }
