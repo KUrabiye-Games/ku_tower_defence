@@ -23,7 +23,8 @@ import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
-import com.kurabiye.kutd.util.ObserverPattern.Observer;import com.kurabiye.kutd.model.Tower.Tower;
+import com.kurabiye.kutd.util.ObserverPattern.Observer;
+import com.kurabiye.kutd.model.Tower.Tower;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -84,6 +85,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private int currentHealth;
     private int currentWave;
 
+    private Text goldText;
+    private Text healthText;
+
     private int[][] map;
     
     public void start(Stage stage, GamePlayController controller) {
@@ -99,7 +103,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         this.currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         this.currentWave = controller.getGameManager().getCurrentWaveIndex();
-
 
         controller.setGameUpdateListener(this);
         controller.setPlayerObserver(this);
@@ -293,12 +296,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         buttonColumn.setLayoutX(64); // Next to icons
         buttonColumn.setLayoutY(10);
 
-        Text goldText = new Text(""+currentGold);
+        goldText = new Text(""+currentGold);
         goldText.setFill(Color.WHITE);
         goldText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
         goldText.setTextOrigin(VPos.CENTER);
 
-        Text healthText = new Text(""+currentHealth);
+        healthText = new Text(""+currentHealth);
         healthText.setFill(Color.WHITE);
         healthText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
         healthText.setTextOrigin(VPos.CENTER);
@@ -382,7 +385,11 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     @Override
     public void update(Object arg) {
+        currentGold = controller.getGameManager().getPlayer().getCurrentGold();
+        currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         
+        goldText.setText(String.valueOf(currentGold));
+        healthText.setText(String.valueOf(currentHealth));
         System.out.println("Observer update called with argument: " + arg);
     }
 }
