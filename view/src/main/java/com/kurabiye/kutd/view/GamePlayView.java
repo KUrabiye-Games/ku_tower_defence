@@ -1,5 +1,6 @@
 package com.kurabiye.kutd.view;
 
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -20,6 +21,7 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 
 import com.kurabiye.kutd.controller.GamePlayController;
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
@@ -67,6 +69,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private final Image[] tileImages = new Image[TILE_COUNT];
     private Image[] buttonImages = new Image[3]; // For the three button icons
+    private Image cursorImage;
     private Image blueButtonImage;
     private Image iconsImage;
     private Image playImage;       // Play button image
@@ -85,7 +88,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private GamePlayController controller;
 
     private EnemyView enemyView;
-    private TowerView towerView;
+    // private TowerView towerView;
 
     ArrayList<Enemy> enemies;
     ArrayList<Tower> towers;
@@ -103,12 +106,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private int[][] map;
     
     public void start(Stage stage, GamePlayController controller) {
+        
         loadTiles();
         loadButtonIcons();
 
         this.controller = controller;
         this.enemyView = new EnemyView(TILE_SIZE);  // Pass just the tile size
-        this.towerView = new TowerView(TILE_SIZE);  // Pass just the tile size
+        // this.towerView = new TowerView(TILE_SIZE);  // Pass just the tile size
 
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
@@ -140,8 +144,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         root.getChildren().add(canvas);
         
         addUIElements(stage);
+
+        cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
+        scene.setCursor(new ImageCursor(cursorImage,
+                                cursorImage.getWidth() / 2,
+                                cursorImage.getHeight() /2));
         stage.setTitle("Game Map");
         stage.setScene(scene);
         stage.setMaximized(true);
@@ -561,7 +570,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         Platform.runLater(() -> { updateView(deltaTime); });
     }
 
-
     private double pastTime = 0.0;
 
     private void updateView(double deltaTime) {
@@ -582,8 +590,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         for (Enemy enemy : enemies) {
             System.out.println("Enemy position: " + enemy.getCoordinate());
         }
-
-        
         
         // GraphicsContext gc = canvas.getGraphicsContext2D();
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
@@ -598,31 +604,38 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         // Draw projectiles as small red dots
         gc.setFill(Color.RED);
         for (Projectile projectile : projectiles) {
-            // Log projectile coordinates for debugging
-            System.out.println("Drawing projectile at coordinate: " + projectile.getCoordinate());
+            // Get the projectile's current position
+            Point2D position = projectile.getCoordinate();
             
-            // Get the actual pixel coordinates on the canvas
-            // Note: projectile.getCoordinate() returns game world coordinates, not screen coordinates
-            double x = projectile.getCoordinate().getX();
-            double y = projectile.getCoordinate().getY();
+            // Transform model coordinates to view coordinates using the same scaling as for enemies
+            double modelWidth = 1920;  // The width used in the model
+            double modelHeight = 1080; // The height used in the model
+            double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
             
-            // Draw the projectile as a red dot (5 pixels radius)
-            gc.fillOval(x - 5, y - 5, 10, 10);
+            // Scale positions from model space to view space
+            double viewX = position.getX() * scaleFactor;
+            double viewY = position.getY() * scaleFactor;
             
-            // Alternative approach with larger, more visible projectiles
-            // Draw a second, more visible projectile indicator based on type
+            // Log the transformed coordinates
+            System.out.println("Drawing projectile at model coordinate: " + position + 
+                            ", scaled view coordinate: (" + viewX + ", " + viewY + ")");
+            
+            // Draw the projectile with the scaled coordinates
+            gc.fillOval(viewX - 5, viewY - 5, 10, 10);
+            
+            // Alternative approach with larger, more visible projectiles based on type
             switch(projectile.getProjectileType()) {
                 case ARROW:
                     gc.setFill(Color.DARKGREEN);
-                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
                     break;
                 case MAGIC:
                     gc.setFill(Color.BLUE);
-                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
                     break;
                 case ARTILLERY:
                     gc.setFill(Color.ORANGE);
-                    gc.fillOval(x - 3, y - 3, 6, 6);
+                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
                     break;
             }
         }
@@ -641,7 +654,5 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
-        
-        
     }
 }
