@@ -68,4 +68,11 @@ public interface ITower {
      * @param projectileType The type of projectile
      */
     void setProjectileType(ProjectileType projectileType);
+
+    /**
+     * Gets the projectile type that this tower will fire
+     * 
+     * @return The type of projectile
+     */
+    ProjectileType getProjectileType();
 }

@@ -158,10 +158,18 @@ public class WaveManager {
         if (waveState == EnemyAttackState.NO_ENEMY_LEFT) { // If there are no enemies left to spawn
             return -2; // Placeholder for enemy spawning logic
         }
+
         
 
 
         return -1; // Placeholder for enemy spawning logic
     }
 
+    // Getters and Setters
+    public int getCurrentWaveIndex() {
+        return currentWaveIndex; // Get the current wave index
+    }
+    public int getCurrentGroupIndex() {
+        return currentGroupIndex; // Get the current group index
+    }
 }
