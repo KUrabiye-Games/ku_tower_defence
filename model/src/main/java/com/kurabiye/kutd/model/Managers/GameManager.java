@@ -189,54 +189,69 @@ public class GameManager implements Runnable{
                 }
             }
 
-            // Towers look for targets and  create projectiles
-
-            // Print the number of enemies
+            // Towers look for targets and create projectiles
             System.out.println("Number of total enemies: " + enemies.size());
+            System.out.println("Number of towers: " + towers.size());
+            System.out.println("Number of projectiles: " + projectiles.size());
         
-
             for (Tower tower : towers) {
                 // Check if the tower can attack     
-                    // Get the projectile from the tower
-                    Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
-                    if (projectile != null) {
-                        projectiles.add(projectile); // Add the projectile to the list of projectiles
-                    }
-                
+                // Get the projectile from the tower
+                Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
+                if (projectile != null) {
+                    projectiles.add(projectile); // Add the projectile to the list of projectiles
+                    System.out.println("New projectile created of type " + projectile.getProjectileType() + 
+                                       " at " + projectile.getCoordinate() + 
+                                       " heading to " + projectile.getSpeedVector());
+                }
             }
 
             // Update projectiles position
-
+            System.out.println("Updating positions of " + projectiles.size() + " projectiles");
             for (Projectile projectile : projectiles) {
+                Point2D oldPos = projectile.getCoordinate();
                 projectile.move(deltaTime); // Update each projectile's position
-               
+                System.out.println("Projectile moved from " + oldPos + " to " + projectile.getCoordinate());
             }
 
-
             // Check for collisions between projectiles and enemies
+            System.out.println("Checking for collisions...");
 
             // Keep track of projectiles that need to be removed
             // Keep track of the enemies that are dead and need to be removed
             ArrayList<Enemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
             ArrayList<Projectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
+            int collisionCount = 0;
 
             for (Projectile projectile : projectiles) {
-
                 // Check if any collision occurred
                 boolean collisionOccurred = false; // Flag to check if a collision occurred
 
                 for (Enemy enemy : enemies) {
-                    if (projectile.getCoordinate().distance(enemy.getCoordinate()) < projectile.getProjectileAreaDamage()) { // Check for collision
+                    double distance = projectile.getCoordinate().distance(enemy.getCoordinate());
+                    float damageRadius = projectile.getProjectileAreaDamage();
+                    
+                    if (distance < damageRadius) { // Check for collision
+                        collisionCount++;
+                        System.out.println("Collision detected! Projectile at " + projectile.getCoordinate() + 
+                                           " hit enemy at " + enemy.getCoordinate() + 
+                                           " (distance: " + distance + ", damage radius: " + damageRadius + ")");
+                        
+                        System.out.println("Enemy health before damage: " + enemy.getHealth());
                         enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
+                        System.out.println("Enemy health after damage: " + enemy.getHealth());
                         
                         if (enemy.isDead()) {
-                            player.earnGold(enemy.getKillReward()); // Add gold to the player for killing the enemy
+                            int reward = enemy.getKillReward();
+                            System.out.println("Enemy killed! Player earned " + reward + " gold");
+                            player.earnGold(reward); // Add gold to the player for killing the enemy
                             enemiesToRemove.add(enemy); // Mark the enemy for removal
                         }
                         collisionOccurred = true; // Set the collision flag to true
                         
                         if(projectile.getProjectileAreaDamage() <= 1f){
                             projectilesToRemove.add(projectile); // Mark the projectile for removal
+                            System.out.println("Single-target projectile marked for removal");
                             break; // Exit the loop if a collision occurred
                         }
                     }
@@ -245,31 +260,29 @@ public class GameManager implements Runnable{
                 if(collisionOccurred) {
                     // Remove the projectile if it has collided with an enemy
                     projectilesToRemove.add(projectile); // Mark the projectile for removal
+                    System.out.println("Projectile marked for removal after collision");
                 }
             }
 
+            System.out.println("Total collisions this frame: " + collisionCount);
+            System.out.println("Enemies to remove: " + enemiesToRemove.size());
+            System.out.println("Projectiles to remove: " + projectilesToRemove.size());
 
             // Remove dead enemies from the list
             enemies.removeAll(enemiesToRemove); // Remove the marked enemies from the list
             // Remove projectiles that have collided with enemies
             projectiles.removeAll(projectilesToRemove); // Remove the marked projectiles from the list
-            // Remove projectiles that have reached their target
-
-
             
+            System.out.println("After cleanup - Enemies: " + enemies.size() + ", Projectiles: " + projectiles.size());
 
-
-           
-                if (gameUpdateListener != null) {
-                    gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
-                }
-                
-            
+            if (gameUpdateListener != null) {
+                gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
+            }
              
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep(60); // Approximately 60 FPS
+                Thread.sleep(160); // Approximately 60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
