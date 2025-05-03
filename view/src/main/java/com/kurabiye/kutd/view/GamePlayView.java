@@ -110,6 +110,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         controller.setGameUpdateListener(this);
         controller.setPlayerObserver(this);
+        controller.setGameMapObserver(this);
         controller.startGame();
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
@@ -496,5 +497,11 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         goldText.setText(String.valueOf(currentGold));
         healthText.setText(String.valueOf(currentHealth));
         System.out.println("Observer update called with argument: " + arg);
+
+        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawMap(gc);
+        
     }
 }
