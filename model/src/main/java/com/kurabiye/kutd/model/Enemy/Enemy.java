@@ -46,6 +46,10 @@ public class Enemy implements IEnemy {
     private int speed; // Enemy's speed
 
     private float[] damageDealtOfProjectiles;
+
+    // This is a normalized vector
+    // It is used to calculate the direction of the enemy's movement 
+    private Point2D moveDirection = new Point2D(1, 0); // Direction of the enemy's movement
     
     public enum EnemyState { // Enum for enemy states
         ALIVE, // Enemy is alive
@@ -133,7 +137,9 @@ public class Enemy implements IEnemy {
         coordinate = coordinate.add(distanceVector); // Update the coordinate of the enemy
 
 
+        // Set the move direction of the enemy
 
+        moveDirection = distanceVector.normalize(); // Set the move direction to the distance vector
 
     }
 
@@ -173,6 +179,10 @@ public class Enemy implements IEnemy {
 
     public EnemyType getEnemyType() {
         return enemyType; // Get the type of the enemy
+    }
+
+    public synchronized Point2D getMoveDirection() {
+        return moveDirection; // Get the move direction of the enemy
     }
 
 
