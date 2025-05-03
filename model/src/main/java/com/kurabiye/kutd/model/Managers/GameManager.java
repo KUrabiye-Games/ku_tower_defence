@@ -12,6 +12,7 @@ import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile;
+import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileState;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Timer.GameTimer;
@@ -35,7 +36,7 @@ import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 public class GameManager implements Runnable{
 
 
-    private static final int TARGET_FPS = 2; // Target frames per second
+    private static final int TARGET_FPS = 60; // Target frames per second
 
     private WaveManager waveManager; // Wave manager for handling enemy waves
     
@@ -245,6 +246,17 @@ public class GameManager implements Runnable{
 
             for (Projectile projectile : projectiles) {
                 // Check if any collision occurred
+
+                if (projectile.getProjectileState() == ProjectileState.DEAD) {
+                    projectilesToRemove.add(projectile); // Skip if the projectile is stopped
+                }
+
+                if (projectile.getProjectileState() == ProjectileState.STOPPED) {
+                    System.out.println("Projectile is stopped, skipping collision check");
+                    continue; // Skip if the projectile is stopped
+                    
+                }
+
                 boolean collisionOccurred = false; // Flag to check if a collision occurred
 
                 for (Enemy enemy : enemies) {
@@ -300,6 +312,15 @@ public class GameManager implements Runnable{
             projectiles.removeAll(projectilesToRemove); // Remove the marked projectiles from the list
             
             System.out.println("After cleanup - Enemies: " + enemies.size() + ", Projectiles: " + projectiles.size());
+
+
+            // Check if the game is over
+
+            if (player.getCurrentHealth() <= 0) {
+                System.out.println("GameManager.run(): Player health is 0, game over");
+                gameState = GameState.GAME_LOST; // Set game state to GAME_LOST
+            }
+            
 
             if (gameUpdateListener != null) {
                 gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
@@ -361,18 +382,17 @@ public class GameManager implements Runnable{
 
     public void speedUpGame() {
         // Increase game speed
-        double currentTimeCoefficient = gameTimer.getTimeCoefficient();
-        if (currentTimeCoefficient < 2) { // Limit the maximum speed to 4x
-            gameTimer.setTimeCoefficient(currentTimeCoefficient * 2);
-        }
+
+            gameTimer.setTimeCoefficient( 2.0);
+
        
     }
     public void slowDownGame() {
         // Decrease game speed
-        double currentTimeCoefficient = gameTimer.getTimeCoefficient();
-        if (currentTimeCoefficient > 0.5) { // Limit the minimum speed to 0.25x
-            gameTimer.setTimeCoefficient(currentTimeCoefficient / 2);
-        }
+        
+       
+            gameTimer.setTimeCoefficient( 1);
+        
     }
 
     public boolean buildTower(int xCoordinate, int yCoordinate, int towerType) {

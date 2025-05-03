@@ -735,10 +735,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
-        // Draw towers
-        // towerView.renderTowers(gc, towers);
-        // Draw enemies
-        enemyView.renderEnemies(gc, enemies, imgNum);
+       
 
         // Draw projectiles as small red dots
         gc.setFill(Color.RED);
@@ -774,11 +771,17 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     break;
                 case ARTILLERY:
                     gc.setFill(Color.ORANGE);
-                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
+                    gc.fillOval(viewX - 10, viewY - 10, 20, 20);
                     break;
             }
         }
         // End of projectile rendering
+
+
+         // Draw towers
+        // towerView.renderTowers(gc, towers);
+        // Draw enemies
+        enemyView.renderEnemies(gc, enemies, imgNum);
     }
 
     @Override

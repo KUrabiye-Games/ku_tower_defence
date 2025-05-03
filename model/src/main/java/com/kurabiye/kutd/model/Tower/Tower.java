@@ -123,7 +123,7 @@ public class Tower implements ITower{
     }*/
 
 
-    public int getSellReturn() {
+    public synchronized int getSellReturn() {
         return sellReturn; // Get the sell return of the tower
     }
 

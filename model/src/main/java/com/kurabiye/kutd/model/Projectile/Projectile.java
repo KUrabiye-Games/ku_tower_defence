@@ -43,7 +43,8 @@ public class Projectile  {
 
     public enum ProjectileState { // Enum for projectile states
         MOVING, // Projectile is alive
-        STOPPED // Projectile is dead
+        STOPPED, // Projectile is dead
+        DEAD
     }
 
     private ProjectileState projectileState = ProjectileState.MOVING; // Projectile's alive status
@@ -73,6 +74,11 @@ public class Projectile  {
         return projectileAreaDamage; // Get the area damage of the projectile
     }
 
+
+    private static final double EPSILON = 1e-1; // Epsilon value for floating point comparison
+
+    private double expirationTime = 0;
+
     public synchronized void move(double deltaTime) {
         if (projectileState == ProjectileState.MOVING) {
 
@@ -87,12 +93,19 @@ public class Projectile  {
             coordinate = coordinate.add(speedVector.multiply(deltaTime)); // Update the coordinate of the projectile based on the speed vector and delta time
 
             // Check if the projectile has reached its target coordinate
-            if (coordinate.distance(targetCoordinate) < speedVector.magnitude() * deltaTime) {
+            if (coordinate.distance(targetCoordinate) < deltaTime * speed) {
                 coordinate = targetCoordinate; // Set the coordinate to the target coordinate
                 projectileState = ProjectileState.STOPPED; // Stop the projectile if it has reached the target
             }
+
+            
            
         
+        }else if (projectileState == ProjectileState.STOPPED) {
+            expirationTime += deltaTime; // Update the expiration time of the projectile
+            if (expirationTime > 5f) {
+                projectileState = ProjectileState.DEAD; // Set the projectile state to DEAD after a certain time
+            }
         }
     }
 
@@ -103,6 +116,10 @@ public class Projectile  {
     // Get the projectile's speed vector
     public Point2D getSpeedVector() {
         return speedVector; // Get the speed vector of the projectile
+    }
+
+    public ProjectileState getProjectileState() {
+        return projectileState; // Get the projectile's alive status
     }
 
 }
