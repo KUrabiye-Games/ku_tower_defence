@@ -105,18 +105,4 @@ public class Projectile  {
         return speedVector; // Get the speed vector of the projectile
     }
 
-    
-
-
-
-
-
-    
-
-
-
-
-
-   
-
 }
