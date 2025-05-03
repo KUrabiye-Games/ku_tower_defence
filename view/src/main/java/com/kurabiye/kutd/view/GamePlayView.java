@@ -556,6 +556,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
+        System.out.println("onGameUpdate called with deltaTime: " + deltaTime);
         Platform.runLater(() -> { updateView(deltaTime); });
     }
 

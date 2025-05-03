@@ -39,6 +39,9 @@ public class GameManager implements Runnable{
 
     private WaveManager waveManager; // Wave manager for handling enemy waves
     
+    // Thread management
+    private Thread gameThread; // Reference to the game thread
+    private volatile boolean running = true; // Flag to control thread execution
 
     // TODO: Debugging: Remove this flag later
     // Add a flag to control test enemy spawning
@@ -52,7 +55,7 @@ public class GameManager implements Runnable{
         GAME_WON,
     }
 
-    private GameState gameState; // Current state of the game
+    private volatile GameState gameState; // Current state of the game
 
     private GameTimer gameTimer; // Game time
 
@@ -123,14 +126,17 @@ public class GameManager implements Runnable{
     public void run() {
         System.out.println("GameManager.run(): Game loop starting");
 
-
-        
         // Game loop
-        while (gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
+        while (running && gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
 
             gameTimer.resetTimer();
-            while (gameState != GameState.PAUSED) {
+            while (running && gameState != GameState.PAUSED) {
                 
+            // Check if thread has been requested to stop
+            if (!running) {
+                System.out.println("GameManager.run(): Thread stop requested, exiting game loop");
+                break;
+            }
             
             // Update game state
             System.out.println("GameManager.run(): Current game state: " + gameState);
@@ -154,22 +160,25 @@ public class GameManager implements Runnable{
             // Create new enemies
             System.out.println("GameManager.run(): Checking if we should spawn an enemy");
             System.out.println("GameManager.run(): hasSpawnedTestEnemy = " + hasSpawnedTestEnemy);
-            
             // Using our test enemy code
-            int enemyIndex = 0;
+            int enemyIndex = waveManager.getEnemy(deltaTime); // Get the index of the enemy to spawn
+            
+            /*if (!hasSpawnedTestEnemy) {
+                enemyIndex = 0; // Set to 0 to spawn a test enemy
+            }*/
+            // */ print the enemy index
+            System.out.println("GameManager.run(): Enemy index: " + enemyIndex);
            
-            if (enemyIndex > -1 && !hasSpawnedTestEnemy) {
+            if (enemyIndex > -1) {
                 System.out.println("GameManager.run(): Spawning test enemy (type: KNIGHT)");
                 Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
                 enemies.add(enemy); // Add the enemy to the list of enemies
                
-                // DEBUG:
-                enemyIndex = -1;
-                hasSpawnedTestEnemy = true;
+               
 
                 System.out.println("GameManager.run(): Enemy created: " + enemy.getEnemyType() + " at position " + enemy.getCoordinate() + " (index: " + (enemies.size() - 1) + ")");
                 System.out.println("GameManager.run(): hasSpawnedTestEnemy set to true");
-            } else if (enemyIndex == -2) {
+            } else if (enemyIndex == -2 && enemies.size() == 0) {
                 // No enemies left to spawn
                 System.out.println("GameManager.run(): No enemies left to spawn, game won");
                 gameState = GameState.GAME_WON; // Set game state to GAME_WON
@@ -334,6 +343,7 @@ public class GameManager implements Runnable{
     public void endGame() {
         System.out.println("GameManager.endGame(): Ending the game");
         gameState = GameState.GAME_LOST;
+        running = false; // Stop the game loop
         // Handle game over logic
     }
 
@@ -341,10 +351,18 @@ public class GameManager implements Runnable{
         return gameState;
     }
 
+    public void returnToMainMenu() {
+        System.out.println("GameManager.returnToMainMenu(): Returning to main menu");
+        gameState = GameState.INITIALIZING;
+        running = false; // Stop the game loop
+        // Handle return to main menu logic
+        
+    }
+
     public void speedUpGame() {
         // Increase game speed
         double currentTimeCoefficient = gameTimer.getTimeCoefficient();
-        if (currentTimeCoefficient < 4) { // Limit the maximum speed to 4x
+        if (currentTimeCoefficient < 2) { // Limit the maximum speed to 4x
             gameTimer.setTimeCoefficient(currentTimeCoefficient * 2);
         }
        
@@ -352,7 +370,7 @@ public class GameManager implements Runnable{
     public void slowDownGame() {
         // Decrease game speed
         double currentTimeCoefficient = gameTimer.getTimeCoefficient();
-        if (currentTimeCoefficient > 0.25) { // Limit the minimum speed to 0.25x
+        if (currentTimeCoefficient > 0.5) { // Limit the minimum speed to 0.25x
             gameTimer.setTimeCoefficient(currentTimeCoefficient / 2);
         }
     }
@@ -446,7 +464,7 @@ public class GameManager implements Runnable{
         System.out.println("GameManager.startGame(): Starting the game");
         
         // Create a new thread using this instance (which implements Runnable)
-        Thread gameThread = new Thread(this);
+        gameThread = new Thread(this);
         // Start the thread, which will call the run() method
 
         gameState = GameState.RUNNING; // Set the game state to RUNNING
@@ -457,6 +475,39 @@ public class GameManager implements Runnable{
         System.out.println("GameManager.startGame(): Game thread started");
     }
 
+    public void killGameThread() {
+        System.out.println("GameManager.killGameThread(): Attempting to kill game thread");
+        if (gameThread != null && gameThread.isAlive()) {
+            running = false; // Signal the thread to stop
+            gameState = GameState.GAME_LOST; // Force game state to end
+            
+            try {
+                // Wait for the thread to die, but with a timeout
+                gameThread.join(1000);
+                
+                // If the thread is still alive after timeout, interrupt it
+                if (gameThread.isAlive()) {
+                    System.out.println("GameManager.killGameThread(): Thread didn't terminate normally, interrupting");
+                    gameThread.interrupt();
+                    gameThread.join(1000); // Give it a second chance to terminate
+                }
+                
+                System.out.println("GameManager.killGameThread(): Game thread successfully terminated");
+            } catch (InterruptedException e) {
+                System.out.println("GameManager.killGameThread(): Interrupted while waiting for game thread to terminate");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("GameManager.killGameThread(): No active game thread to kill");
+        }
+        
+        // Clear game resources
+        enemies.clear();
+        projectiles.clear();
+        
+        // Reset the game timer
+        gameTimer.resetTimer();
+    }
 
     // Info provider methods for the view
 
