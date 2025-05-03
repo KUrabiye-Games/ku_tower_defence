@@ -24,6 +24,7 @@ import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
+import com.kurabiye.kutd.model.Managers.GameManager.GameState;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
@@ -79,6 +80,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Button playPauseButton;
     private boolean isGamePlaying = true;
     private boolean isGameAccelerated = false;
+    private boolean isEndGamePopupShown = false; // Flag to prevent multiple popups
+    private Stage currentStage; // Store the stage reference
     private Pane root;
     private Canvas canvas;
     private GraphicsContext gc;
@@ -109,6 +112,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         loadTiles();
         loadButtonIcons();
+
+        this.currentStage = stage; // Store the stage
+        this.isEndGamePopupShown = false; // Reset flag on start
 
         this.controller = controller;
         this.enemyView = new EnemyView(TILE_SIZE);  // Pass just the tile size
@@ -146,11 +152,34 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         addUIElements(stage);
 
         cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
+
+        // log if the image is null
+        if (cursorImage == null) {
+            System.out.println("Cursor image is null");
+        } else {
+            System.out.println("Cursor image loaded successfully");
+        }
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
-        scene.setCursor(new ImageCursor(cursorImage,
-                                cursorImage.getWidth() / 2,
-                                cursorImage.getHeight() /2));
+        try {
+            Image cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
+            if (cursorImage != null && !cursorImage.isError()) {
+                ImageCursor customCursor = new ImageCursor(cursorImage,
+                                                           cursorImage.getWidth() / 2,
+                                                           cursorImage.getHeight() / 2);
+                scene.setCursor(customCursor); // Set on scene (optional, but good practice)
+                root.setCursor(customCursor);  // Set on root pane - this is often key
+                System.out.println("Custom cursor set successfully on root pane.");
+            } else {
+                System.out.println("Failed to load cursor image or image has errors.");
+                if (cursorImage != null && cursorImage.getException() != null) {
+                    cursorImage.getException().printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Could not load or set custom cursor: " + e.getMessage());
+            e.printStackTrace();
+        }
         stage.setTitle("Game Map");
         stage.setScene(scene);
         stage.setMaximized(true);
@@ -213,74 +242,118 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             int col = (int) (event.getX() / TILE_SIZE);
             int row = (int) (event.getY() / TILE_SIZE);
     
-            if (row >= 0 && row < ROWS && col >= 0 && col < COLS && map[row][col] == INTERACTIVE_TILE_ID) {
-                if (buttonContainer != null) {
-                    root.getChildren().remove(buttonContainer);
+            if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+                int tileId = map[row][col];
+    
+                if (tileId >= 20 && tileId <= 26) { // Tower tile IDs
+                    showSellButton(row, col);
+                } else if (tileId == INTERACTIVE_TILE_ID) { // Buildable tile
+                    showBuildButtons(row, col);
+                } else {
+                    removeButtonContainer();
                 }
-    
-                if (lastClickedRow == row && lastClickedCol == col) {
-                    lastClickedRow = -1;
-                    lastClickedCol = -1;
-                    return;
-                }
-    
-                lastClickedRow = row;
-                lastClickedCol = col;
-    
-                buttonContainer = new HBox(10);
-                buttonContainer.setAlignment(Pos.CENTER);
-                
-                // Calculate position based on clicked tile
-                double tileLeftX = col * TILE_SIZE;
-                double tileTopY = row * TILE_SIZE;
-                
-                // Position container centered above the clicked tile
-                buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE/2) - 105); // Center minus half of total buttons width
-                
-                // Position above the tile with margin
-                double buttonsY = tileTopY - 80; // 80 pixels above tile
-                if (buttonsY < 0) {
-                    buttonsY = tileTopY + TILE_SIZE + 10; // Show below if near top
-                }
-                buttonContainer.setLayoutY(buttonsY);
-    
-                // Create buttons with arc positioning
-                for (int i = 0; i < 3; i++) {
-                    Button button = new Button();
-                    if (buttonImages[i] != null) {
-                        button.setGraphic(new javafx.scene.image.ImageView(buttonImages[i]));
-                    }
-                    button.setStyle("-fx-background-color: transparent; -fx-padding: 5;");
-                    button.setPrefSize(64, 64);
-                    
-                    // Apply vertical offset for arc effect
-                    if (i == 0) { // Left button
-                        button.setTranslateY(20);
-                    } 
-                    else if (i == 2) { // Right button
-                        button.setTranslateY(20);
-                    }
-                    // Middle button stays at default height
-                    
-                    final int buttonId = i;
-                    button.setOnAction(e -> handleButtonClick(buttonId, row, col));
-                    
-                    buttonContainer.getChildren().add(button);
-                }
-    
-                root.getChildren().add(buttonContainer);
             } else {
-                if (buttonContainer != null) {
-                    root.getChildren().remove(buttonContainer);
-                    buttonContainer = null;
-                    lastClickedRow = -1;
-                    lastClickedCol = -1;
-                }
+                removeButtonContainer();
             }
         });
     }
 
-    private void handleButtonClick(int buttonId, int row, int col) {
+    private void removeButtonContainer() {
+        if (buttonContainer != null) {
+            root.getChildren().remove(buttonContainer);
+            buttonContainer = null;
+            lastClickedRow = -1;
+            lastClickedCol = -1;
+        }
+    }
+    private void showSellButton(int row, int col) {
+        removeButtonContainer();
+    
+        buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+    
+        // Calculate position based on clicked tile
+        double tileLeftX = col * TILE_SIZE;
+        double tileTopY = row * TILE_SIZE;
+    
+        // Position container centered above the clicked tile
+        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 50); // Center minus half of button width
+        buttonContainer.setLayoutY(tileTopY - 40); // Position above the tile
+    
+        Button sellButton = new Button("Sell");
+        sellButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
+        sellButton.setPrefSize(80, 30);
+    
+        sellButton.setOnAction(e -> {
+            handleSellButtonClick(row, col);
+        });
+    
+        buttonContainer.getChildren().add(sellButton);
+        root.getChildren().add(buttonContainer);
+    }
+
+    private void handleSellButtonClick(int row, int col) {
+        int tileId = map[row][col];
+            int towerType;
+            switch (tileId) {
+                case 20: // Example: Tower type 0
+                    towerType = 0;
+                    break;
+                case 21: // Example: Tower type 1
+                    towerType = 1;
+                    break;
+                case 26: // Example: Tower type 2
+                    towerType = 2;
+                    break;
+                default:
+                    System.out.println("Unknown tower type for tile ID: " + tileId);
+                    return;
+            }
+    
+            // Call the controller's sellTower method with the tower type
+            boolean success = controller.sellTower(col, row, towerType);
+            if (success) {
+                System.out.println("Tower of type " + towerType + " sold at row " + row + ", col " + col);
+            } else {
+                System.out.println("Failed to sell tower at row " + row + ", col " + col);
+            }
+    
+           removeButtonContainer();
+    }
+
+    private void showBuildButtons(int row, int col) {
+        removeButtonContainer();
+    
+        buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+    
+        // Calculate position based on clicked tile
+        double tileLeftX = col * TILE_SIZE;
+        double tileTopY = row * TILE_SIZE;
+    
+        // Position container centered above the clicked tile
+        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 105); // Center minus half of total buttons width
+        buttonContainer.setLayoutY(tileTopY - 80); // Position above the tile
+    
+        // Create buttons for building towers
+        for (int i = 0; i < 3; i++) {
+            Button button = new Button();
+            if (buttonImages[i] != null) {
+                button.setGraphic(new ImageView(buttonImages[i]));
+            }
+            button.setStyle("-fx-background-color: transparent; -fx-padding: 5;");
+            button.setPrefSize(64, 64);
+    
+            final int buttonId = i;
+            button.setOnAction(e -> handleBuildButtonClick(buttonId, row, col));
+    
+            buttonContainer.getChildren().add(button);
+        }
+    
+        root.getChildren().add(buttonContainer);
+    }
+
+    private void handleBuildButtonClick(int buttonId, int row, int col) {
         System.out.println("Button " + buttonId + " clicked on tile at row " + row + ", col " + col);
         
         // Map button IDs to tower types (0=Magic/Star, 1=Artillery/Bomb, 2=Archer/Arrow)
@@ -311,13 +384,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             System.out.println("Failed to build tower at row " + row + ", col " + col);
         }
         
-        // After handling, remove the buttons
-        if (buttonContainer != null) {
-            root.getChildren().remove(buttonContainer);
-            buttonContainer = null;
-            lastClickedRow = -1;
-            lastClickedCol = -1;
-        }
+        removeButtonContainer();
     }
 
     private void addUIElements(Stage stage) {
@@ -561,18 +628,90 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         return button;
     }
 
+    private void showEndGamePopup(GameState state, Stage stage) {
+        // Create a semi-transparent overlay
+        Pane overlay = new Pane();
+        overlay.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+
+        // Create the end game menu container
+        VBox endGameMenu = new VBox(15);
+        endGameMenu.setAlignment(Pos.CENTER);
+        endGameMenu.setStyle(
+            "-fx-background-color: rgba(50, 50, 50, 0.9);" +
+            "-fx-background-radius: 15;" +
+            "-fx-padding: 20px;"
+        );
+        endGameMenu.setMaxWidth(350); // Slightly wider for longer text
+        endGameMenu.setMaxHeight(300);
+
+        // Create the end game title based on the state
+        String titleText = (state == GameState.GAME_WON) ? "YOU WON!" : "YOU LOST!";
+        Text endGameTitle = new Text(titleText);
+        endGameTitle.setFont(Font.font("System", FontWeight.BOLD, 28));
+        endGameTitle.setFill(Color.WHITE);
+
+        // Create buttons
+        Button playAgainButton = createPauseMenuButton("Play Again"); // Reuse styling
+        Button mainMenuButton = createPauseMenuButton("Return to Main Menu"); // Reuse styling
+
+        // Add action handlers
+        playAgainButton.setOnAction(event -> {
+            controller.endGame(); // Clean up the current game
+            root.getChildren().remove(overlay); // Remove the popup
+            GamePlayController newController = new GamePlayController(); // Create a new controller
+            this.start(stage, newController); // Restart the game view with the new controller
+        });
+
+        mainMenuButton.setOnAction(event -> {
+            controller.endGame(); // Clean up the current game
+            root.getChildren().remove(overlay); // Remove the popup
+            // Return to main menu
+            MainMenuView mainMenuView = new MainMenuView();
+            mainMenuView.start(stage);
+        });
+
+        // Add all elements to the end game menu
+        endGameMenu.getChildren().addAll(endGameTitle, playAgainButton, mainMenuButton);
+
+        // Center the end game menu on screen
+        endGameMenu.setLayoutX((SCREEN_WIDTH - 350) / 2);
+        endGameMenu.setLayoutY((SCREEN_HEIGHT - 300) / 2);
+
+        // Add overlay and end game menu to the root
+        overlay.getChildren().add(endGameMenu);
+        root.getChildren().add(overlay);
+
+        // Ensure the popup is brought to the front
+        overlay.toFront();
+    }
+
     // Method called by the controller to update the game view
     @Override
     public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
         System.out.println("onGameUpdate called with deltaTime: " + deltaTime);
-        Platform.runLater(() -> { updateView(deltaTime); });
+         Platform.runLater(() -> {
+            updateView(deltaTime);
+
+            // Check game state for win/loss condition
+            GameState currentState = controller.getGameManager().getGameState();
+            if (!isEndGamePopupShown && (currentState == GameState.GAME_WON || currentState == GameState.GAME_LOST)) {
+                showEndGamePopup(currentState, currentStage);
+                isEndGamePopupShown = true; // Set flag to true once popup is shown
+            }
+        });
     }
 
     private double pastTime = 0.0;
 
     private void updateView(double deltaTime) {
+
+        // Check if the popup is already shown, if so, don't update the view further
+        if (isEndGamePopupShown) {
+            return;
+        }
 
         // print pastTime and deltaTime
         System.out.println("pastTime: " + pastTime);
