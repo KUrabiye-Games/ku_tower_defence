@@ -114,10 +114,10 @@ public class EnemyView {
         
         // If the image is loaded successfully
         if (enemyImages[imageIndex] != null) {
-            gc.drawImage(enemyImages[imageIndex], viewX, viewY, TILE_SIZE, TILE_SIZE);
+            gc.drawImage(enemyImages[imageIndex], viewX - TILE_SIZE/2, viewY - TILE_SIZE/2, TILE_SIZE, TILE_SIZE);
             
             // Draw health bar above the enemy
-            renderHealthBar(gc, enemy, viewX, viewY);
+            renderHealthBar(gc, enemy, viewX - TILE_SIZE/2, viewY - TILE_SIZE/2);
         }
     }
     

@@ -23,6 +23,13 @@ public class Tile {
          * 
          */
         private int tileCode; // Code for the tile
+
+        /* The tileDirections array is used to store the directions of the tile.
+         *         1
+         *    0 - Tile - 2
+         *         3
+         */
+        private int tileDirections[];
         
 
         private TilePoint2D coordinate; // Coordinate of the tile on the map
@@ -100,6 +107,14 @@ public class Tile {
 
         public TilePoint2D getCoordinate() {
             return coordinate; // Get the coordinate of the tile
+        }
+
+
+        public int[] getTileDirections() {
+            return tileDirections; // Get the directions of the tile
+        }
+        public void setTileDirections(int[] tileDirections) {
+            this.tileDirections = tileDirections; // Set the directions of the tile
         }
 
 
