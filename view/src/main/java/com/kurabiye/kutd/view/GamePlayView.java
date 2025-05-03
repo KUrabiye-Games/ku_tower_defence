@@ -24,6 +24,7 @@ import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
+import com.kurabiye.kutd.model.Managers.GameManager.GameState;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
@@ -79,6 +80,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Button playPauseButton;
     private boolean isGamePlaying = true;
     private boolean isGameAccelerated = false;
+    private boolean isEndGamePopupShown = false; // Flag to prevent multiple popups
+    private Stage currentStage; // Store the stage reference
     private Pane root;
     private Canvas canvas;
     private GraphicsContext gc;
@@ -109,6 +112,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         loadTiles();
         loadButtonIcons();
+
+        this.currentStage = stage; // Store the stage
+        this.isEndGamePopupShown = false; // Reset flag on start
 
         this.controller = controller;
         this.enemyView = new EnemyView(TILE_SIZE);  // Pass just the tile size
@@ -146,11 +152,34 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         addUIElements(stage);
 
         cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
+
+        // log if the image is null
+        if (cursorImage == null) {
+            System.out.println("Cursor image is null");
+        } else {
+            System.out.println("Cursor image loaded successfully");
+        }
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
-        scene.setCursor(new ImageCursor(cursorImage,
-                                cursorImage.getWidth() / 2,
-                                cursorImage.getHeight() /2));
+        try {
+            Image cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
+            if (cursorImage != null && !cursorImage.isError()) {
+                ImageCursor customCursor = new ImageCursor(cursorImage,
+                                                           cursorImage.getWidth() / 2,
+                                                           cursorImage.getHeight() / 2);
+                scene.setCursor(customCursor); // Set on scene (optional, but good practice)
+                root.setCursor(customCursor);  // Set on root pane - this is often key
+                System.out.println("Custom cursor set successfully on root pane.");
+            } else {
+                System.out.println("Failed to load cursor image or image has errors.");
+                if (cursorImage != null && cursorImage.getException() != null) {
+                    cursorImage.getException().printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Could not load or set custom cursor: " + e.getMessage());
+            e.printStackTrace();
+        }
         stage.setTitle("Game Map");
         stage.setScene(scene);
         stage.setMaximized(true);
@@ -561,18 +590,90 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         return button;
     }
 
+    private void showEndGamePopup(GameState state, Stage stage) {
+        // Create a semi-transparent overlay
+        Pane overlay = new Pane();
+        overlay.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+
+        // Create the end game menu container
+        VBox endGameMenu = new VBox(15);
+        endGameMenu.setAlignment(Pos.CENTER);
+        endGameMenu.setStyle(
+            "-fx-background-color: rgba(50, 50, 50, 0.9);" +
+            "-fx-background-radius: 15;" +
+            "-fx-padding: 20px;"
+        );
+        endGameMenu.setMaxWidth(350); // Slightly wider for longer text
+        endGameMenu.setMaxHeight(300);
+
+        // Create the end game title based on the state
+        String titleText = (state == GameState.GAME_WON) ? "YOU WON!" : "YOU LOST!";
+        Text endGameTitle = new Text(titleText);
+        endGameTitle.setFont(Font.font("System", FontWeight.BOLD, 28));
+        endGameTitle.setFill(Color.WHITE);
+
+        // Create buttons
+        Button playAgainButton = createPauseMenuButton("Play Again"); // Reuse styling
+        Button mainMenuButton = createPauseMenuButton("Return to Main Menu"); // Reuse styling
+
+        // Add action handlers
+        playAgainButton.setOnAction(event -> {
+            controller.endGame(); // Clean up the current game
+            root.getChildren().remove(overlay); // Remove the popup
+            GamePlayController newController = new GamePlayController(); // Create a new controller
+            this.start(stage, newController); // Restart the game view with the new controller
+        });
+
+        mainMenuButton.setOnAction(event -> {
+            controller.endGame(); // Clean up the current game
+            root.getChildren().remove(overlay); // Remove the popup
+            // Return to main menu
+            MainMenuView mainMenuView = new MainMenuView();
+            mainMenuView.start(stage);
+        });
+
+        // Add all elements to the end game menu
+        endGameMenu.getChildren().addAll(endGameTitle, playAgainButton, mainMenuButton);
+
+        // Center the end game menu on screen
+        endGameMenu.setLayoutX((SCREEN_WIDTH - 350) / 2);
+        endGameMenu.setLayoutY((SCREEN_HEIGHT - 300) / 2);
+
+        // Add overlay and end game menu to the root
+        overlay.getChildren().add(endGameMenu);
+        root.getChildren().add(overlay);
+
+        // Ensure the popup is brought to the front
+        overlay.toFront();
+    }
+
     // Method called by the controller to update the game view
     @Override
     public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
         System.out.println("onGameUpdate called with deltaTime: " + deltaTime);
-        Platform.runLater(() -> { updateView(deltaTime); });
+         Platform.runLater(() -> {
+            updateView(deltaTime);
+
+            // Check game state for win/loss condition
+            GameState currentState = controller.getGameManager().getGameState();
+            if (!isEndGamePopupShown && (currentState == GameState.GAME_WON || currentState == GameState.GAME_LOST)) {
+                showEndGamePopup(currentState, currentStage);
+                isEndGamePopupShown = true; // Set flag to true once popup is shown
+            }
+        });
     }
 
     private double pastTime = 0.0;
 
     private void updateView(double deltaTime) {
+
+        // Check if the popup is already shown, if so, don't update the view further
+        if (isEndGamePopupShown) {
+            return;
+        }
 
         // print pastTime and deltaTime
         System.out.println("pastTime: " + pastTime);
