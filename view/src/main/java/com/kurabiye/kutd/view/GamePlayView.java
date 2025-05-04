@@ -70,7 +70,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private final Image[] tileImages = new Image[TILE_COUNT];
     private Image[] buttonImages = new Image[3]; // For the three button icons
-    private Image cursorImage;
+    
     private Image blueButtonImage;
     private Image iconsImage;
     private Image playImage;       // Play button image
@@ -86,8 +86,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Canvas canvas;
     private GraphicsContext gc;
     private HBox buttonContainer;
-    private int lastClickedRow = -1;
-    private int lastClickedCol = -1;
+
     private GamePlayController controller;
 
     private EnemyView enemyView;
@@ -154,7 +153,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         addUIElements(stage);
 
-        cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
+       
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
         try {
@@ -258,8 +257,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         if (buttonContainer != null) {
             root.getChildren().remove(buttonContainer);
             buttonContainer = null;
-            lastClickedRow = -1;
-            lastClickedCol = -1;
+           
         }
     }
     private void showSellButton(int row, int col) {
@@ -757,7 +755,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     gc.translate(viewX, viewY);
         
                     // Rotate the canvas
-                    gc.rotate(angle);
+                    gc.rotate(angle + 180);
         
                     // Draw the image centered at (0, 0) after translation
                     gc.drawImage(projectileImage, -imageSize / 2, -imageSize / 2, imageSize, imageSize);

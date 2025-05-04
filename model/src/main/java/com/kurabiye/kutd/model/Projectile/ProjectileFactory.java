@@ -3,6 +3,8 @@ package com.kurabiye.kutd.model.Projectile;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Projectile.Projectile.DamageType;
+
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.ArrowProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.ArtilleryProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
@@ -34,6 +36,7 @@ public class ProjectileFactory {
         // Create a new projectile with the specified type and default values from user preferences
         float projectileAreaDamage = 40f; // Default area damage for the projectile
         IProjectileMoveStrategy moveStrategy = null; // Initialize the move strategy
+        DamageType explosionType = DamageType.TARGET; // Default explosion type for the projectile
         switch (projectileType) {
             case ARROW:
                 moveStrategy = new ArrowProjectileMoveStrategy(); // Set the move strategy for arrow projectiles
@@ -44,18 +47,23 @@ public class ProjectileFactory {
             case ARTILLERY:
                 moveStrategy = new ArtilleryProjectileMoveStrategy(); // Set the move strategy for artillery projectiles
                 projectileAreaDamage = artilleryRange * projectileAreaDamage; // Set the area damage for artillery projectiles
+                explosionType = DamageType.AREA; // Set the explosion type for artillery projectiles
                 break;
             default:
                 throw new IllegalArgumentException("Invalid projectile type: " + projectileType); // Handle invalid projectile types
         }
 
-        return new Projectile(projectileType,
+        Projectile product = new Projectile(projectileType,
                 startCoordinate, // Starting coordinate of the projectile
                 targetCoordinate, // Target coordinate of the projectile       
                 moveStrategy,
-                projectileAreaDamage
-                ); // Set the move strategy for the projectile
+                projectileAreaDamage,
+                explosionType); // Create a new projectile with the specified parameters
+               
 
+
+        
+        return product; // Return the created projectile
         
     }
 }

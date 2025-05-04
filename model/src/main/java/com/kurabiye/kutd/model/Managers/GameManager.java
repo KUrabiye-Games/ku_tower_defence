@@ -12,6 +12,8 @@ import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile;
+import com.kurabiye.kutd.model.Projectile.Projectile.DamageType;
+
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileState;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Tile.TileFactory;
@@ -44,9 +46,9 @@ public class GameManager implements Runnable{
     private Thread gameThread; // Reference to the game thread
     private volatile boolean running = true; // Flag to control thread execution
 
-    // TODO: Debugging: Remove this flag later
+
     // Add a flag to control test enemy spawning
-    private boolean hasSpawnedTestEnemy = false;
+
 
     public enum GameState {
         INITIALIZING,
@@ -157,17 +159,15 @@ public class GameManager implements Runnable{
 
             // Update enemies position
             Iterator<Enemy> enemyIterator = enemies.iterator(); // Create an iterator for the list of enemies
-            int enemyIndex2 = 0;
+
             while (enemyIterator.hasNext()) {
                 Enemy enemy = enemyIterator.next(); // Get the next enemy
-                Point2D oldPosition = enemy.getCoordinate();
+               
                 enemy.move(deltaTime); // Update the enemy's position
                 
                 if (enemy.hasArrived()) {
                     enemyIterator.remove(); // Remove the enemy from the list if it is out of bounds
                     player.loseHealth(); // Deduct health from the player
-                } else {
-                    enemyIndex2++; // Only increment if the enemy wasn't removed
                 }
             }
 
@@ -183,7 +183,7 @@ public class GameManager implements Runnable{
 
             // Update projectiles position
             for (Projectile projectile : projectiles) {
-                Point2D oldPos = projectile.getCoordinate();
+                
                 projectile.move(deltaTime); // Update each projectile's position
             }
 
@@ -192,7 +192,7 @@ public class GameManager implements Runnable{
             // Keep track of the enemies that are dead and need to be removed
             ArrayList<Enemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
             ArrayList<Projectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
-            int collisionCount = 0;
+
 
             for (Projectile projectile : projectiles) {
                 // Check if any collision occurred
@@ -209,14 +209,21 @@ public class GameManager implements Runnable{
                     continue; // Skip if the projectile is dead
                 }
 
+                if (projectile.getExplosionType() == DamageType.AREA) {
+                    continue; // Skip if the projectile is an area explosion
+                    
+                }
+
                 boolean collisionOccurred = false; // Flag to check if a collision occurred
 
                 for (Enemy enemy : enemies) {
                     double distance = projectile.getCoordinate().distance(enemy.getCoordinate());
                     float damageRadius = projectile.getProjectileAreaDamage();
+
+                    double distanceToTarget = projectile.getCoordinate().distance(projectile.getTarget());
                     
                     if (distance < damageRadius) { // Check for collision
-                        collisionCount++;
+                       
                         
                         enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
                         
@@ -231,12 +238,56 @@ public class GameManager implements Runnable{
                             projectilesToRemove.add(projectile); // Mark the projectile for removal
                             break; // Exit the loop if a collision occurred
                         }
+                    }else if(distanceToTarget < deltaTime * projectile.getSpeedVector().magnitude()){
+                        // Check if the projectile has reached its target
+
+
+                             enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
+                        
+                            if (enemy.isDead()) {
+                            int reward = enemy.getKillReward();
+                            player.earnGold(reward); // Add gold to the player for killing the enemy
+                            enemiesToRemove.add(enemy); // Mark the enemy for removal
+                            }
+                            collisionOccurred = true; // Set the collision flag to true
+                        
+                            projectilesToRemove.add(projectile); // Mark the projectile for removal
+                            
+                        
+
                     }
                 }
 
                 if(collisionOccurred) {
                     // Remove the projectile if it has collided with an enemy
                     projectilesToRemove.add(projectile); // Mark the projectile for removal
+                }
+            }
+
+
+            // Check the explosion type of projectiles
+
+            for (Projectile projectile : projectiles) {
+                if (projectile.getExplosionType() == DamageType.AREA) {
+                    // check if the projectile is close enough to the its target
+                    double distance = projectile.getCoordinate().distance(projectile.getTarget());
+
+                    if (distance < deltaTime * projectile.getSpeedVector().magnitude()) {
+                        // Apply area damage to all enemies within the explosion radius
+                        for (Enemy enemy : enemies) {
+                            double distanceToEnemy = projectile.getCoordinate().distance(enemy.getCoordinate());
+                            if (distanceToEnemy < projectile.getProjectileAreaDamage()) {
+                                enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
+                                if (enemy.isDead()) {
+                                    int reward = enemy.getKillReward();
+                                    player.earnGold(reward); // Add gold to the player for killing the enemy
+                                    enemiesToRemove.add(enemy); // Mark the enemy for removal
+                                }
+                            }
+                        }
+                        projectilesToRemove.add(projectile); // Mark the projectile for removal
+                    }
+
                 }
             }
 

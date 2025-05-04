@@ -2,7 +2,7 @@ package com.kurabiye.kutd.view;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
+
 
 import com.kurabiye.kutd.model.Coordinates.*;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import com.kurabiye.kutd.model.Player.UserPreference;
 public class EnemyView {
     private final int TILE_SIZE;
     private final int COLS = 16; // Number of columns in the game map
-    private final int ROWS = 9; // Number of rows in the game map
+   // private final int ROWS = 9; // Number of rows in the game map
     
     // Different enemy images for different enemy types
     private Image[] enemyImages;
@@ -101,7 +101,7 @@ public class EnemyView {
         
         // Transform model coordinates to view coordinates
         double modelWidth = 1920;  // The width used in the model
-        double modelHeight = 1080; // The height used in the model
+        //double modelHeight = 1080; // The height used in the model
         double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
         
         // Scale positions from model space to view space

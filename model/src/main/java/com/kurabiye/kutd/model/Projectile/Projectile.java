@@ -57,8 +57,17 @@ public class Projectile  {
 
     private ProjectileState projectileState = ProjectileState.MOVING; // Projectile's alive status
 
+    // WHEN THE PROJECTILE IS GONNA DAMAGE THE TARGET
+    public enum DamageType { // Enum for damage types
+        AREA,
+        TARGET
+    }
 
-    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage) {
+    private DamageType explosionType = DamageType.TARGET; // Type of explosion
+
+
+    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType explosionType) {
+        this.explosionType = explosionType; // Set the explosion type
         this.projectileType = projectileType;
         //this.startCoordinate = startCoordinate;
         this.targetCoordinate = targetCoordinate;
@@ -70,7 +79,7 @@ public class Projectile  {
         Point2D[] dataArray = moveStrategy.getSpeedVector(startCoordinate, targetCoordinate, gravityFactor); // Get the speed vector and life time from the move strategy
         this.speedVector = dataArray[0].multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
 
-        
+
 
         this.projectileLifeTime = dataArray[1].getX(); // Get the life time of the projectile from the move strategy
 
@@ -82,6 +91,14 @@ public class Projectile  {
    
     }
 
+    
+    public DamageType getExplosionType() {
+        return explosionType; // Get the explosion type
+    }
+
+    public Point2D getTarget(){
+        return targetCoordinate; // Get the target coordinate of the projectile
+    }
   
 
 
