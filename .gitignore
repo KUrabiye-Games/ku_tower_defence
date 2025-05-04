@@ -8,10 +8,14 @@ build
 .idea
 *.iml
 .vscode
+*/bin
 
 # Eclipse specific files
 .project
 .classpath
 .settings/
 
+tasks.txt
 
+
+.DS_Store
