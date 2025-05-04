@@ -93,6 +93,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private EnemyView enemyView;
     // private TowerView towerView;
 
+    private Image[] projectileImages = new Image[3]; // Array to store projectile images
+
     ArrayList<Enemy> enemies;
     ArrayList<Tower> towers;
     // Projectiles projectiles;
@@ -112,6 +114,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         loadTiles();
         loadButtonIcons();
+        loadProjectileImages();
 
         this.currentStage = stage; // Store the stage
         this.isEndGamePopupShown = false; // Reset flag on start
@@ -220,6 +223,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         pauseImage = new Image(getClass().getResourceAsStream("/assets/buttons/pause.png"));
         accelerateImage = new Image(getClass().getResourceAsStream("/assets/buttons/accelerate.png"));
         settingsImage = new Image(getClass().getResourceAsStream("/assets/buttons/settings.png"));
+    }
+
+    private void loadProjectileImages() {
+        projectileImages[0] = new Image(getClass().getResourceAsStream("/assets/projectiles/arrow.png")); // Arrow projectile
+        projectileImages[1] = new Image(getClass().getResourceAsStream("/assets/projectiles/magic.png")); // Magic projectile
+        projectileImages[2] = new Image(getClass().getResourceAsStream("/assets/projectiles/bomb.png")); // Artillery projectile
     }
 
     private void drawMap(GraphicsContext gc) {
@@ -737,49 +746,69 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
        
 
-        // Draw projectiles as small red dots
-        gc.setFill(Color.RED);
         for (Projectile projectile : projectiles) {
             // Get the projectile's current position
             Point2D position = projectile.getCoordinate();
-            
+        
             // Transform model coordinates to view coordinates using the same scaling as for enemies
             double modelWidth = 1920;  // The width used in the model
-            double modelHeight = 1080; // The height used in the model
             double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
-            
+        
             // Scale positions from model space to view space
             double viewX = position.getX() * scaleFactor;
             double viewY = position.getY() * scaleFactor;
-            
-            // Log the transformed coordinates
-            System.out.println("Drawing projectile at model coordinate: " + position + 
-                            ", scaled view coordinate: (" + viewX + ", " + viewY + ")");
-            
-            // Draw the projectile with the scaled coordinates
-            gc.fillOval(viewX - 5, viewY - 5, 10, 10);
-            
-            // Alternative approach with larger, more visible projectiles based on type
-            switch(projectile.getProjectileType()) {
+        
+            // Determine the projectile type and select the corresponding image
+            Image projectileImage = null;
+            double imageSize = 20; // Default size for projectiles
+            boolean shouldRotate = false;
+        
+            switch (projectile.getProjectileType()) {
                 case ARROW:
-                    gc.setFill(Color.DARKGREEN);
-                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
+                    projectileImage = projectileImages[0];
+                    imageSize = 30; // Larger size for arrows
+                    shouldRotate = true; // Arrows need to be rotated
                     break;
                 case MAGIC:
-                    gc.setFill(Color.BLUE);
-                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
+                    projectileImage = projectileImages[1];
+                    imageSize = 35; // Larger size for magic projectiles
                     break;
                 case ARTILLERY:
-                    gc.setFill(Color.ORANGE);
-                    gc.fillOval(viewX - 10, viewY - 10, 20, 20);
+                    projectileImage = projectileImages[2];
+                    imageSize = 15; // Smaller size for bombs
                     break;
             }
+        
+            // Draw the projectile image if it exists
+            if (projectileImage != null) {
+                if (shouldRotate) {
+                    // Calculate the rotation angle based on the speed vector
+                    double angle = Math.toDegrees(Math.atan2(projectile.getSpeedVector().getY(), projectile.getSpeedVector().getX()));
+        
+                    // Save the current state of the GraphicsContext
+                    gc.save();
+        
+                    // Translate to the center of the projectile
+                    gc.translate(viewX, viewY);
+        
+                    // Rotate the canvas
+                    gc.rotate(angle);
+        
+                    // Draw the image centered at (0, 0) after translation
+                    gc.drawImage(projectileImage, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
+        
+                    // Restore the GraphicsContext to its original state
+                    gc.restore();
+                } else {
+                    // Draw the image without rotation
+                    gc.drawImage(projectileImage, viewX - imageSize / 2, viewY - imageSize / 2, imageSize, imageSize);
+                }
+            }
         }
+        
+        
         // End of projectile rendering
 
-
-         // Draw towers
-        // towerView.renderTowers(gc, towers);
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
     }
