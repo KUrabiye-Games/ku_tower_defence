@@ -41,8 +41,16 @@ public class Projectile  {
 
     private float speed; // Speed of the projectile
 
+
+    private double projectileLifeTime = 3f; // Life time of the projectile
+
+    private double projectileLifeTimeCounter = 0; // Counter for the projectile's life time
+
+    private double projectileExplosiveActtionTime = 0.1f; // Time to explode after reaching the target
+
     public enum ProjectileState { // Enum for projectile states
         MOVING, // Projectile is alive
+        ACTIVE, // Projectile is active
         STOPPED, // Projectile is dead
         DEAD
     }
@@ -58,12 +66,22 @@ public class Projectile  {
         this.speed = moveStrategy.getSpeed(); // Get the speed from the move strategy
         
         this.projectileAreaDamage = projectileAreaDamage; // Set the area damage of the projectile
-        this.speedVector = moveStrategy.getSpeedVector(startCoordinate, targetCoordinate, gravityFactor).multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
+
+        Point2D[] dataArray = moveStrategy.getSpeedVector(startCoordinate, targetCoordinate, gravityFactor); // Get the speed vector and life time from the move strategy
+        this.speedVector = dataArray[0].multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
+
+
+        this.projectileLifeTime = dataArray[1].getX(); // Get the life time of the projectile from the move strategy
+
+        this.projectileExplosiveActtionTime = dataArray[1].getY(); // Get the explosive action time of the projectile from the move strategy
+
 
         this.coordinate = startCoordinate; // Set the starting coordinate of the projectile
    
    
     }
+
+  
 
 
     public ProjectileType getProjectileType() {
@@ -75,14 +93,14 @@ public class Projectile  {
     }
 
 
-    private static final double EPSILON = 1e-1; // Epsilon value for floating point comparison
+    //private static final double EPSILON = 1e-1; // Epsilon value for floating point comparison
 
     private double expirationTime = 0;
 
     public synchronized void move(double deltaTime) {
-        if (projectileState == ProjectileState.MOVING) {
+        if (projectileState == ProjectileState.MOVING || projectileState == ProjectileState.ACTIVE) {
 
-            speedVector.add(0, gravityFactor * deltaTime); // Update the speed vector with the gravity factor and delta time
+            speedVector = speedVector.add(0, 1 * gravityFactor * deltaTime); // Update the speed vector with the gravity factor and delta time
 
             // Check if the speed vector is zero
             if (speedVector.magnitude() == 0) {
@@ -97,6 +115,21 @@ public class Projectile  {
                 coordinate = targetCoordinate; // Set the coordinate to the target coordinate
                 projectileState = ProjectileState.STOPPED; // Stop the projectile if it has reached the target
             }
+
+            // Check if the projectile has reached its explosive action time
+
+            if (projectileLifeTimeCounter > projectileExplosiveActtionTime) {
+                projectileState = ProjectileState.ACTIVE; // Set the projectile state to ACTIVE if it has reached its explosive action time
+            }
+
+
+            // Check if the projectile has exceeded its life time
+            if (projectileLifeTimeCounter > projectileLifeTime) {
+                projectileState = ProjectileState.STOPPED; // Set the projectile state to DEAD if it has exceeded its life time
+            } else {
+                projectileLifeTimeCounter += deltaTime; // Increment the life time counter
+            }
+
 
             
            

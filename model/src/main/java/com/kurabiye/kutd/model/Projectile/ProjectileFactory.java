@@ -30,7 +30,7 @@ public class ProjectileFactory {
     // Create a projectile of a specific type with default values
     public Projectile createProjectile(Projectile.ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate) {
         // Create a new projectile with the specified type and default values from user preferences
-        float projectileAreaDamage = 20f; // Default area damage for the projectile
+        float projectileAreaDamage = 40f; // Default area damage for the projectile
         IProjectileMoveStrategy moveStrategy = null; // Initialize the move strategy
         switch (projectileType) {
             case ARROW:

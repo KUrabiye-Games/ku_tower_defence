@@ -257,6 +257,12 @@ public class GameManager implements Runnable{
                     
                 }
 
+                if (projectile.getProjectileState() == ProjectileState.MOVING) {
+                    System.out.println("Projectile is dead, skipping collision check");
+                    continue; // Skip if the projectile is dead
+                    
+                }
+
                 boolean collisionOccurred = false; // Flag to check if a collision occurred
 
                 for (Enemy enemy : enemies) {
@@ -329,7 +335,7 @@ public class GameManager implements Runnable{
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep(1000/TARGET_FPS); // Approximately 60 FPS
+                Thread.sleep((long)((1000/TARGET_FPS)/ gameTimer.getTimeCoefficient())); // Approximately 60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -4,8 +4,11 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 public class StraightProjectileMoveStrategy implements IProjectileMoveStrategy {
 
+
+    private static final double PROJECTILE_LIFE_TIME = 5f; // Life time of the projectile
+
     @Override
-    public Point2D getSpeedVector(Point2D startingPoint, Point2D targetPoint, float gravity) {
+    public Point2D[] getSpeedVector(Point2D startingPoint, Point2D targetPoint, float gravity) {
         
         Point2D speedVector = targetPoint.subtract(startingPoint); // Calculate the speed vector from the starting point to the target point
         
@@ -14,10 +17,10 @@ public class StraightProjectileMoveStrategy implements IProjectileMoveStrategy {
         if (length > 0) {
             speedVector = speedVector.normalize(); // Normalize the speed vector to get the direction
         } else {
-            return new Point2D(0, 0); // If the length is zero, return a zero vector
+            return new Point2D[]{new Point2D(0, 0), new Point2D(PROJECTILE_LIFE_TIME, 0.1)}; // If the length is zero, return a zero vector
         }
 
-        return speedVector; // Return the normalized speed vector
+        return new Point2D[]{speedVector, new Point2D(length, gravity)}; // Return the normalized speed vector
     }
 
     @Override
@@ -27,8 +30,9 @@ public class StraightProjectileMoveStrategy implements IProjectileMoveStrategy {
 
     @Override
     public float getSpeed() {
-        return 450.0f;
+        return 900.0f;
     }
+
 
 
 
