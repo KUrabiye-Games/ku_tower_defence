@@ -4,7 +4,7 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 public class ArtilleryProjectileMoveStrategy implements IProjectileMoveStrategy {
 
-    private static final float GRAVITY = 15.81f; // Gravity constant
+    private static final float GRAVITY = 0; // Gravity constant
     private float ARTILLERY_SPEED = 50; // Speed of the artillery projectile
     
 /*
@@ -83,6 +83,7 @@ public class ArtilleryProjectileMoveStrategy implements IProjectileMoveStrategy 
         return new Point2D[]{initialSpeedVector, new Point2D(timeOfFlight + 0.05f, activationTime)};
     }*/
 
+    public static final double PROJECTILE_LIFE_TIME = 5f; // Life time of the projectile
 
     @Override
     public Point2D[] getSpeedVector(Point2D startingPoint, Point2D targetPoint, float gravity) {
@@ -95,12 +96,10 @@ public class ArtilleryProjectileMoveStrategy implements IProjectileMoveStrategy 
         if (length > 0) {
             speedVector = speedVector.normalize(); // Normalize the speed vector to get the direction
         } else {
-            return new Point2D[]{new Point2D(0, 0), new Point2D(0.1, 0.1)}; // If the length is zero, return a zero vector
+            return new Point2D[]{new Point2D(0, 0), new Point2D(0, 0.1)}; // If the length is zero, return a zero vector
         }
 
-        double deadTime = length/ARTILLERY_SPEED + 0.05f;
-
-        return new Point2D[]{speedVector, new Point2D(deadTime, deadTime - 1f)}; // Return the normalized speed vector
+        return new Point2D[]{speedVector, new Point2D(PROJECTILE_LIFE_TIME, 0)}; // Return the normalized speed vector
     }
 
 

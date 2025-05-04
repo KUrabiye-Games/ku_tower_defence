@@ -8,7 +8,7 @@ public class ArrowProjectileMoveStrategy implements IProjectileMoveStrategy {
     private static final double PROJECTILE_LIFE_TIME = 5f; // Life time of the projectile
 
 
-    private static final float PROJECTILE_SPEED = 900.0f; // Speed of the projectile
+    private static final float PROJECTILE_SPEED = 800.0f; // Speed of the projectile
 
     @Override
     public Point2D[] getSpeedVector(Point2D startingPoint, Point2D targetPoint, float gravity) {

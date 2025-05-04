@@ -19,6 +19,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
@@ -27,12 +29,15 @@ import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameManager.GameState;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.Projectile;
+import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.Tower;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.input.MouseEvent;
 
@@ -98,6 +103,11 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     ArrayList<Tower> towers;
     // Projectiles projectiles;
 
+    // Removed Enemiea Projectiles from here
+
+    private ArrayList<Enemy> deadEnemies;
+    private ArrayList<Projectile> deadProjectiles;
+
     ArrayList<Projectile> projectiles;
 
     private int currentGold;
@@ -124,6 +134,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
+
+        this.deadEnemies = controller.getGameManager().getEnemiesToRemove();
+        this.deadProjectiles = controller.getGameManager().getProjectilesToRemove();
+
         this.projectiles = controller.getGameManager().getProjectiles();
         this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         this.currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
@@ -774,7 +788,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
+
+        // Update explosion animations (AnimationTimer handles the rendering)
+
+
+        
     }
+
+   
 
     @Override
     public void update(Object arg) {

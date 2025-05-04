@@ -90,6 +90,10 @@ public class GameManager implements Runnable{
     private IGameUpdateListener gameUpdateListener; // Listener for game updates
 
 
+    private ArrayList<Enemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
+    private ArrayList<Projectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
+
+
     public GameManager(GameMap gameMap) {
         this.gameState = GameState.INITIALIZING; // Initialize game state to RUNNING
         this.gameTimer = GameTimer.getInstance(); // Get the singleton instance of GameTimer
@@ -190,9 +194,9 @@ public class GameManager implements Runnable{
             // Check for collisions between projectiles and enemies
             // Keep track of projectiles that need to be removed
             // Keep track of the enemies that are dead and need to be removed
-            ArrayList<Enemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
-            ArrayList<Projectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
-
+            
+            projectilesToRemove.clear(); // Clear the list of projectiles to remove
+            enemiesToRemove.clear(); // Clear the list of enemies to remove
 
             for (Projectile projectile : projectiles) {
                 // Check if any collision occurred
@@ -295,6 +299,8 @@ public class GameManager implements Runnable{
             enemies.removeAll(enemiesToRemove); // Remove the marked enemies from the list
             // Remove projectiles that have collided with enemies
             projectiles.removeAll(projectilesToRemove); // Remove the marked projectiles from the list
+
+            
 
             // Check if the game is over
             if (player.getCurrentHealth() <= 0) {
@@ -490,6 +496,13 @@ public class GameManager implements Runnable{
 
     public int getCurrentGroupIndex() {
         return waveManager.getCurrentGroupIndex(); // Return the current group index
+    }
+
+    public ArrayList<Enemy> getEnemiesToRemove() {
+        return enemiesToRemove; // Return the list of enemies to remove
+    }
+    public ArrayList<Projectile> getProjectilesToRemove() {
+        return projectilesToRemove; // Return the list of projectiles to remove
     }
 
 }

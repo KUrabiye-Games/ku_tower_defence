@@ -67,20 +67,20 @@ public class UserPreference implements Serializable {
         wave2.add(new int[]{3,1}); // Example group with different enemy types
         waveList.add(wave2); // Add the second wave to the list
     
-        startingGold = 1000;
-        goldPerEnemy = new int[]{10, 20}; // Gold earned per enemy type
+        startingGold = 100;
+        goldPerEnemy = new int[]{15, 20}; // Gold earned per enemy type
         startingHealth = 5;
         enemyHealth = new int[]{50, 75}; // Health for each enemy type
         damageDealt = new float[][]{
             //Enemy0 Enemy1
-            {2.0f, 1.0f}, // Damage for artillery type 0
-            {7.0f, 12.0f}, // Damage for artillery type 1
+            {5.0f, 1.0f}, // Damage for artillery type 0
+            {7.0f, 15.0f}, // Damage for artillery type 1
             {8.0f, 7.0f}  // Damage for artillery type 2
         };
         towerConstructionCost = new int[]{50, 75, 100}; // Cost for each tower type
         towerEffectiveRange = new float[]{300.0f, 300.0f, 200.0f}; // Range for each tower type
-        towerRateOfFire = new float[]{0.5f, 2.5f, 0.5f}; // Attack speed for each tower type
-        artilleryRange = 6.0f; // Special long range for artillery
+        towerRateOfFire = new float[]{0.5f, 1f, 5f}; // Attack speed for each tower type
+        artilleryRange = 3.0f; // Special long range for artillery
         enemyMovementSpeed = new int[]{60, 35}; // Movement speed for each enemy type
         towerSellReturn = new float[]{0.5f, 0.6f, 0.7f}; // Percentage returned when selling
     }
