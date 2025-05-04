@@ -77,6 +77,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image pauseImage;      // Pause button image
     private Image accelerateImage; // Speed up image
     private Image settingsImage;   // Settings image
+
+    private Image eraserImage;
+    private Image arrowImage;
+
+    private Image[] magicExplosionImages = new Image[9];
+    private Image[] artilleryFireImages = new Image[7];
+
+
     private Button playPauseButton;
     private boolean isGamePlaying = true;
     private boolean isGameAccelerated = false;
@@ -112,6 +120,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         loadTiles();
         loadButtonIcons();
+        loadProjectileEffects();
 
         this.currentStage = stage; // Store the stage
         this.isEndGamePopupShown = false; // Reset flag on start
@@ -195,6 +204,18 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         }
     }
 
+    private void loadProjectileEffects() {
+        for (int i = 0; i < 9; i++) {
+            magicExplosionImages[i] = new Image(getClass().getResourceAsStream("/assets/effects/explosions/explosion" + i + ".png"));
+        }
+        for (int i = 0; i < 7; i++) {
+            artilleryFireImages[i] = new Image(getClass().getResourceAsStream("/assets/effects/fire/fire" + i + ".png"));
+        }
+    
+        arrowImage = new Image(getClass().getResourceAsStream("/assets/effects/arrow.png"));
+
+    }
+
     private void loadButtonIcons() {
         // Load images for the buttons
         for (int i = 0; i < 3; i++) {
@@ -220,6 +241,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         pauseImage = new Image(getClass().getResourceAsStream("/assets/buttons/pause.png"));
         accelerateImage = new Image(getClass().getResourceAsStream("/assets/buttons/accelerate.png"));
         settingsImage = new Image(getClass().getResourceAsStream("/assets/buttons/settings.png"));
+        eraserImage = new Image(getClass().getResourceAsStream("/assets/buttons/eraser.png"));
+
+
     }
 
     private void drawMap(GraphicsContext gc) {
@@ -277,20 +301,21 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         double tileTopY = row * TILE_SIZE;
     
         // Position container centered above the clicked tile
-        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 50); // Center minus half of button width
-        buttonContainer.setLayoutY(tileTopY - 40); // Position above the tile
+        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 32); // 64px button genişliği varsayıldı
+        buttonContainer.setLayoutY(tileTopY - 64); // Yukarıya konumlandır
     
-        Button sellButton = new Button("Sell");
-        sellButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
-        sellButton.setPrefSize(80, 30);
+        // 🧽 Eraser image-based button
+        Button sellButton = new Button();
+        sellButton.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
+        sellButton.setPrefSize(64, 64);
+        sellButton.setGraphic(new ImageView(eraserImage));
     
-        sellButton.setOnAction(e -> {
-            handleSellButtonClick(row, col);
-        });
+        sellButton.setOnAction(e -> handleSellButtonClick(row, col));
     
         buttonContainer.getChildren().add(sellButton);
         root.getChildren().add(buttonContainer);
     }
+    
 
     private void handleSellButtonClick(int row, int col) {
         int tileId = map[row][col];
@@ -718,6 +743,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         pastTime += deltaTime;
         
         int imgNum = ((int) (pastTime * 6)) % 6;
+        int magicImgNum = ((int)(pastTime * 6)) % 9;
+
+
+        //int imgNum = ((int) (pastTime * 6)) % 9; 
+        int artilleryImgNum = ((int) (pastTime * 6)) % 7; // 7-frame'lik fire için uyumlu
+
 
         // print imgNum
         System.out.println("imgNum: " + imgNum);
@@ -738,7 +769,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
        
 
         // Draw projectiles as small red dots
-        gc.setFill(Color.RED);
         for (Projectile projectile : projectiles) {
             // Get the projectile's current position
             Point2D position = projectile.getCoordinate();
@@ -762,17 +792,25 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             // Alternative approach with larger, more visible projectiles based on type
             switch(projectile.getProjectileType()) {
                 case ARROW:
-                    gc.setFill(Color.DARKGREEN);
-                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
-                    break;
+                if (arrowImage != null) {
+                    gc.drawImage(arrowImage, viewX - 16, viewY - 16, 32, 32); 
+                }
+                break;
+            
+                
                 case MAGIC:
-                    gc.setFill(Color.BLUE);
-                    gc.fillOval(viewX - 3, viewY - 3, 6, 6);
+                    if (magicExplosionImages[magicImgNum] != null) {
+                        gc.drawImage(magicExplosionImages[magicImgNum], viewX - 32, viewY - 32, 64, 64);
+                    }
                     break;
+
                 case ARTILLERY:
-                    gc.setFill(Color.ORANGE);
-                    gc.fillOval(viewX - 10, viewY - 10, 20, 20);
+                    if (artilleryFireImages[artilleryImgNum] != null) {
+                        gc.drawImage(artilleryFireImages[artilleryImgNum], viewX - 32, viewY - 32, 64, 64);
+                    }
                     break;
+                
+
             }
         }
         // End of projectile rendering
