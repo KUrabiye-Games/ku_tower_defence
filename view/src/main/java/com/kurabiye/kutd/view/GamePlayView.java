@@ -796,5 +796,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
+        double deltaTime = 0.0; // Placeholder for actual deltaTime
+        updateView(deltaTime); // Pass a dummy deltaTime for now
     }
 }
