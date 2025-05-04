@@ -46,7 +46,7 @@ public class EnemyView {
             }
         }
     }
-    
+
     /**
      * Create a fallback image if the enemy sprite cannot be loaded
      */
@@ -73,7 +73,7 @@ public class EnemyView {
         // Convert canvas to image
         return canvas.snapshot(null, null);
     }
-    
+ 
     /**
      * Render all enemies on the canvas
      * @param gc GraphicsContext to draw on
