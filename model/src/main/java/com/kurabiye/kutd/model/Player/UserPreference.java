@@ -79,8 +79,8 @@ public class UserPreference implements Serializable {
         };
         towerConstructionCost = new int[]{50, 75, 100}; // Cost for each tower type
         towerEffectiveRange = new float[]{300.0f, 300.0f, 200.0f}; // Range for each tower type
-        towerRateOfFire = new float[]{0.5f, 2.5f, 0.5f}; // Attack speed for each tower type
-        artilleryRange = 1.0f; // Special long range for artillery
+        towerRateOfFire = new float[]{0.5f, 2.5f, 5f}; // Attack speed for each tower type
+        artilleryRange = 6.0f; // Special long range for artillery
         enemyMovementSpeed = new int[]{60, 35}; // Movement speed for each enemy type
         towerSellReturn = new float[]{0.5f, 0.6f, 0.7f}; // Percentage returned when selling
     }
