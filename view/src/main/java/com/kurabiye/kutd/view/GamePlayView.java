@@ -155,13 +155,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         addUIElements(stage);
 
         cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
-
-        // log if the image is null
-        if (cursorImage == null) {
-            System.out.println("Cursor image is null");
-        } else {
-            System.out.println("Cursor image loaded successfully");
-        }
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
         try {
@@ -172,15 +165,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                                                            cursorImage.getHeight() / 2);
                 scene.setCursor(customCursor); // Set on scene (optional, but good practice)
                 root.setCursor(customCursor);  // Set on root pane - this is often key
-                System.out.println("Custom cursor set successfully on root pane.");
-            } else {
-                System.out.println("Failed to load cursor image or image has errors.");
-                if (cursorImage != null && cursorImage.getException() != null) {
-                    cursorImage.getException().printStackTrace();
-                }
             }
         } catch (Exception e) {
-            System.out.println("Could not load or set custom cursor: " + e.getMessage());
+            // Failed to load custom cursor, will use default cursor
             e.printStackTrace();
         }
         stage.setTitle("Game Map");
@@ -315,16 +302,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     towerType = 2;
                     break;
                 default:
-                    System.out.println("Unknown tower type for tile ID: " + tileId);
                     return;
             }
     
             // Call the controller's sellTower method with the tower type
             boolean success = controller.sellTower(col, row, towerType);
             if (success) {
-                System.out.println("Tower of type " + towerType + " sold at row " + row + ", col " + col);
             } else {
-                System.out.println("Failed to sell tower at row " + row + ", col " + col);
             }
     
            removeButtonContainer();
@@ -363,7 +347,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 
     private void handleBuildButtonClick(int buttonId, int row, int col) {
-        System.out.println("Button " + buttonId + " clicked on tile at row " + row + ", col " + col);
         
         // Map button IDs to tower types (0=Magic/Star, 1=Artillery/Bomb, 2=Archer/Arrow)
         int towerType;
@@ -378,19 +361,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 towerType = 0; // ARROW tower type
                 break;
             default:
-                System.out.println("Unknown button ID: " + buttonId);
                 return;
         }
         
         // Tell the controller to build a tower of the selected type
         boolean success = controller.buildTower(col, row, towerType);
 
-        System.out.println("Tower List: " + towers);
         
         if (success) {
-            System.out.println("Tower of type " + towerType + " built at row " + row + ", col " + col);
         } else {
-            System.out.println("Failed to build tower at row " + row + ", col " + col);
         }
         
         removeButtonContainer();
@@ -700,7 +679,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     public void onGameUpdate(double deltaTime) { 
         // This must be called on the JavaFX Application Thread 
         // So we wrap it in Platform.runLater
-        System.out.println("onGameUpdate called with deltaTime: " + deltaTime);
          Platform.runLater(() -> {
             updateView(deltaTime);
 
@@ -722,23 +700,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             return;
         }
 
-        // print pastTime and deltaTime
-        System.out.println("pastTime: " + pastTime);
         pastTime += deltaTime;
         
         int imgNum = ((int) (pastTime * 6)) % 6;
 
-        // print imgNum
-        System.out.println("imgNum: " + imgNum);
-
-        System.out.println("Update view called");
-        System.out.println("Enemies: " + enemies);
-
-        // Log positions of enemies
-        for (Enemy enemy : enemies) {
-            System.out.println("Enemy position: " + enemy.getCoordinate());
-        }
-        
         // GraphicsContext gc = canvas.getGraphicsContext2D();
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -820,7 +785,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         goldText.setText(String.valueOf(currentGold));
         healthText.setText(String.valueOf(currentHealth));
-        System.out.println("Observer update called with argument: " + arg);
 
         map = GameMap.toIntArray(controller.getGameManager().getGameMap());
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());

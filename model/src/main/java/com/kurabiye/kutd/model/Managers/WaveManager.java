@@ -62,7 +62,6 @@ public class WaveManager {
 
     public WaveManager(UserPreference userPreferences) {
         this.waveInfo = new WaveInfo(userPreferences); // Get the wave information from user preferences
-        System.out.println("WaveManager initialized with " + waveInfo.getTotalNumberOfWaves() + " waves");
     }
 
     /* This is the method that would keep track of the current wave and group index.
@@ -75,28 +74,21 @@ public class WaveManager {
      * 
      */
     public int getEnemy(double deltaTime) {
-        System.out.println("getEnemy called with deltaTime: " + deltaTime + ", current state: " + waveState);
-
         switch (waveState) {
             case GRACE_PERIOD:
-                System.out.println("In GRACE_PERIOD, lastGracePeriodTime: " + lastGracePeriodTime + ", GRACE_WAIT_TIME: " + GRACE_WAIT_TIME);
                 if (lastGracePeriodTime < GRACE_WAIT_TIME) { // If this is the first time the grace period is started
                     lastGracePeriodTime += deltaTime; // Set the last grace period time to the current time
-                    System.out.println("Grace period in progress, updated lastGracePeriodTime: " + lastGracePeriodTime);
                 } else {
                     lastGracePeriodTime = 0; // Reset the last grace period time
                     waveState = EnemyAttackState.SPAWNING; // Change the state to group waiting
                     leftEnemiesInGroup = waveInfo.getTotalEnemyInGroup(0, 0); // Get the number of enemies in the current group
                     currentGroupDecomposition = waveInfo.getWaveGroupDecomposition(currentWaveIndex, currentGroupIndex);
-                    System.out.println("Grace period ended, transitioning to SPAWNING. leftEnemiesInGroup: " + leftEnemiesInGroup);
-                    System.out.println("Current group decomposition: " + Arrays.toString(currentGroupDecomposition));
                 }
                 return -1; // Placeholder for enemy spawning logic
                 
             case SPAWNING:
                 // check if there no is any enemy left to spawn in the current group
                 if(leftEnemiesInGroup == 0){
-                    System.out.println("No enemies left in current group: Wave " + currentWaveIndex + ", Group " + currentGroupIndex);
                     // check if there is any group left to spawn in the current wave
                     if(currentGroupIndex < waveInfo.getTotalNumberOfGroupsInWave(currentWaveIndex) - 1){
                         currentGroupIndex++; // Increment the group index
@@ -104,9 +96,6 @@ public class WaveManager {
                         currentGroupDecomposition = waveInfo.getWaveGroupDecomposition(currentWaveIndex, currentGroupIndex); // Get the decomposition of the current group
                         lastGroupWaitTime = 0; // Reset the last group wait time
                         waveState = EnemyAttackState.GROUP_WAITING; // Change the state to group waiting
-                        System.out.println("Moving to next group: Wave " + currentWaveIndex + ", Group " + currentGroupIndex);
-                        System.out.println("New group has " + leftEnemiesInGroup + " enemies");
-                        System.out.println("Group decomposition: " + Arrays.toString(currentGroupDecomposition));
                     } else {
                         // check if there is any wave left to spawn
                         if(currentWaveIndex < waveInfo.getTotalNumberOfWaves() - 1){
@@ -116,12 +105,8 @@ public class WaveManager {
                             currentGroupDecomposition = waveInfo.getWaveGroupDecomposition(currentWaveIndex, currentGroupIndex); // Get the decomposition of the current group
                             lastWaveWaitTime = 0; // Reset the last wave wait time
                             waveState = EnemyAttackState.WAVE_WAITING; // Change the state to wave waiting
-                            System.out.println("Moving to next wave: Wave " + currentWaveIndex);
-                            System.out.println("New wave, first group has " + leftEnemiesInGroup + " enemies");
-                            System.out.println("Group decomposition: " + Arrays.toString(currentGroupDecomposition));
                         } else {
                             waveState = EnemyAttackState.NO_ENEMY_LEFT; // Change the state to no enemy left
-                            System.out.println("No more waves left, changing state to NO_ENEMY_LEFT");
                         }
                     }
                     return -1; // Placeholder for enemy spawning logic
@@ -129,22 +114,17 @@ public class WaveManager {
 
                 if (lastEnemySpawnTime < ENEMY_SPAWN_TIME) { // If this is the first time the enemy spawn time is started
                     lastEnemySpawnTime += deltaTime; // Set the last enemy spawn time to the current time
-                    System.out.println("Enemy spawn timer running: " + lastEnemySpawnTime + "/" + ENEMY_SPAWN_TIME);
                 } else {
                     lastEnemySpawnTime = 0; // Reset the last enemy spawn time
                     leftEnemiesInGroup--; // Decrement the number of enemies left in the group
-                    System.out.println("Spawning enemy, " + leftEnemiesInGroup + " enemies left in group");
 
                     // Choose the enemy type based on the wave and group index
 
                     // Check if currentGroupDecomposition is null or empty
                     if (currentGroupDecomposition == null || currentGroupDecomposition.length == 0) {
-                        System.out.println("ERROR: currentGroupDecomposition is null or empty!");
                         return -1; // Return -1 indicating no enemy to spawn
                     }
                     
-                    System.out.println("Current decomposition before spawn: " + Arrays.toString(currentGroupDecomposition));
-                
                     // Count available enemy types (those with values > 0)
                     int availableTypes = 0;
                     for (int count : currentGroupDecomposition) {
@@ -152,7 +132,6 @@ public class WaveManager {
                     }
                     
                     if (availableTypes == 0) {
-                        System.out.println("ERROR: No enemy types available in decomposition array!");
                         return -1;
                     }
                     
@@ -161,48 +140,37 @@ public class WaveManager {
                         int enemyTypeIndex = random.nextInt(currentGroupDecomposition.length); // Get a random enemy type index
                         if (currentGroupDecomposition[enemyTypeIndex] > 0) { // Check if the enemy type is available
                             currentGroupDecomposition[enemyTypeIndex]--; // Decrement the number of enemies of that type
-                            System.out.println("Spawning enemy type: " + enemyTypeIndex);
-                            System.out.println("Updated decomposition: " + Arrays.toString(currentGroupDecomposition));
                             return enemyTypeIndex; // Return the enemy type index to spawn
                         }
                         attempts++;
                     }
                     
-                    System.out.println("WARNING: Could not find available enemy type after " + attempts + " attempts!");
                     return -1; // Fallback, should not reach here if the decomposition is valid
                 }
                 return -1;
                 
             case GROUP_WAITING:
-                System.out.println("In GROUP_WAITING, lastGroupWaitTime: " + lastGroupWaitTime + ", delay: " + waveInfo.getDefaultDelayBetweenGroups());
                 if (lastGroupWaitTime < waveInfo.getDefaultDelayBetweenGroups()) { // If this is the first time the group wait time is started
                     lastGroupWaitTime += deltaTime; // Set the last group wait time to the current time
-                    System.out.println("Group waiting in progress: " + lastGroupWaitTime + "/" + waveInfo.getDefaultDelayBetweenGroups());
                 } else {
                     lastGroupWaitTime = 0; // Reset the last group wait time
                     waveState = EnemyAttackState.SPAWNING; // Change the state to spawning
-                    System.out.println("Group wait ended, transitioning to SPAWNING");
                 }
                 return -1; // Placeholder for enemy spawning logic
                 
             case WAVE_WAITING:
-                System.out.println("In WAVE_WAITING, lastWaveWaitTime: " + lastWaveWaitTime + ", delay: " + waveInfo.getDefaultDelayBetweenWaves());
                 if (lastWaveWaitTime < waveInfo.getDefaultDelayBetweenWaves()) { // If this is the first time the wave wait time is started
                     lastWaveWaitTime += deltaTime; // Set the last wave wait time to the current time
-                    System.out.println("Wave waiting in progress: " + lastWaveWaitTime + "/" + waveInfo.getDefaultDelayBetweenWaves());
                 } else {
                     lastWaveWaitTime = 0; // Reset the last wave wait time
                     waveState = EnemyAttackState.SPAWNING; // Change the state to spawning
-                    System.out.println("Wave wait ended, transitioning to SPAWNING");
                 }
                 return -1; // Placeholder for enemy spawning logic
                 
             case NO_ENEMY_LEFT:
-                System.out.println("No enemies left to spawn");
                 return -2; // Placeholder for enemy spawning logic
                 
             default:
-                System.out.println("Unknown enemy attack state: " + waveState);
                 return -1;
         }
     }

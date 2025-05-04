@@ -288,16 +288,12 @@ public class GameMap implements Observable{
      */
 
     private void buildTilePath() {
-        System.out.println("buildTilePath(): Starting path building...");
         
         ArrayList<Tile> my_path = new ArrayList<>(); // List to store the path tiles
 
         Tile addTile = tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()]; // Get the starting tile
-        System.out.println("buildTilePath(): Starting tile at position (" + startTileCoordinates.getTileX() + "," + 
-                          startTileCoordinates.getTileY() + ") with code " + addTile.getTileCode());
         
         my_path.add(addTile); // Add the starting tile to the path
-        System.out.println("buildTilePath(): Added starting tile to path");
         
 
         int currentToDirection = findOtherEndTile(addTile, startTileDirection); // Set the current direction to the starting tile direction
@@ -307,8 +303,6 @@ public class GameMap implements Observable{
 
 
         do{
-            System.out.println("buildTilePath(): Processing tile at (" + addTile.getCoordinate().getTileX() + 
-                              "," + addTile.getCoordinate().getTileY() + ") with code " + addTile.getTileCode());
             
            
            
@@ -337,7 +331,6 @@ public class GameMap implements Observable{
 
                 // add the error tile to the path
                 my_path.add(ERROR_TILE); // Add the error tile to the path
-                System.out.println("buildTilePath(): ERROR - Invalid direction");
                 break; // Exit the loop if the direction is invalid
             }
 
@@ -348,9 +341,6 @@ public class GameMap implements Observable{
                     convertDirection(currentToDirection) == targetTile.getTileDirections()[1]) {
                     // If the target tile is a path tile and not already in the path, add it to the path
 
-                    System.out.println("buildTilePath(): Found valid tile at (" + targetTile.getCoordinate().getTileX() + 
-                                      "," + targetTile.getCoordinate().getTileY() + ") with code " + targetTile.getTileCode());
-
                     
                     my_path.add(targetTile); // Add the target tile to the path
 
@@ -360,7 +350,6 @@ public class GameMap implements Observable{
                    }else{
 
                     // We've hit a dead end or loop in the path
-                    System.out.println("buildTilePath(): ERROR - Hit a dead end or invalid tile at direction " + currentToDirection);
                     my_path.add(ERROR_TILE);
                     break;
 
@@ -370,7 +359,6 @@ public class GameMap implements Observable{
                 
             } else {
                 // We've hit a dead end or loop in the path
-                System.out.println("buildTilePath(): ERROR - Hit a dead end or invalid tile at direction " + currentToDirection);
                 my_path.add(ERROR_TILE);
                 break;
             }
@@ -378,14 +366,11 @@ public class GameMap implements Observable{
             // Check if we've reached the end tile
             if (addTile.getCoordinate().getTileX() == endTileCoordinates.getTileX() && 
                 addTile.getCoordinate().getTileY() == endTileCoordinates.getTileY()) {
-                System.out.println("buildTilePath(): Reached end tile!");
             }
 
         }while (addTile != tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()]); // Loop until the end tile is reached
 
-        System.out.println("buildTilePath(): Path complete with " + my_path.size() + " tiles");
         if (my_path.contains(ERROR_TILE)) {
-            System.out.println("buildTilePath(): WARNING - Path contains ERROR_TILE");
         }
 
         tilePath = my_path; // Return the list of path tiles

@@ -70,6 +70,7 @@ public class Projectile  {
         Point2D[] dataArray = moveStrategy.getSpeedVector(startCoordinate, targetCoordinate, gravityFactor); // Get the speed vector and life time from the move strategy
         this.speedVector = dataArray[0].multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
 
+        
 
         this.projectileLifeTime = dataArray[1].getX(); // Get the life time of the projectile from the move strategy
 

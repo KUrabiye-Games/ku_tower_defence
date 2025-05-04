@@ -77,7 +77,7 @@ public class MainMenuView {
 
         mapEditorButton.setOnAction(e -> {
             // TODO: Open Map Editor
-            System.out.println("Map Editor button clicked");
+         
         });
 
         settingsButton.setOnAction(e -> {

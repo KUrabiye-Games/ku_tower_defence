@@ -118,8 +118,6 @@ public class EnemyView {
         
         // If the image is loaded successfully
         if (enemyImages[imageEIndex * 6 + enemyImage] != null) {
-            System.out.println("Rendering enemy: " + enemyImage);
-
             // Atlas:
             // Draw the enemy image
             // According to the enemy speed vector, we can determine the direction

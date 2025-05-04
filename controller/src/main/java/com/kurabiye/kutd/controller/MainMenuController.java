@@ -30,7 +30,7 @@ public class MainMenuController {
 
     // Called when the "Quit" button is clicked
     public void quitGame() {
-        System.out.println("Quitting the game...");
+      
         System.exit(0); // Exit the application
     }
 }

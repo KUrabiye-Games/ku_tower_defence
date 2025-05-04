@@ -92,7 +92,7 @@ public class Tower implements ITower{
         
         // Check if attackStrategy is null
         if (attackStrategy == null) {
-            System.out.println("Tower attack strategy is null!");
+           
             return null;
         }
         
@@ -105,10 +105,19 @@ public class Tower implements ITower{
             
             // Create a projectile using the projectile factory
             // Add console logging for debugging
-            System.out.println("Creating projectile of type: " + projectileType + " at point: " + attackPoint + " targeting enemy at: " + targetEnemy.getCoordinate());
-            return projectileFactory.createProjectile(projectileType, attackPoint, targetEnemy.getCoordinate()); // Create a projectile using the factory
+           
+            
+            Projectile projectile = projectileFactory.createProjectile(projectileType, attackPoint, targetEnemy.getCoordinate()); // Create a projectile using the factory
+
+            // Check if the projectile's speed vector is zero
+
+            if (projectile.getSpeedVector().magnitude() == 0) {
+              
+                return null; // No attack
+            }
+            return projectile; // Return the created projectile 
         } catch (Exception e) {
-            System.out.println("Error in tower attack: " + e.getMessage());
+          
             e.printStackTrace();
             return null;
         }

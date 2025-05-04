@@ -3,9 +3,11 @@ package com.kurabiye.kutd.model.Projectile;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.ArrowProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.ArtilleryProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
-import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.StraightProjectileMoveStrategy;
+import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.MagicProjectileMoveStrategy;
+
 
 public class ProjectileFactory {
 
@@ -34,10 +36,10 @@ public class ProjectileFactory {
         IProjectileMoveStrategy moveStrategy = null; // Initialize the move strategy
         switch (projectileType) {
             case ARROW:
-                moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for arrow projectiles
+                moveStrategy = new ArrowProjectileMoveStrategy(); // Set the move strategy for arrow projectiles
                 break;
             case MAGIC:
-                moveStrategy = new StraightProjectileMoveStrategy(); // Set the move strategy for magic projectiles
+                moveStrategy = new MagicProjectileMoveStrategy(); // Set the move strategy for magic projectiles
                 break;
             case ARTILLERY:
                 moveStrategy = new ArtilleryProjectileMoveStrategy(); // Set the move strategy for artillery projectiles
