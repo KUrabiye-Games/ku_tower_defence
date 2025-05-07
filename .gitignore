@@ -8,6 +8,7 @@ build
 .idea
 *.iml
 .vscode
+*/bin
 
 # Eclipse specific files
 .project
@@ -15,3 +16,6 @@ build
 .settings/
 
 tasks.txt
+
+
+.DS_Store

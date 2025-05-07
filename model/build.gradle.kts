@@ -8,6 +8,7 @@
 plugins {
     // Apply the java plugin to add support for Java
     java
+
 }
 
 repositories {
@@ -20,6 +21,10 @@ dependencies {
     testImplementation(libs.junit.jupiter)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+
+    // Add your util subproject dependency
+    implementation(project(":util"))
 }
 
 // Configure source sets - this helps with IDE recognition
@@ -31,6 +36,8 @@ sourceSets {
         java.srcDirs("src/test/java")
     }
 }
+
+
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
