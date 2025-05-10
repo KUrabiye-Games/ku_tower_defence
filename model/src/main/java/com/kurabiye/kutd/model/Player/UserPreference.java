@@ -34,13 +34,20 @@ public class UserPreference implements Serializable {
     private int[] goldPerEnemy; // Amount of gold earned when defeating an enemy
     private int startingHealth; // Starting hit points of the player
     private int[] enemyHealth; // Health points for each type of enemy
-    private float[][] damageDealt; // Damage dealt by each tower type to each enemy type
-    private int[] towerConstructionCost; // Cost to construct each tower type
-    private float[] towerEffectiveRange; // Effective range for each tower type
-    private float[] towerRateOfFire; // Rate of fire for each tower type
+    
+   
     private float artilleryRange; // Special range for artillery towers
     private int[] enemyMovementSpeed; // Movement speed for each enemy type
     private float[] towerSellReturn; // Percentage of cost returned when selling a tower
+
+    // There should be certain changes in the certain fields for tower upgrades
+
+    // The first index is the tower type, and the second index is the level of the tower
+    // For example, towerEffectiveRange[0][1] is the effective range of tower type 0 at level 1
+     private float[][] damageDealt; // Damage dealt by each tower type to each enemy type
+     private float[][] towerEffectiveRange; // Effective range for each tower type
+     private float[][] towerRateOfFire; // Rate of fire for each tower type
+     private int[][] towerConstructionCost; // Cost to construct each tower type
 
     // Private constructor to enforce the singleton pattern
     private UserPreference() {
@@ -77,9 +84,9 @@ public class UserPreference implements Serializable {
             {7.0f, 15.0f}, // Damage for artillery type 1
             {8.0f, 7.0f}  // Damage for artillery type 2
         };
-        towerConstructionCost = new int[]{50, 75, 100}; // Cost for each tower type
-        towerEffectiveRange = new float[]{300.0f, 300.0f, 200.0f}; // Range for each tower type
-        towerRateOfFire = new float[]{0.5f, 1f, 5f}; // Attack speed for each tower type
+        towerConstructionCost = new int[][]{{50, 75, 100},{50, 75, 100}}; // Cost for each tower type
+        towerEffectiveRange = new float[][]{{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f}}; // Range for each tower type
+        towerRateOfFire = new float[][]{{0.5f, 1f, 5f},{0.5f, 1f, 5f}}; // Attack speed for each tower type
         artilleryRange = 3.0f; // Special long range for artillery
         enemyMovementSpeed = new int[]{60, 35}; // Movement speed for each enemy type
         towerSellReturn = new float[]{0.5f, 0.6f, 0.7f}; // Percentage returned when selling
@@ -190,15 +197,15 @@ public class UserPreference implements Serializable {
         return copy;
     }
     
-    public int[] getTowerConstructionCost() {
+    public int[][] getTowerConstructionCost() {
         return towerConstructionCost.clone(); // Return a copy to maintain immutability
     }
     
-    public float[] getTowerEffectiveRange() {
+    public float[][] getTowerEffectiveRange() {
         return towerEffectiveRange.clone(); // Return a copy to maintain immutability
     }
     
-    public float[] getTowerRateOfFire() {
+    public float[][] getTowerRateOfFire() {
         return towerRateOfFire.clone(); // Return a copy to maintain immutability
     }
     
@@ -348,17 +355,17 @@ public class UserPreference implements Serializable {
             return this;
         }
 
-        public Builder setTowerConstructionCost(int[] towerConstructionCost) {
+        public Builder setTowerConstructionCost(int[][] towerConstructionCost) {
             userPreference.towerConstructionCost = towerConstructionCost;
             return this;
         }
 
-        public Builder setTowerEffectiveRange(float[] towerEffectiveRange) {
+        public Builder setTowerEffectiveRange(float[][] towerEffectiveRange) {
             userPreference.towerEffectiveRange = towerEffectiveRange;
             return this;
         }
 
-        public Builder setTowerRateOfFire(float[] towerRateOfFire) {
+        public Builder setTowerRateOfFire(float[][] towerRateOfFire) {
             userPreference.towerRateOfFire = towerRateOfFire;
             return this;
         }
