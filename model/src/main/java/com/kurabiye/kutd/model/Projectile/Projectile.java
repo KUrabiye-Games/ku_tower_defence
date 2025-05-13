@@ -3,6 +3,16 @@ package com.kurabiye.kutd.model.Projectile;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
 
+/* Projectile.java
+ * This class represents a projectile in the game.
+ * It handles the projectile's movement, state, and damage.
+ * 
+ * @author Atlas Berk Polat
+ * @version 2
+ * @since 2025-05-13
+ * 
+ */
+
 public class Projectile  {
 
     public enum ProjectileType { // Enum for different projectile types
@@ -64,6 +74,13 @@ public class Projectile  {
     }
 
     private DamageType explosionType = DamageType.TARGET; // Type of explosion
+
+
+    // Phase 2:
+
+    private int projectileLevel = 1; // Level of the projectile
+
+
 
 
     public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType explosionType) {
@@ -171,6 +188,14 @@ public class Projectile  {
 
     public ProjectileState getProjectileState() {
         return projectileState; // Get the projectile's alive status
+    }
+
+
+    public void setProjectileLevel(int level) {
+        this.projectileLevel = level; // Set the projectile's level
+    }
+    public int getProjectileLevel() {
+        return projectileLevel; // Get the projectile's level
     }
 
 }

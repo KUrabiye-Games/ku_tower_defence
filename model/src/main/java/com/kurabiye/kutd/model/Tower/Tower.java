@@ -12,6 +12,17 @@ import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
 
+/* * Tower.java
+ *  This class represents a tower in the tower defense game.
+ * It handles the tower's attributes, attack strategy, and projectile creation.
+ * 
+ * 
+ * @author Atlas Berk Polat
+ * @version 2.0
+ * @since 2025-05-13
+ */
+
+
 public class Tower implements ITower{
 
 
