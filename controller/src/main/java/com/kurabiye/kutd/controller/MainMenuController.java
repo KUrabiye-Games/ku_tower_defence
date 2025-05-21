@@ -1,16 +1,12 @@
 package com.kurabiye.kutd.controller;
 
-import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
-import com.kurabiye.kutd.model.Managers.GameManager;
-import com.kurabiye.kutd.model.Map.GameMap;
-
-import javafx.stage.Stage;
-
 public class MainMenuController {
-
+    private final SettingsController settingsController;
 
     public MainMenuController() {
         
+        this.settingsController = new SettingsController();
+
     }
 
     // Called when the "Play Game" button is pressed
