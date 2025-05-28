@@ -8,7 +8,7 @@ import com.kurabiye.kutd.model.Enemy.IEnemy;
  * 
  * @author Atlas Berk Polat
  * @version 1.0
- * @since 2025-04-23
+ * @since 2025-05-28
  */
 
 public class SynergeticMoveDecorator extends EnemyDecorator {

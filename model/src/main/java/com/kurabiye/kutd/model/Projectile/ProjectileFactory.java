@@ -3,7 +3,7 @@ package com.kurabiye.kutd.model.Projectile;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Player.UserPreference;
-import com.kurabiye.kutd.model.Projectile.Projectile.DamageType;
+
 
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.ArrowProjectileMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.ArtilleryProjectileMoveStrategy;

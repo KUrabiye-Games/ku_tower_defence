@@ -14,6 +14,7 @@ import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
 import com.kurabiye.kutd.model.Projectile.DamageType;
 import com.kurabiye.kutd.model.Projectile.ProjectileState;
@@ -195,7 +196,7 @@ public class GameManager implements Runnable{
             for (ITower tower : towers) {
                 // Check if the tower can attack     
                 // Get the projectile from the tower
-                IProjectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
+                Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
                 if (projectile != null) {
                     projectiles.add(projectile); // Add the projectile to the list of projectiles
                 }

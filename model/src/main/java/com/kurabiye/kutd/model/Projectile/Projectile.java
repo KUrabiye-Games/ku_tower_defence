@@ -13,7 +13,7 @@ import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMove
  * 
  */
 
-public class Projectile  {
+public class Projectile implements IProjectile {
 
     public enum ProjectileType { // Enum for different projectile types
         ARROW(0), // Arrow projectile type
