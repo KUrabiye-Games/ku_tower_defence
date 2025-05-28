@@ -579,6 +579,23 @@ public class GameMap implements Observable{
         }
     }
 
+    /** 
+     * Override the equals method to remove the maps with identical tile arrays
+     * 
+     * @return true if the two GameMap objects are equal, false otherwise
+     * */ 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true; // Check if the same instance
+        if (!(obj instanceof GameMap)) return false; // Check if the object is a GameMap
+
+        GameMap other = (GameMap) obj; // Cast the object to GameMap
+
+        // Compare the tile arrays and coordinates
+        return java.util.Arrays.deepEquals(this.tiles, other.tiles) &&
+               this.startTileCoordinates.equals(other.startTileCoordinates) &&
+               this.endTileCoordinates.equals(other.endTileCoordinates);
+    }
     
 
  }

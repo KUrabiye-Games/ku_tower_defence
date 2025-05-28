@@ -24,6 +24,8 @@ public interface IEnemy {
      * @param moveStrategy The strategy that controls how the enemy moves
      */
     void setMovePathWithStrategy(ArrayList<Point2D> path, IMoveStrategy moveStrategy);
+
+
     
     /**
      * Applies damage to the enemy when hit by a projectile
@@ -101,4 +103,22 @@ public interface IEnemy {
      * @return The enemy type
      */
     EnemyType getEnemyType();
+
+    /**
+     * sets the enemy speed
+     * 
+     * @param speed
+     */
+
+    void setSpeed(int speed); // Set the speed of the enemy
+
+
+    /**
+     * Set the coordinate of the enemy to a new coordinate.
+     * Use the points of the path to set the coordinate.
+     * 
+     * @param trayPointIndex The index of the point in the path to set as the new coordinate
+     * @throws IndexOutOfBoundsException if the index is out of bounds of the path
+     */
+
 }

@@ -40,4 +40,33 @@ public interface IProjectile {
      * @return The projectile's coordinate
      */
     Point2D getCoordinate();
+
+    /**
+     * Get the speed vector of the projectile
+     */
+    Point2D getSpeedVector();
+
+    /**
+     * get the projectile state
+     * 
+     * @return the projectile state
+     */
+
+     ProjectileState getProjectileState();
+
+     /**
+      * get the explosion type
+
+        * @return the explosion type
+      */
+
+      DamageType getDamageType();
+
+      /**
+       * Get the target coordinate of the projectile
+       * 
+       * @return The target coordinate
+       */
+        Point2D getTarget();
+    
 }

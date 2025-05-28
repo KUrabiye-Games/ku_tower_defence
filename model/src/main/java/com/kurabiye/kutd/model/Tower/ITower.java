@@ -3,8 +3,10 @@ package com.kurabiye.kutd.model.Tower;
 import java.util.List;
 
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
-import com.kurabiye.kutd.model.Enemy.Enemy;
-import com.kurabiye.kutd.model.Projectile.Projectile;
+
+import com.kurabiye.kutd.model.Enemy.IEnemy;
+
+import com.kurabiye.kutd.model.Projectile.IProjectile;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
@@ -25,7 +27,7 @@ public interface ITower {
      * @param deltaTime Time passed since last update
      * @return Projectile created by the attack or null if no attack was performed
      */
-    Projectile attack(List<Enemy> enemies, double deltaTime);
+    IProjectile attack(List<IEnemy> enemies, double deltaTime);
     
     /**
      * Gets the tower's position on the map

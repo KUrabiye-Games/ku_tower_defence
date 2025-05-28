@@ -58,22 +58,11 @@ public class Projectile  {
 
     private double projectileExplosiveActtionTime = 0.1f; // Time to explode after reaching the target
 
-    public enum ProjectileState { // Enum for projectile states
-        MOVING, // Projectile is alive
-        ACTIVE, // Projectile is active
-        STOPPED, // Projectile is dead
-        DEAD
-    }
 
     private ProjectileState projectileState = ProjectileState.MOVING; // Projectile's alive status
 
-    // WHEN THE PROJECTILE IS GONNA DAMAGE THE TARGET
-    public enum DamageType { // Enum for damage types
-        AREA,
-        TARGET
-    }
 
-    private DamageType explosionType = DamageType.TARGET; // Type of explosion
+    private DamageType damageType = DamageType.TARGET; // Type of explosion
 
 
     // Phase 2:
@@ -83,8 +72,8 @@ public class Projectile  {
 
 
 
-    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType explosionType) {
-        this.explosionType = explosionType; // Set the explosion type
+    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType damageType) {
+        this.damageType = damageType; // Set the explosion type
         this.projectileType = projectileType;
         //this.startCoordinate = startCoordinate;
         this.targetCoordinate = targetCoordinate;
@@ -109,8 +98,8 @@ public class Projectile  {
     }
 
     
-    public DamageType getExplosionType() {
-        return explosionType; // Get the explosion type
+    public DamageType getDamageType() {
+        return damageType; // Get the explosion type
     }
 
     public Point2D getTarget(){
