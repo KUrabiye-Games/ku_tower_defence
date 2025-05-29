@@ -2,12 +2,15 @@ package com.kurabiye.kutd.view;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
+
 
 import com.kurabiye.kutd.model.Coordinates.*;
 import java.util.ArrayList;
 
+import com.kurabiye.kutd.model.Enemy.EnemyType;
+import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Enemy.Enemy;
+
 import com.kurabiye.kutd.model.Player.UserPreference;
 
 /**
@@ -17,7 +20,7 @@ import com.kurabiye.kutd.model.Player.UserPreference;
 public class EnemyView {
     private final int TILE_SIZE;
     private final int COLS = 16; // Number of columns in the game map
-    private final int ROWS = 9; // Number of rows in the game map
+   // private final int ROWS = 9; // Number of rows in the game map
     
     // Different enemy images for different enemy types
     private Image[] enemyImages;
@@ -32,9 +35,9 @@ public class EnemyView {
      */
     private void loadEnemyImages() {
         // We need images for each enemy type from the enum
-        enemyImages = new Image[Enemy.EnemyType.values().length * 6];
+        enemyImages = new Image[EnemyType.values().length * 6];
         
-        for (Enemy.EnemyType type : Enemy.EnemyType.values()) {
+        for (EnemyType type : EnemyType.values()) {
             for (int i = 0; i < 6; i++) {
                 String imagePath = String.format("/assets/enemies/%s%d.png", type.name().toLowerCase(), i);
                 try {
@@ -50,7 +53,7 @@ public class EnemyView {
     /**
      * Create a fallback image if the enemy sprite cannot be loaded
      */
-    private Image createFallbackImage(Enemy.EnemyType type) {
+    private Image createFallbackImage(EnemyType type) {
         // Create a simple colored circle as fallback
         javafx.scene.canvas.Canvas canvas = new javafx.scene.canvas.Canvas(TILE_SIZE, TILE_SIZE);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -79,8 +82,8 @@ public class EnemyView {
      * @param gc GraphicsContext to draw on
      * @param enemies List of enemies to render
      */
-    public void renderEnemies(GraphicsContext gc, ArrayList<Enemy> enemies, int enemyImage) {
-        for (Enemy enemy : enemies) {
+    public void renderEnemies(GraphicsContext gc, ArrayList<IEnemy> enemies, int enemyImage) {
+        for (IEnemy enemy : enemies) {
             renderEnemy(gc, enemy, enemyImage);
         }
     }
@@ -90,7 +93,7 @@ public class EnemyView {
      * @param gc GraphicsContext to draw on
      * @param enemy Enemy to render
      */
-    private void renderEnemy(GraphicsContext gc, Enemy enemy, int enemyImage) {
+    private void renderEnemy(GraphicsContext gc, IEnemy enemy, int enemyImage) {
         // Skip rendering dead enemies or those that have arrived at destination
         if (enemy.isDead() || enemy.hasArrived()) {
             return;
@@ -101,7 +104,7 @@ public class EnemyView {
         
         // Transform model coordinates to view coordinates
         double modelWidth = 1920;  // The width used in the model
-        double modelHeight = 1080; // The height used in the model
+        //double modelHeight = 1080; // The height used in the model
         double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
         
         // Scale positions from model space to view space
@@ -113,13 +116,11 @@ public class EnemyView {
         double centeredY = viewY - (TILE_SIZE / 2);
         
         // Determine which image to use based on enemy type
-        Enemy.EnemyType enemyType = enemy.getEnemyType();
+        EnemyType enemyType = enemy.getEnemyType();
         int imageEIndex = enemyType.getValue();
         
         // If the image is loaded successfully
         if (enemyImages[imageEIndex * 6 + enemyImage] != null) {
-            System.out.println("Rendering enemy: " + enemyImage);
-
             // Atlas:
             // Draw the enemy image
             // According to the enemy speed vector, we can determine the direction
@@ -151,7 +152,7 @@ public class EnemyView {
      * @param x X coordinate of the enemy
      * @param y Y coordinate of the enemy
      */
-    private void renderHealthBar(GraphicsContext gc, Enemy enemy, double x, double y) {
+    private void renderHealthBar(GraphicsContext gc, IEnemy enemy, double x, double y) {
         // We need to find maximum health for the enemy type from user preferences
         // For now, let's use the current health as relative value
         float currentHealth = enemy.getHealth();

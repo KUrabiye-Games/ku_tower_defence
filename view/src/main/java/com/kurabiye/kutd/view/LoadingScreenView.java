@@ -117,7 +117,7 @@ public class LoadingScreenView {
 
         // Simulate loading with a progress bar
         //simulateLoading();
-        // TODO:
+        
         MainMenuView mainMenuView = new MainMenuView();
         mainMenuView.start(stage);
     }

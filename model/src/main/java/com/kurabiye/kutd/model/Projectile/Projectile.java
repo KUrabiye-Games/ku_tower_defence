@@ -3,7 +3,17 @@ package com.kurabiye.kutd.model.Projectile;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMoveStrategy;
 
-public class Projectile  {
+/* Projectile.java
+ * This class represents a projectile in the game.
+ * It handles the projectile's movement, state, and damage.
+ * 
+ * @author Atlas Berk Polat
+ * @version 2
+ * @since 2025-05-13
+ * 
+ */
+
+public class Projectile implements IProjectile {
 
     public enum ProjectileType { // Enum for different projectile types
         ARROW(0), // Arrow projectile type
@@ -48,17 +58,22 @@ public class Projectile  {
 
     private double projectileExplosiveActtionTime = 0.1f; // Time to explode after reaching the target
 
-    public enum ProjectileState { // Enum for projectile states
-        MOVING, // Projectile is alive
-        ACTIVE, // Projectile is active
-        STOPPED, // Projectile is dead
-        DEAD
-    }
 
     private ProjectileState projectileState = ProjectileState.MOVING; // Projectile's alive status
 
 
-    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage) {
+    private DamageType damageType = DamageType.TARGET; // Type of explosion
+
+
+    // Phase 2:
+
+    private int projectileLevel = 1; // Level of the projectile
+
+
+
+
+    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType damageType) {
+        this.damageType = damageType; // Set the explosion type
         this.projectileType = projectileType;
         //this.startCoordinate = startCoordinate;
         this.targetCoordinate = targetCoordinate;
@@ -71,6 +86,7 @@ public class Projectile  {
         this.speedVector = dataArray[0].multiply(this.speed); // Calculate the speed vector using the provided move strategy and then multiply it by the speed of the projectile
 
 
+
         this.projectileLifeTime = dataArray[1].getX(); // Get the life time of the projectile from the move strategy
 
         this.projectileExplosiveActtionTime = dataArray[1].getY(); // Get the explosive action time of the projectile from the move strategy
@@ -81,6 +97,14 @@ public class Projectile  {
    
     }
 
+    
+    public DamageType getDamageType() {
+        return damageType; // Get the explosion type
+    }
+
+    public Point2D getTarget(){
+        return targetCoordinate; // Get the target coordinate of the projectile
+    }
   
 
 
@@ -153,6 +177,14 @@ public class Projectile  {
 
     public ProjectileState getProjectileState() {
         return projectileState; // Get the projectile's alive status
+    }
+
+
+    public void setProjectileLevel(int level) {
+        this.projectileLevel = level; // Set the projectile's level
+    }
+    public int getProjectileLevel() {
+        return projectileLevel; // Get the projectile's level
     }
 
 }

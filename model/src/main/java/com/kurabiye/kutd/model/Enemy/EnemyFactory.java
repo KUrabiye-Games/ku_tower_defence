@@ -1,10 +1,10 @@
 package com.kurabiye.kutd.model.Enemy;
 
 import java.util.ArrayList;
-import java.util.stream.IntStream;
+
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-import com.kurabiye.kutd.model.Enemy.Enemy.EnemyType;
+
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.GoblinMoveStrategy;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.KnightMoveStrategy;
 import com.kurabiye.kutd.model.Player.UserPreference;

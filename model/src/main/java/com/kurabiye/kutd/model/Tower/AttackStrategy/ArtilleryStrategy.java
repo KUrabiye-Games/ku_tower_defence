@@ -2,7 +2,8 @@ package com.kurabiye.kutd.model.Tower.AttackStrategy;
 
 import java.util.List;
 
-import com.kurabiye.kutd.model.Enemy.Enemy;
+import com.kurabiye.kutd.model.Enemy.IEnemy;
+
 
 /**
  * MageStrategy class implements the IAttackStrategy interface.
@@ -25,7 +26,7 @@ public class ArtilleryStrategy implements IAttackStrategy {
      * @return Enemy to be attacked by the Artillery tower, or null if no valid target.
      */
     @Override
-    public Enemy findTarget(List<Enemy> enemies) {
+    public IEnemy findTarget(List<IEnemy> enemies) {
         if (enemies == null || enemies.isEmpty()) {
             return null;
         }

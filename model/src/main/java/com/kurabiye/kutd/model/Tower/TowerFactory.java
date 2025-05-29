@@ -103,9 +103,9 @@ public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> 
         switch(type) {
             case ARCHER:
                 // Create archer tower with parameters from userPreferences
-                tower = new Tower((int) (userPreferences.getTowerSellReturn()[0] * userPreferences.getTowerConstructionCost()[0]), 
-                                        userPreferences.getTowerEffectiveRange()[0], 
-                                        userPreferences.getTowerRateOfFire()[0]
+                tower = new Tower((int) (userPreferences.getTowerSellReturn()[0] * userPreferences.getTowerConstructionCost()[0][0]), 
+                                        userPreferences.getTowerEffectiveRange()[0][0], 
+                                        userPreferences.getTowerRateOfFire()[0][0]
                                         );
                 tower.setAttackStrategy(new ArcherStrategy());
                 tower.setProjectileType(ProjectileType.ARROW);
@@ -114,9 +114,9 @@ public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> 
 
             case MAGE:
                 // Create mage tower with parameters from userPreferences
-                tower = new Tower((int) (userPreferences.getTowerSellReturn()[1] * userPreferences.getTowerConstructionCost()[2]), 
-                                     userPreferences.getTowerEffectiveRange()[1], 
-                                     userPreferences.getTowerRateOfFire()[1]
+                tower = new Tower((int) (userPreferences.getTowerSellReturn()[1] * userPreferences.getTowerConstructionCost()[0][2]), 
+                                     userPreferences.getTowerEffectiveRange()[0][1], 
+                                     userPreferences.getTowerRateOfFire()[0][1]
                                      );
                 tower.setAttackStrategy(new MageStrategy());
                 tower.setProjectileType(ProjectileType.MAGIC);
@@ -125,9 +125,9 @@ public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> 
 
             case ARTILLERY:
                 // Create artillery tower with parameters from userPreferences
-                tower = new Tower((int) (userPreferences.getTowerSellReturn()[2] * userPreferences.getTowerConstructionCost()[1]), 
-                                          userPreferences.getTowerEffectiveRange()[2], 
-                                          userPreferences.getTowerRateOfFire()[2]
+                tower = new Tower((int) (userPreferences.getTowerSellReturn()[2] * userPreferences.getTowerConstructionCost()[0][1]), 
+                                          userPreferences.getTowerEffectiveRange()[0][2], 
+                                          userPreferences.getTowerRateOfFire()[0][2]
                                           );
                 tower.setAttackStrategy(new ArtilleryStrategy());
                 tower.setProjectileType(ProjectileType.ARTILLERY);
