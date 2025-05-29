@@ -11,7 +11,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
     // This class extends ArrayList to create a dynamic array that can grow as needed
     // It can be used to store objects of any type with deferred operations during iteration
 
-     /*
+     /**
      * Abstraction Function:
      * AF(this) = a dynamic list of elements of type T such that:
      *   - The visible state of the list is: elements in 'this' minus those in pendingRemovals
