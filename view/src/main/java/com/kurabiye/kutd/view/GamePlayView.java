@@ -25,12 +25,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
+import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameManager.GameState;
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Projectile.IProjectile;
 import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
+import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.Tower;
 
 import javafx.animation.AnimationTimer;
@@ -99,16 +102,16 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private Image[] projectileImages = new Image[3]; // Array to store projectile images
 
-    ArrayList<Enemy> enemies;
-    ArrayList<Tower> towers;
+    ArrayList<IEnemy> enemies;
+    ArrayList<ITower> towers;
     // Projectiles projectiles;
 
     // Removed Enemiea Projectiles from here
 
-    private ArrayList<Enemy> deadEnemies;
-    private ArrayList<Projectile> deadProjectiles;
+    private ArrayList<IEnemy> deadEnemies;
+    private ArrayList<IProjectile> deadProjectiles;
 
-    ArrayList<Projectile> projectiles;
+    ArrayList<IProjectile> projectiles;
 
     private int currentGold;
     private int currentHealth;
@@ -723,7 +726,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
        
 
-        for (Projectile projectile : projectiles) {
+        for (IProjectile projectile : projectiles) {
             // Get the projectile's current position
             Point2D position = projectile.getCoordinate();
         

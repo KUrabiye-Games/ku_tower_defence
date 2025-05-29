@@ -89,6 +89,13 @@ public interface IEnemy {
      * @return The enemy's coordinate
      */
     Point2D getCoordinate();
+
+    /**
+     * Gets the move direction of the enemy
+     * 
+     * @return The direction vector the enemy is moving towards
+     */
+    Point2D getMoveDirection();
     
     /**
      * Sets the position of the enemy
