@@ -247,7 +247,19 @@ public class GameMap implements Observable{
             }
 
         }
-        // TODO: Check if there are at least for buildable tiles
+        
+        // Check if there are at least four buildable tiles
+        int buildableCount = 0;
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                if (tiles[i][j].isBuildableTile()) {
+                    buildableCount++;
+                }
+            }
+        }
+        if (buildableCount < 4) {
+            return false; // Insufficient buildable tiles
+        }
 
 
 
