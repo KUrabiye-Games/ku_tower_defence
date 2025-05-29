@@ -438,6 +438,17 @@ public class GameManager implements Runnable{
             return false; // Tile is not buildable
         }
 
+        int tileCode;
+
+        if (towerType == 0) {
+            tileCode = 20; // Example tile code for tower type 0
+        } else if (towerType == 1) {
+            tileCode = 21; // Example tile code for tower type 1
+        } else if (towerType == 2) {
+            tileCode = 26; // Example tile code for tower type 2
+        } else {
+            return false; // Invalid tower type
+        }
         // Check if the player has enough resources
         if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[0][towerType]) { // Example cost check
             return false; // Not enough gold
@@ -451,18 +462,6 @@ public class GameManager implements Runnable{
         tower.setTileCoordinate(new TilePoint2D(xCoordinate, yCoordinate));
         // Add the tower to the list of towers
         towers.add(tower);
-
-        int tileCode;
-
-        if (towerType == 0) {
-            tileCode = 20; // Example tile code for tower type 0
-        } else if (towerType == 1) {
-            tileCode = 21; // Example tile code for tower type 1
-        } else if (towerType == 2) {
-            tileCode = 26; // Example tile code for tower type 2
-        } else {
-            return false; // Invalid tower type
-        }
 
         Tile towerTile = tileFactory.create(tileCode); // Create the tower tile using the factory
         gameMap.setTile(xCoordinate, yCoordinate, towerTile);
