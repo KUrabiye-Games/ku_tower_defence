@@ -7,6 +7,7 @@ import java.util.Set;
 
 public class DynamicArrayList<T> extends ArrayList<T> {
 
+
     // This class extends ArrayList to create a dynamic array that can grow as needed
     // It can be used to store objects of any type with deferred operations during iteration
     
@@ -70,6 +71,16 @@ public class DynamicArrayList<T> extends ArrayList<T> {
             super.add(item);
         }
         pendingAdditions.clear();
+    }
+
+    /**
+     * Commit all pending operations (both removals and additions).
+     * This method is provided for convenience to apply all changes at once.
+     */
+
+    public void commitAll() {
+        removeCommit();
+        addCommit();
     }
     
     /**
