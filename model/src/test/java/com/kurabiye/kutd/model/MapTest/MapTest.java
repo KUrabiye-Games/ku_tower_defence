@@ -1,8 +1,12 @@
 package com.kurabiye.kutd.model.MapTest;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.BeforeAll;
 import static org.junit.jupiter.api.Assertions.*;
+
+
+
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Tile.TileFactory;
@@ -10,12 +14,12 @@ import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 
 public class MapTest {
 
-    /*
     
-    private TileFactory tileFactory;
     
-    @BeforeEach
-    public void setUp() {
+    private static TileFactory tileFactory;
+    
+    @BeforeAll
+    public static void setUp() {
         tileFactory = new TileFactory();
     }
     
@@ -29,13 +33,20 @@ public class MapTest {
     public void testValidGameMap_ValidPath() {
         // Create a valid game map with path from left edge to right edge
         Tile[][] tiles = createBasicValidMap();
-        TilePoint2D start = new TilePoint2D(0, 4); // Left edge
-        TilePoint2D end = new TilePoint2D(15, 4); // Right edge
+        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
+        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
+
+
         
         GameMap map = new GameMap(tiles, start, end);
+
+        map.buildTilePath();
+        map.buildPointPath();
+
+
         assertTrue(map.isValidGameMap(), "Valid map should return true");
     }
-    
+              /*  
     @Test
     public void testValidGameMap_StartTileNotOnEdge() {
         // Test when starting tile is not on the edge
@@ -46,7 +57,7 @@ public class MapTest {
         GameMap map = new GameMap(tiles, start, end);
         assertFalse(map.isValidGameMap(), "Map with start tile not on edge should be invalid");
     }
-    
+ 
     @Test
     public void testValidGameMap_EndTileNotOnEdge() {
         // Test when ending tile is not on the edge
@@ -57,7 +68,7 @@ public class MapTest {
         GameMap map = new GameMap(tiles, start, end);
         assertFalse(map.isValidGameMap(), "Map with end tile not on edge should be invalid");
     }
-    
+  
     @Test
     public void testValidGameMap_StartAndEndSameTile() {
         // Test when start and end tiles are the same
@@ -68,7 +79,7 @@ public class MapTest {
         GameMap map = new GameMap(tiles, start, end);
         assertFalse(map.isValidGameMap(), "Map with same start and end tiles should be invalid");
     }
-    
+
     @Test
     public void testValidGameMap_StartTileNotPath() {
         // Test when starting tile is not a path tile
@@ -80,7 +91,7 @@ public class MapTest {
         GameMap map = new GameMap(tiles, start, end);
         assertFalse(map.isValidGameMap(), "Map with non-path start tile should be invalid");
     }
-    
+ 
     @Test
     public void testValidGameMap_EndTileNotPath() {
         // Test when ending tile is not a path tile
@@ -432,41 +443,42 @@ public class MapTest {
         assertTrue(exactFourMap.isValidGameMap(), "Map with exactly 4 buildable tiles should be valid");
     }
 
+*/  
+    private static final int[][] map = {
+        { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
+        { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
+        { 4, 15, 7, 15, 7, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
+        { 8, 2, 8, 9, 10, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
+        { 5, 7, 19, 18, 5, 5, 5, 0, 1, 2, 15, 5, 5, 31, 5, 5},
+        { 5, 7, 5, 5, 15, 0, 13, 10, 15, 8, 13, 2, 5, 5, 5, 5 },
+        { 5, 4, 5, 0, 13, 10, 0, 1, 2, 5, 30, 6, 5, 5, 5, 5 },
+        { 23, 7, 15, 7, 5, 5, 4, 18, 8, 13, 13, 10, 16, 5, 18, 5 },
+        { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
+    };
+ 
+ 
 
-
-        // Helper method to create a basic valid map with horizontal path
     private Tile[][] createBasicValidMap() {
-        Tile[][] tiles = new Tile[GameMap.MAP_HEIGHT][GameMap.MAP_WIDTH];
-        
-        // Fill map with ground tiles
-        for (int i = 0; i < GameMap.MAP_HEIGHT; i++) {
-            for (int j = 0; j < GameMap.MAP_WIDTH; j++) {
-                tiles[i][j] = tileFactory.create(5); // Ground tile
+
+        int MAP_WIDTH = 16; // Width of the map
+        int MAP_HEIGHT = 9; // Height of the map
+
+        Tile[][] tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
+        TileFactory tileFactory = new TileFactory();
+
+        // Create the tiles and set their properties
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                Tile tile = tileFactory.create(map[i][j]); // Create a new tile with code using factory
+                tile.setCoordinate(new TilePoint2D(j, i)); // Set coordinates for the tile
+                tiles[i][j] = tile;
             }
         }
-        
-        // Create horizontal path in the middle row (y=4)
-        for (int j = 0; j < GameMap.MAP_WIDTH; j++) {
-            if (j == 0) {
-                tiles[4][j] = tileFactory.create(2); // Path tile going right (0->2)
-            } else if (j == GameMap.MAP_WIDTH - 1) {
-                tiles[4][j] = tileFactory.create(1); // Path tile going from left (0->2)
-            } else {
-                tiles[4][j] = tileFactory.create(12); // Horizontal path tile (0->2)
-            }
-        }
-        
-        // Add buildable tiles (at least 4)
-        tiles[1][1] = tileFactory.create(15);
-        tiles[1][2] = tileFactory.create(15);
-        tiles[2][1] = tileFactory.create(15);
-        tiles[2][2] = tileFactory.create(15);
-        tiles[6][6] = tileFactory.create(15);
-        tiles[6][7] = tileFactory.create(15);
-        
-        return tiles;
+
+        return tiles; // Return the static map
     }
-    
+
+
     // Helper method to create a map with vertical path
     private Tile[][] createVerticalPathMap() {
         Tile[][] tiles = new Tile[GameMap.MAP_HEIGHT][GameMap.MAP_WIDTH];
@@ -598,5 +610,5 @@ public class MapTest {
         
         return tiles;
     }
-*/
+
 }
