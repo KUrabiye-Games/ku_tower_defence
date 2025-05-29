@@ -14,6 +14,10 @@ public class GameMap implements Observable{
 
     private static final Tile ERROR_TILE = new Tile(1);
 
+    public static Tile getErrorTile() {
+        return ERROR_TILE; // Return the error tile
+    }
+
     public static final int MAP_WIDTH = 16; // Width of the map
     public static final int MAP_HEIGHT = 9; // Height of the map
 

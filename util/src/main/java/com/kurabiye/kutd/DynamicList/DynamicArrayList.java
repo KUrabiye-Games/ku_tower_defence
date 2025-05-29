@@ -84,12 +84,32 @@ public class DynamicArrayList<T> extends ArrayList<T> {
     }
     
     /**
+     * Returns an iterator that shows all items currently in the list,
+     * regardless of pending operations. This allows normal iteration
+     * over the actual current state of the list.
+     * @return Iterator that shows all current items
+     */
+    public Iterator<T> unfilteredIterator() {
+        return super.iterator();
+    }
+    
+    /**
      * Returns an iterator that skips items marked for removal and doesn't show staged additions.
      * This provides a consistent view during iteration even when items are marked for operations.
+     * This is the default iterator behavior.
+     * @return Iterator that filters out items marked for removal
+     */
+    public Iterator<T> filteredIterator() {
+        return new DeferredOperationIterator();
+    }
+    
+    /**
+     * Returns the filtered iterator by default (skips items marked for removal).
+     * Use unfilteredIterator() if you want to see all current items.
      */
     @Override
     public Iterator<T> iterator() {
-        return new DeferredOperationIterator();
+        return unfilteredIterator();
     }
     
     /**

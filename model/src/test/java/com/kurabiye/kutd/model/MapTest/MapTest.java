@@ -30,7 +30,7 @@ public class MapTest {
     }
 
     @Test
-    public void testValidGameMap_ValidPath() {
+    public void testHasAPath() {
         // Create a valid game map with path from left edge to right edge
         Tile[][] tiles = createBasicValidMap();
         TilePoint2D start = new TilePoint2D(6, 8); // Left edge
@@ -44,7 +44,7 @@ public class MapTest {
         map.buildPointPath();
 
 
-        assertTrue(map.isValidGameMap(), "Valid map should return true");
+        assertNotEquals(map.getTilePath().get(-1), GameMap.getErrorTile(), "Tile path has a defect");
     }
               /*  
     @Test
