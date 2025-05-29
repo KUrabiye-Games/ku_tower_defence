@@ -26,15 +26,14 @@ public class DynamicArrayListTest {
         dynamicList.add("Item2");
         dynamicList.add("Item3");
         dynamicList.add("Item4");
-        dynamicList.add("Item5");
-
+        dynamicList.add("Item5");        
         dynamicList.addLater(new String("Item6"));
 
-        assertFalse(dynamicList.contains("Item6"));        
+        assertFalse(dynamicList.contains("Item6"), "Item6 should not be in the list before commit");        
         
         dynamicList.addCommit();    
 
-        assertTrue(dynamicList.contains("Item6"));
+        assertTrue(dynamicList.contains("Item6"), "Item6 should be in the list after addCommit");
 
         dynamicList.clear();
         
@@ -46,15 +45,14 @@ public class DynamicArrayListTest {
         dynamicList.add("Item2");
         dynamicList.add("Item3");
         dynamicList.add("Item4");
-        dynamicList.add("Item5");
-
+        dynamicList.add("Item5");        
         dynamicList.removeLater("Item3");
 
-        assertTrue(dynamicList.contains("Item3"));
+        assertTrue(dynamicList.contains("Item3"), "Item3 should still be in the list before commit");
 
         dynamicList.removeCommit();
 
-        assertFalse(dynamicList.contains("Item3"));       
+        assertFalse(dynamicList.contains("Item3"), "Item3 should be removed from the list after removeCommit");       
         
         dynamicList.clear();
     }      
@@ -72,37 +70,34 @@ public class DynamicArrayListTest {
         dynamicList.removeLater("B");
         dynamicList.addLater("D");
         dynamicList.addLater("E");
-        
-        // Verify pending operations exist
-        assertEquals(1, dynamicList.getPendingRemovalCount());
-        assertEquals(2, dynamicList.getPendingAdditionCount());
-        assertTrue(dynamicList.contains("B")); // Still there before commit
-        assertFalse(dynamicList.contains("D")); // Not yet added
-        assertFalse(dynamicList.contains("E")); // Not yet added
+          // Verify pending operations exist
+        assertEquals(1, dynamicList.getPendingRemovalCount(), "Should have 1 pending removal");
+        assertEquals(2, dynamicList.getPendingAdditionCount(), "Should have 2 pending additions");
+        assertTrue(dynamicList.contains("B"), "Item B should still be in the list before commit");
+        assertFalse(dynamicList.contains("D"), "Item D should not yet be added before commit");
+        assertFalse(dynamicList.contains("E"), "Item E should not yet be added before commit");
         
         // Test commitAll()
         dynamicList.commitAll();
-        
-        // Verify all operations were applied
-        assertEquals(0, dynamicList.getPendingRemovalCount());
-        assertEquals(0, dynamicList.getPendingAdditionCount());
-        assertFalse(dynamicList.contains("B")); // Should be removed
-        assertTrue(dynamicList.contains("D")); // Should be added
-        assertTrue(dynamicList.contains("E")); // Should be added
-        assertTrue(dynamicList.contains("A")); // Should still be there
-        assertTrue(dynamicList.contains("C")); // Should still be there
-        
-        // Test clearPendingOperations()
+          // Verify all operations were applied
+        assertEquals(0, dynamicList.getPendingRemovalCount(), "Should have 0 pending removals after commitAll");
+        assertEquals(0, dynamicList.getPendingAdditionCount(), "Should have 0 pending additions after commitAll");
+        assertFalse(dynamicList.contains("B"), "Item B should be removed after commitAll");
+        assertTrue(dynamicList.contains("D"), "Item D should be added after commitAll");
+        assertTrue(dynamicList.contains("E"), "Item E should be added after commitAll");
+        assertTrue(dynamicList.contains("A"), "Item A should still be there after commitAll");
+        assertTrue(dynamicList.contains("C"), "Item C should still be there after commitAll");
+          // Test clearPendingOperations()
         dynamicList.removeLater("A");
         dynamicList.addLater("F");
-        assertEquals(1, dynamicList.getPendingRemovalCount());
-        assertEquals(1, dynamicList.getPendingAdditionCount());
+        assertEquals(1, dynamicList.getPendingRemovalCount(), "Should have 1 pending removal before clear");
+        assertEquals(1, dynamicList.getPendingAdditionCount(), "Should have 1 pending addition before clear");
         
         dynamicList.clearPendingOperations();
-        assertEquals(0, dynamicList.getPendingRemovalCount());
-        assertEquals(0, dynamicList.getPendingAdditionCount());
-        assertTrue(dynamicList.contains("A")); // Should still be there since clear didn't commit
-        assertFalse(dynamicList.contains("F")); // Should not be added since clear didn't commit
+        assertEquals(0, dynamicList.getPendingRemovalCount(), "Should have 0 pending removals after clearPendingOperations");
+        assertEquals(0, dynamicList.getPendingAdditionCount(), "Should have 0 pending additions after clearPendingOperations");
+        assertTrue(dynamicList.contains("A"), "Item A should still be there since clear didn't commit");
+        assertFalse(dynamicList.contains("F"), "Item F should not be added since clear didn't commit");
         
         dynamicList.clear();
     }
@@ -115,11 +110,9 @@ public class DynamicArrayListTest {
         dynamicList.add("Item3");
 
         Iterator<String> iterator = dynamicList.iterator();
-        int count = 0;
-
-        while (iterator.hasNext()) {
+        int count = 0;        while (iterator.hasNext()) {
             String item = iterator.next();
-            assertTrue(dynamicList.contains(item));
+            assertTrue(dynamicList.contains(item), "Iterator should only return items that exist in the list");
             // add a new item during iteration
             if (count == 1) {
                 dynamicList.addLater("Item4");
@@ -132,20 +125,18 @@ public class DynamicArrayListTest {
             count++;
         }
 
-        assertEquals(3, count);
+        assertEquals(3, count, "Iterator should have iterated over 3 items");
 
         // Commit the changes made during iteration
 
         dynamicList.addCommit();
-        dynamicList.removeCommit();
+        dynamicList.removeCommit();        assertTrue(dynamicList.contains("Item1"), "Item1 should still be present");
+        assertFalse(dynamicList.contains("Item2"), "Item2 should have been removed");
+ 
+        assertTrue(dynamicList.contains("Item3"), "Item3 should still be present");
+        assertTrue(dynamicList.contains("Item4"), "Item4 should have been added");
 
-        assertTrue(dynamicList.contains("Item1"));
-        assertFalse(dynamicList.contains("Item2"));
-
-        assertTrue(dynamicList.contains("Item3"));
-        assertTrue(dynamicList.contains("Item4")); // Item4 should be added
-
-        assertEquals(3, dynamicList.size());
+        assertEquals(3, dynamicList.size(), "List should contain exactly 3 items after operations");
         
         dynamicList.clear();
     }
