@@ -1,31 +1,35 @@
 package com.kurabiye.kutd.controller;
 
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.persistence.SettingsRepository;
 
 public class SettingsController {
+    private final SettingsRepository settingsRepository;
 
-    /**
-     * Returns the current user preferences instance (default if not modified).
-     */
+    public SettingsController() {
+        this.settingsRepository = SettingsRepository.getInstance();
+        loadSavedSettings();
+    }
+
+    private void loadSavedSettings() {
+        UserPreference savedSettings = settingsRepository.loadSettings();
+        if (savedSettings != null) {
+            UserPreference.applySettings(new UserPreference.Builder(savedSettings));
+        }
+    }
+
     public UserPreference getCurrentPreferences() {
         return UserPreference.getInstance();
     }
 
-    /**
-     * Applies new user settings using a Builder.
-     * This updates the singleton instance with the provided configuration.
-     */
     public void applyPreferences(UserPreference.Builder builder) {
         UserPreference.applySettings(builder);
+        settingsRepository.saveSettings(UserPreference.getInstance());
     }
 
-    /**
-     * Resets the preferences to their default values.
-     */
     public void resetPreferencesToDefault() {
-        UserPreference.resetInstance(); // Discard current instance
-        // No need to manually set defaults — the singleton does it on creation
-        UserPreference.getInstance(); // Reinitialize with default values
+        UserPreference.resetInstance();
+        UserPreference newInstance = UserPreference.getInstance();
+        settingsRepository.saveSettings(newInstance);
     }
 }
-

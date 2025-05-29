@@ -22,7 +22,12 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
     // Project dependencies
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.15.2")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
+
     implementation(project(":model"))
+    implementation(project(":util"))
 }
 
 // Configure source sets - this helps with IDE recognition

@@ -1,12 +1,12 @@
 package com.kurabiye.kutd.controller;
 
-
-
 public class MainMenuController {
-
+    private final SettingsController settingsController;
 
     public MainMenuController() {
         
+        this.settingsController = new SettingsController();
+
     }
 
     // Called when the "Play Game" button is pressed
