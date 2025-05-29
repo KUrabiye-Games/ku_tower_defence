@@ -122,6 +122,31 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private int[][] map;
     
+    /**
+    * Initializes and starts the game view with the provided stage and controller.
+    * 
+    * @requires stage != null && controller != null
+    * @requires JavaFX Application Thread is running
+    * @requires controller.getGameManager() != null
+    * @requires all required asset files exist in resources (/assets/tiles/, /assets/buttons/, /assets/projectiles/, /assets/ui/)
+    * 
+    * @modifies this.controller, this.currentStage, this.isEndGamePopupShown
+    * @modifies this.enemyView, this.enemies, this.towers, this.projectiles
+    * @modifies this.currentGold, this.currentHealth, this.currentWave
+    * @modifies this.canvas, this.gc, this.root, this.map
+    * @modifies stage (sets title, scene, maximized state, and shows the stage)
+    * @modifies controller (sets listeners and starts the game)
+    * 
+    * @effects Loads all required assets (tiles, button icons, projectile images)
+    * @effects Creates and configures the game canvas with calculated dimensions
+    * @effects Sets up the UI layout with game elements positioned on screen
+    * @effects Initializes the game state by connecting to the controller's game manager
+    * @effects Registers this view as a listener for game updates and observer for player/map changes
+    * @effects Starts the game thread through the controller
+    * @effects Sets the stage title to "Game Map" and maximizes the window
+    * @effects Sets up mouse click handlers for tile interactions
+    * @effects Applies custom cursor if available, falls back to default cursor on failure
+    */
     public void start(Stage stage, GamePlayController controller) {
         
         loadTiles();
@@ -192,6 +217,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         stage.show();
     
         setupClickHandler();
+    }
+
+    public GamePlayController getController() {
+        return controller;
     }
 
     private void loadTiles() {
