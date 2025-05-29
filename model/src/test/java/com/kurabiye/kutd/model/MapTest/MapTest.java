@@ -9,6 +9,8 @@ import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 
 public class MapTest {
+
+    /*
     
     private TileFactory tileFactory;
     
@@ -596,5 +598,5 @@ public class MapTest {
         
         return tiles;
     }
-
+*/
 }

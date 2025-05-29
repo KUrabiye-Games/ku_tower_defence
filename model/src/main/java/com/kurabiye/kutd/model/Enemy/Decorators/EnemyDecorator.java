@@ -94,5 +94,10 @@ public abstract class EnemyDecorator implements IEnemy {
         return enemy; // Return the original enemy without decoration
     }
 
+    @Override
+    public Point2D getMoveDirection() {
+        return enemy.getMoveDirection();
+    }
+
 
 }
