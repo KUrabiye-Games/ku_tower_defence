@@ -6,10 +6,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class DynamicArrayList<T> extends ArrayList<T> {
-
-
-    // This class extends ArrayList to create a dynamic array that can grow as needed
-    // It can be used to store objects of any type with deferred operations during iteration
+    /** OVERVIEW: This class extends ArrayList to create a dynamic array that can grow as needed
+    * It can be used to store objects of any type with deferred operations during iteration
+    */
     
     private Set<T> pendingRemovals = new HashSet<>();
     private ArrayList<T> pendingAdditions = new ArrayList<>();
