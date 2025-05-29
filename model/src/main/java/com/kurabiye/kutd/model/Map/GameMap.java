@@ -299,7 +299,7 @@ public class GameMap implements Observable{
      * 
      */
 
-    private void buildTilePath() {
+    public void buildTilePath() {
         
         ArrayList<Tile> my_path = new ArrayList<>(); // List to store the path tiles
 
