@@ -9,6 +9,20 @@ public class DynamicArrayList<T> extends ArrayList<T> {
     /** OVERVIEW: This class extends ArrayList to create a dynamic array that can grow as needed
     * It can be used to store objects of any type with deferred operations during iteration
     */
+
+     /**
+     * Abstraction Function:
+     * AF(this) = a dynamic list of elements of type T such that:
+     *   - The visible state of the list is: elements in 'this' minus those in pendingRemovals
+     *   - Items in pendingAdditions are not yet part of the list, but will be after addCommit()
+     *   - Iteration through filteredIterator() reflects the abstract list:
+     *       this - pendingRemovals
+     *   - Iteration through unfilteredIterator() reflects the raw internal list:
+     *       this
+     *
+     * This class allows deferred modifications (additions/removals), providing a consistent view
+     * during iteration and ensuring safety when modifying the list concurrently with iteration.
+     */
     
     private Set<T> pendingRemovals = new HashSet<>();
     private ArrayList<T> pendingAdditions = new ArrayList<>();
