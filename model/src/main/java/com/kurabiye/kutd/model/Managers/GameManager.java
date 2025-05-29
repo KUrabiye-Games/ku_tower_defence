@@ -7,18 +7,22 @@ import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.EnemyFactory;
+import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
+import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile;
-import com.kurabiye.kutd.model.Projectile.Projectile.DamageType;
-
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileState;
+import com.kurabiye.kutd.model.Projectile.IProjectile;
+import com.kurabiye.kutd.model.Projectile.DamageType;
+import com.kurabiye.kutd.model.Projectile.ProjectileState;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Timer.GameTimer;
 import com.kurabiye.kutd.model.Tower.Tower;
+import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerFactory;
 import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 
@@ -36,6 +40,8 @@ import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
  */
 
 public class GameManager implements Runnable{
+
+    private static final int TILE_SIZE = 120; // Size of a tile in pixels
 
 
     private static final int TARGET_FPS = 60; // Target frames per second
@@ -76,9 +82,11 @@ public class GameManager implements Runnable{
 
     private ArrayList<Point2D> path; // Path for enemies to follow
 
-    private ArrayList<Tower> towers; // List of towers in the game
-    private ArrayList<Enemy> enemies; // List of enemies in the game
-    private ArrayList<Projectile> projectiles; // List of projectiles in the game
+    private ArrayList<ITower> towers; // List of towers in the game
+    private ArrayList<IEnemy> enemies; // List of enemies in the game
+    private ArrayList<IProjectile> projectiles; // List of projectiles in the game
+
+    
 
 
     // Tile Factory to build new Towers
@@ -89,9 +97,10 @@ public class GameManager implements Runnable{
     
     private IGameUpdateListener gameUpdateListener; // Listener for game updates
 
-
-    private ArrayList<Enemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
-    private ArrayList<Projectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
+    private ArrayList<IEnemy> synergeticEnemies;
+    private ArrayList<IEnemy> enemiesToAdd = new ArrayList<>(); // List of synergetic enemies to remove
+    private ArrayList<IEnemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
+    private ArrayList<IProjectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
 
 
     public GameManager(GameMap gameMap) {
@@ -113,6 +122,8 @@ public class GameManager implements Runnable{
         this.towers = new ArrayList<>(); // Initialize the list of towers
         this.enemies = new ArrayList<>(); // Initialize the list of enemies
         this.projectiles = new ArrayList<>(); // Initialize the list of projectiles
+
+        this.synergeticEnemies = new ArrayList<>(); // Initialize the list of synergetic enemies
 
         this.tileFactory = new TileFactory(); // Initialize the tile factory
     }
@@ -161,11 +172,17 @@ public class GameManager implements Runnable{
                 gameState = GameState.GAME_WON; // Set game state to GAME_WON
             }
 
+            
+
+
+         
+
+
             // Update enemies position
-            Iterator<Enemy> enemyIterator = enemies.iterator(); // Create an iterator for the list of enemies
+            Iterator<IEnemy> enemyIterator = enemies.iterator(); // Create an iterator for the list of enemies
 
             while (enemyIterator.hasNext()) {
-                Enemy enemy = enemyIterator.next(); // Get the next enemy
+                IEnemy enemy = enemyIterator.next(); // Get the next enemy
                
                 enemy.move(deltaTime); // Update the enemy's position
                 
@@ -176,7 +193,7 @@ public class GameManager implements Runnable{
             }
 
             // Towers look for targets and create projectiles
-            for (Tower tower : towers) {
+            for (ITower tower : towers) {
                 // Check if the tower can attack     
                 // Get the projectile from the tower
                 Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
@@ -186,7 +203,7 @@ public class GameManager implements Runnable{
             }
 
             // Update projectiles position
-            for (Projectile projectile : projectiles) {
+            for (IProjectile projectile : projectiles) {
                 
                 projectile.move(deltaTime); // Update each projectile's position
             }
@@ -198,7 +215,7 @@ public class GameManager implements Runnable{
             projectilesToRemove.clear(); // Clear the list of projectiles to remove
             enemiesToRemove.clear(); // Clear the list of enemies to remove
 
-            for (Projectile projectile : projectiles) {
+            for (IProjectile projectile : projectiles) {
                 // Check if any collision occurred
 
                 if (projectile.getProjectileState() == ProjectileState.DEAD) {
@@ -213,14 +230,14 @@ public class GameManager implements Runnable{
                     continue; // Skip if the projectile is dead
                 }
 
-                if (projectile.getExplosionType() == DamageType.AREA) {
+                if (projectile.getDamageType() == DamageType.AREA) {
                     continue; // Skip if the projectile is an area explosion
                     
                 }
 
                 boolean collisionOccurred = false; // Flag to check if a collision occurred
 
-                for (Enemy enemy : enemies) {
+                for (IEnemy enemy : enemies) {
                     double distance = projectile.getCoordinate().distance(enemy.getCoordinate());
                     float damageRadius = projectile.getProjectileAreaDamage();
 
@@ -271,14 +288,14 @@ public class GameManager implements Runnable{
 
             // Check the explosion type of projectiles
 
-            for (Projectile projectile : projectiles) {
-                if (projectile.getExplosionType() == DamageType.AREA) {
+            for (IProjectile projectile : projectiles) {
+                if (projectile.getDamageType() == DamageType.AREA) {
                     // check if the projectile is close enough to the its target
                     double distance = projectile.getCoordinate().distance(projectile.getTarget());
 
                     if (distance < deltaTime * projectile.getSpeedVector().magnitude()) {
                         // Apply area damage to all enemies within the explosion radius
-                        for (Enemy enemy : enemies) {
+                        for (IEnemy enemy : enemies) {
                             double distanceToEnemy = projectile.getCoordinate().distance(enemy.getCoordinate());
                             if (distanceToEnemy < projectile.getProjectileAreaDamage()) {
                                 enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
@@ -292,6 +309,52 @@ public class GameManager implements Runnable{
                         projectilesToRemove.add(projectile); // Mark the projectile for removal
                     }
 
+                }
+            }
+
+
+            /*
+             * Checking if there is any knight within a tile distance to a goblin
+             * If there is, the knight will be decorated SynergeticMoveDecorator
+             * This will allow the knight to move faster when near a goblin
+             * This is a synergetic movement behavior
+             * 
+             */
+
+            // Check for synergetic movement behavior
+
+
+
+
+            for (IEnemy knight : enemies) {
+                if (knight.getEnemyType() == EnemyType.KNIGHT) { // Check if the enemy is a knight
+                    for (IEnemy goblin : enemies) {
+                        if (goblin.getEnemyType() == EnemyType.GOBLIN) { // Check if the enemy is a knight
+                            double distance = knight.getCoordinate().distance(goblin.getCoordinate()); // Calculate distance between knight and goblin
+                            if (distance < TILE_SIZE) { // If the distance is less than 2 tiles
+                                 enemiesToRemove.add(knight); // Mark the knight for removal
+                                // Create a new synergetic enemy with the knight's properties
+
+                                int[] enemySpeeds = UserPreference.getInstance().getEnemyMovementSpeed();
+
+                                IEnemy synergeticKnight = new SynergeticMoveDecorator(knight, enemySpeeds[0] , enemySpeeds[1]); // Create a new synergetic knight with the knight's properties
+
+                                synergeticEnemies.add(synergeticKnight); // Add the synergetic knight to the list of synergetic enemies
+                                enemiesToAdd.add(synergeticKnight); // Add the synergetic knight to the list of enemies to add
+                            }
+                        }else{
+                            // then remove the decorated knight from the synergetic enemies list
+                            // if the knight is decorated, remove the decoration
+
+                            if (synergeticEnemies.contains(knight)) {
+                                synergeticEnemies.remove(knight); // Remove the knight from the synergetic enemies list
+                                // remove the decorated knight from the enemies list
+                                enemiesToRemove.add(knight); // Mark the knight for removal
+                                knight = ((SynergeticMoveDecorator) knight).removeDecoration(); // Remove the decoration from the knight
+                                enemiesToAdd.add(knight); // Add the knight to the list of enemies to add
+                            }
+                        }
+                    }
                 }
             }
 
@@ -376,11 +439,11 @@ public class GameManager implements Runnable{
         }
 
         // Check if the player has enough resources
-        if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[towerType]) { // Example cost check
+        if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[0][towerType]) { // Example cost check
             return false; // Not enough gold
         }
 
-        player.buyTower(userPreferences.getTowerConstructionCost()[towerType]); // Deduct cost from player's gold
+        player.buyTower(userPreferences.getTowerConstructionCost()[0][towerType]); // Deduct cost from player's gold
         // Create the tower using the TowerFactory
 
         Tower tower = towerFactory.create(TowerType.values()[towerType]); // Create the tower using the factory
@@ -412,7 +475,7 @@ public class GameManager implements Runnable{
         // Check if the tower exists at the given coordinates
 
         // look for a tower in the list of towers
-        for (Tower tower : towers) {
+        for (ITower tower : towers) {
             if (tower.getTileCoordinate().getTileX() == xCoordinate && tower.getTileCoordinate().getTileY() == yCoordinate) {
                 // Tower found, sell it
                 player.sellTower(tower.getSellReturn()); // Add sell return to player's gold
@@ -466,15 +529,15 @@ public class GameManager implements Runnable{
     // Info provider methods for the view
 
 
-    public ArrayList<Tower> getTowers() {
+    public ArrayList<ITower> getTowers() {
         return towers; // Return the list of towers
     }
 
-    public ArrayList<Enemy> getEnemies() {
+    public ArrayList<IEnemy> getEnemies() {
         return enemies; // Return the list of enemies
     }
 
-    public ArrayList<Projectile> getProjectiles() {
+    public ArrayList<IProjectile> getProjectiles() {
         return projectiles; // Return the list of projectiles
     }
 
@@ -498,10 +561,10 @@ public class GameManager implements Runnable{
         return waveManager.getCurrentGroupIndex(); // Return the current group index
     }
 
-    public ArrayList<Enemy> getEnemiesToRemove() {
+    public ArrayList<IEnemy> getEnemiesToRemove() {
         return enemiesToRemove; // Return the list of enemies to remove
     }
-    public ArrayList<Projectile> getProjectilesToRemove() {
+    public ArrayList<IProjectile> getProjectilesToRemove() {
         return projectilesToRemove; // Return the list of projectiles to remove
     }
 

@@ -247,7 +247,19 @@ public class GameMap implements Observable{
             }
 
         }
-        // TODO: Check if there are at least for buildable tiles
+        
+        // Check if there are at least four buildable tiles
+        int buildableCount = 0;
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                if (tiles[i][j].isBuildableTile()) {
+                    buildableCount++;
+                }
+            }
+        }
+        if (buildableCount < 4) {
+            return false; // Insufficient buildable tiles
+        }
 
 
 
@@ -579,6 +591,23 @@ public class GameMap implements Observable{
         }
     }
 
+    /** 
+     * Override the equals method to remove the maps with identical tile arrays
+     * 
+     * @return true if the two GameMap objects are equal, false otherwise
+     * */ 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true; // Check if the same instance
+        if (!(obj instanceof GameMap)) return false; // Check if the object is a GameMap
+
+        GameMap other = (GameMap) obj; // Cast the object to GameMap
+
+        // Compare the tile arrays and coordinates
+        return java.util.Arrays.deepEquals(this.tiles, other.tiles) &&
+               this.startTileCoordinates.equals(other.startTileCoordinates) &&
+               this.endTileCoordinates.equals(other.endTileCoordinates);
+    }
     
 
  }

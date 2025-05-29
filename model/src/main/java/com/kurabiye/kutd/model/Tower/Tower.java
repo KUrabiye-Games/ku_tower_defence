@@ -6,10 +6,23 @@ import java.util.List;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
+import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Projectile.Projectile;
+
 import com.kurabiye.kutd.model.Projectile.ProjectileFactory;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
+
+
+/* * Tower.java
+ *  This class represents a tower in the tower defense game.
+ * It handles the tower's attributes, attack strategy, and projectile creation.
+ * 
+ * 
+ * @author Atlas Berk Polat
+ * @version 2.0
+ * @since 2025-05-13
+ */
 
 
 public class Tower implements ITower{
@@ -32,6 +45,8 @@ public class Tower implements ITower{
     private ProjectileFactory projectileFactory = ProjectileFactory.getInstance(); // Factory for creating projectiles
 
     private ProjectileType projectileType; // Type of projectile used by the tower
+
+    // Level up
 
 
     public Tower(int sellReturn, float range, float attackSpeed) {
@@ -66,7 +81,8 @@ public class Tower implements ITower{
 
 
     // and we will need to implement the attack method in the subclasses of the tower class
-    public Projectile attack(List<Enemy> enemies, double deltaTime) {
+    @Override
+    public Projectile attack(List<IEnemy> enemies, double deltaTime) {
         // Use the attack strategy to find the target enemy
 
         lastAttackTime += deltaTime; // Update the last attack time
@@ -81,7 +97,7 @@ public class Tower implements ITower{
         }
 
         // Filter the enemies based on the range of the tower
-        ArrayList<Enemy> filteredEnemies = enemies.stream()
+        ArrayList<IEnemy> filteredEnemies = enemies.stream()
                 .filter(enemy -> enemy.getCoordinate().distance(tileCoordinate.getCenter()) <= range)
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
@@ -97,7 +113,7 @@ public class Tower implements ITower{
         }
         
         try {
-            Enemy targetEnemy = attackStrategy.findTarget(filteredEnemies);
+            Enemy targetEnemy = (Enemy) attackStrategy.findTarget(filteredEnemies);
 
             if (targetEnemy == null) {
                 return null; // No target found

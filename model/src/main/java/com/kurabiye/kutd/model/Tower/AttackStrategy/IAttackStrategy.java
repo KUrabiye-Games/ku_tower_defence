@@ -1,6 +1,7 @@
 package com.kurabiye.kutd.model.Tower.AttackStrategy;
 
-import com.kurabiye.kutd.model.Enemy.Enemy;
+
+import com.kurabiye.kutd.model.Enemy.IEnemy;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public interface IAttackStrategy {
      * It might be the one with the lowest health, the closest one, or any other criteria.
      * @param enemy List of enemies to attack.
      */
-    Enemy findTarget(List<Enemy> enemy); 
+    IEnemy findTarget(List<IEnemy> enemy); 
 
 
 }

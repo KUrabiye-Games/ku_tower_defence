@@ -20,21 +20,7 @@ import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 
 public class Enemy implements IEnemy {
 
-    public enum EnemyType { // Enum for different enemy types
-        GOBLIN(0), // Goblin enemy type
-        KNIGHT(1); // Knight enemy type
-        
-        private final int value;
-        
-        EnemyType(int value) {
-            this.value = value;
-        }
-        
-        public int getValue() {
-            return value;
-        }
-    }
-
+    
     private EnemyType enemyType; // Type of the enemy
 
     private Point2D coordinate = new Point2D(0,0); // Coordinate of the enemy on the map
@@ -51,11 +37,7 @@ public class Enemy implements IEnemy {
     // It is used to calculate the direction of the enemy's movement 
     private Point2D moveDirection = new Point2D(1, 0); // Direction of the enemy's movement
     
-    public enum EnemyState { // Enum for enemy states
-        ALIVE, // Enemy is alive
-        DEAD, // Enemy is dead
-        ARRIVED // Enemy has arrived at the destination
-    }
+    
 
     private EnemyState enemyState = EnemyState.ALIVE; // Enemy's alive status
 
@@ -95,8 +77,22 @@ public class Enemy implements IEnemy {
 
         if(health <= 0) {
             enemyState = EnemyState.DEAD; // Set the enemy
+            return; // If the enemy's health is less than or equal to 0, set the enemy state to DEAD
         }
+
+
+        /*
+         * Teleporting the enemey to the starting point of the path
+         * with the 3 perceent chance.
+         * 
+         * 
+         */
+
+        if(Math.random() < 0.03) { // 3% chance to teleport the enemy back to the start of the path
+            pathPointIndex = 0; // Reset the path point index to 0
+            coordinate = movePath.get(0); // Set the coordinate of the enemy to the first point in the path
     }
+}
 
     public int getKillReward() {
         if(enemyState == EnemyState.DEAD) {
@@ -185,8 +181,9 @@ public class Enemy implements IEnemy {
         return moveDirection; // Get the move direction of the enemy
     }
 
+    public synchronized void setSpeed(int speed) {
+        this.speed = speed; // Set the speed of the enemy
+    }
 
-
-    
 
 }

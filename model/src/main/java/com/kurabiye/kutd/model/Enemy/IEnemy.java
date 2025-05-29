@@ -3,7 +3,7 @@ package com.kurabiye.kutd.model.Enemy;
 import java.util.ArrayList;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-import com.kurabiye.kutd.model.Enemy.Enemy.EnemyType;
+
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 
@@ -24,6 +24,8 @@ public interface IEnemy {
      * @param moveStrategy The strategy that controls how the enemy moves
      */
     void setMovePathWithStrategy(ArrayList<Point2D> path, IMoveStrategy moveStrategy);
+
+
     
     /**
      * Applies damage to the enemy when hit by a projectile
@@ -87,6 +89,13 @@ public interface IEnemy {
      * @return The enemy's coordinate
      */
     Point2D getCoordinate();
+
+    /**
+     * Gets the move direction of the enemy
+     * 
+     * @return The direction vector the enemy is moving towards
+     */
+    Point2D getMoveDirection();
     
     /**
      * Sets the position of the enemy
@@ -101,4 +110,22 @@ public interface IEnemy {
      * @return The enemy type
      */
     EnemyType getEnemyType();
+
+    /**
+     * sets the enemy speed
+     * 
+     * @param speed
+     */
+
+    void setSpeed(int speed); // Set the speed of the enemy
+
+
+    /**
+     * Set the coordinate of the enemy to a new coordinate.
+     * Use the points of the path to set the coordinate.
+     * 
+     * @param trayPointIndex The index of the point in the path to set as the new coordinate
+     * @throws IndexOutOfBoundsException if the index is out of bounds of the path
+     */
+
 }

@@ -1,0 +1,51 @@
+package com.kurabiye.kutd.model.Enemy.Decorators;
+
+import com.kurabiye.kutd.model.Enemy.IEnemy;
+
+
+/**
+ * Slowdown is a decorator for the IEnemy interface that adds synergetic movement behavior.
+ * It extends the EnemyDecorator class to provide additional functionality to the enemy's movement.
+ * 
+ * @author Atlas Berk Polat
+ * @version 1.0
+ * @since 2025-04-23
+ */
+
+public class SlowDownDecorator extends EnemyDecorator {
+
+    // This class is a decorator for the IEnemy interface
+    // It adds synergetic movement behavior to the enemy
+
+    private int originalSpeed; // Original speed of the enemy
+
+    public SlowDownDecorator(IEnemy enemy) {
+        super(enemy); // Initialize the decorator with an IEnemy instance
+    }
+
+    @Override
+    public void move(double deltaTime) {
+        // Implement synergetic movement logic here
+        // For example, modify the enemy's move direction based on some conditions
+        super.move(deltaTime); // Call the original move method from the decorated enemy
+    }
+
+    public void applySlowDown(float slowDownRate) {
+        // Implement the synergetic movement logic here
+        // This could involve modifying the enemy's path or speed based on certain conditions
+        // For example, if the enemy is a goblin, it might move faster when near a knight
+        originalSpeed = enemy.getSpeed(); // Store the original speed
+
+        enemy.setSpeed((int) (enemy.getSpeed() / slowDownRate)); // Example of combining speeds);
+    }
+
+    @Override
+    public IEnemy removeDecoration(){
+        // This method can be used to remove the decoration and return the original enemy
+
+        enemy.setSpeed(originalSpeed);
+
+        return enemy; // Return the original enemy without the synergetic movement behavior
+    }
+
+}
