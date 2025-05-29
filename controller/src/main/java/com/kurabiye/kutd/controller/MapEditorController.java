@@ -1,4 +1,4 @@
-package com.kurabiye.kutd.controller;
+// package com.kurabiye.kutd.controller;
 
 // import com.kurabiye.kutd.view.MapEditorView;
 // import com.kurabiye.kutd.model.MapManager;
@@ -8,22 +8,8 @@ package com.kurabiye.kutd.controller;
 //     private MapManager mapManager;
 //     private MapPersistenceManager mapPersistenceManager;
 
-//     public MapEditorController(MapEditorView mapEditorView, MapManager mapManager, MapPersistenceManager mapPersistenceManager) {
-//         this.mapEditorView = mapEditorView;
-//         this.mapManager = mapManager;
-//         this.mapPersistenceManager = mapPersistenceManager;
-//         initialize();
-//     }
-
-//     @Override
-//     protected void initialize() {
-//         mapEditorView.setOnTilePlaced(this::onTilePlaced);
-//         mapEditorView.setOnTileRemoved(this::onTileRemoved);
-//         mapEditorView.setOnSaveMap(this::onSaveMap);
-//         mapEditorView.setOnLoadMap(this::onLoadMap);
-//         mapEditorView.setOnClearMap(this::onClearMap);
-
-//         mapEditorView.displayMap(mapManager.getCurrentMapGrid());
+//     public MapEditorController( MapManager mapManager) {
+       
 //     }
 
 //     private void onTilePlaced(int x, int y, String tileType) {

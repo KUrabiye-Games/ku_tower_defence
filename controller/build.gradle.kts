@@ -37,6 +37,7 @@ dependencies {
     // Project dependencies
     implementation(project(":model"))
     implementation(project(":util"))
+    implementation(project(":persistence"))
 }
 
 // Configure source sets - this helps with IDE recognition
