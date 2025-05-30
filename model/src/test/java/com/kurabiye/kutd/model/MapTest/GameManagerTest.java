@@ -47,6 +47,7 @@ public class GameManagerTest {
         gameManager.getGameMap().setTile(2, 3, tile);
 
     }
+    
     /**
      * Test that verifies a tower can be built successfully on a valid tile.
      * - Asserts that the tower is built
@@ -92,7 +93,7 @@ public class GameManagerTest {
         boolean result = gameManager.buildTower(2, 3, 0);
         assertFalse(result, "Should fail due to insufficient gold");
     }
-    
+
     /**
      * Test that verifies tower building fails when an invalid tower type is specified.
      */
