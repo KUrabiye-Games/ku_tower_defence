@@ -5,6 +5,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+
+/*
+ * Representation Invariant:
+ *  - pendingRemovals != null
+ *  - pendingAdditions != null
+ *  - Elements in pendingRemovals must be elements already in the base list
+ *  - Elements in pendingAdditions must NOT be in the base list
+ *  - No element should exist in both pendingRemovals and pendingAdditions
+ */
+
 public class DynamicArrayList<T> extends ArrayList<T> {
     /** OVERVIEW: This class extends ArrayList to create a dynamic array that can grow as needed
     * It can be used to store objects of any type with deferred operations during iteration
@@ -156,6 +166,33 @@ public class DynamicArrayList<T> extends ArrayList<T> {
         pendingAdditions.clear();
     }
     
+
+    public boolean repOk() {
+        // 1. Check for null fields
+        if (pendingRemovals == null || pendingAdditions == null) return false;
+
+        // 2. All elements in pendingRemovals must already exist in the base list
+        for (T item : pendingRemovals) {
+            if (!super.contains(item)) return false;
+        }
+
+        // 3. All elements in pendingAdditions must not already exist in the base list
+        for (T item : pendingAdditions) {
+            if (super.contains(item)) return false;
+        }
+
+        /*
+        // 4. No element should exist in both pendingAdditions and pendingRemovals
+        for (T item : pendingAdditions) {
+            if (pendingRemovals.contains(item)) return false;
+        }
+        */
+    return true;
+    }
+
+
+
+
     /**
      * Custom iterator that provides a consistent view during iteration by skipping
      * items marked for removal

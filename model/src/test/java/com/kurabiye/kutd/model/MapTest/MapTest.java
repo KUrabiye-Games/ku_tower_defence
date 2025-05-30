@@ -28,7 +28,12 @@ public class MapTest {
         GameMap map = new GameMap(); // Create a map of size 10x10
         assertNotNull(map, "Map should be initialized");
     }
+<<<<<<< Updated upstream
 /*
+=======
+
+    /*
+>>>>>>> Stashed changes
     @Test
     public void testHasAPath() {
         // Create a valid game map with path from left edge to right edge
