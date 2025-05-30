@@ -18,6 +18,10 @@ public class GameStartTest {
     private GamePlayController controller;
     private Stage stage;
 
+    /**
+     * Initializes the JavaFX toolkit before running any tests.
+     * This is necessary to ensure that JavaFX components can be created and manipulated in the test environment.
+     */
     @BeforeAll
     static void initJavaFX() throws InterruptedException {
         // Initialize JavaFX toolkit for testing
@@ -26,6 +30,11 @@ public class GameStartTest {
         latch.await(5, TimeUnit.SECONDS);
     }
 
+    /**
+     * Sets up the test environment before each test case.
+     * This method initializes the GamePlayView and GamePlayController, and prepares a Stage for testing.
+     * It uses a CountDownLatch to ensure that the JavaFX components are fully initialized before proceeding with the tests.
+     */
     @BeforeEach
     void setUp() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
@@ -38,6 +47,10 @@ public class GameStartTest {
         latch.await(5, TimeUnit.SECONDS);
     }
 
+    /**
+     * Test to ensure that the start method of GamePlayView completes without exceptions.
+     * This test verifies that the method can be called and that it initializes the view correctly.
+     */
     @Test
     void testStartMethodCompletes() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
@@ -51,6 +64,10 @@ public class GameStartTest {
         latch.await(5, TimeUnit.SECONDS);
     }
 
+    /**
+     * Test to verify that the stage is configured correctly when the start method is called. 
+     * This includes checking the title of the stage and ensuring that it is not null.
+     */
     @Test
     void testStageConfiguration() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
@@ -62,6 +79,10 @@ public class GameStartTest {
         latch.await(5, TimeUnit.SECONDS);
     }
 
+    /**
+     * Test to ensure that the controller is set correctly in the GamePlayView.
+     * This test checks that the controller instance passed to the start method is the same as the one retrieved from the view.
+     */
     @Test
     void testControllerIntegration() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
