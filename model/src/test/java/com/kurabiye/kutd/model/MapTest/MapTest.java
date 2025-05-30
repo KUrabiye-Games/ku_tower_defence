@@ -28,31 +28,14 @@ public class MapTest {
         GameMap map = new GameMap(); // Create a map of size 10x10
         assertNotNull(map, "Map should be initialized");
     }
-/*
-    @Test
-    public void testHasAPath() {
-        // Create a valid game map with path from left edge to right edge
-        Tile[][] tiles = createBasicValidMap();
-        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
-        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
 
 
-        
-        GameMap map = new GameMap(tiles, start, end);
-
-        map.buildTilePath();
-        map.buildPointPath();
-
-
-        assertEquals(map.getTilePath().get(-1), GameMap.getErrorTile(), "Tile path has a defect");
-    }*/
-              /*  
     @Test
     public void testValidGameMap_StartTileNotOnEdge() {
         // Test when starting tile is not on the edge
         Tile[][] tiles = createBasicValidMap();
-        TilePoint2D start = new TilePoint2D(5, 4); // Not on edge
-        TilePoint2D end = new TilePoint2D(15, 4); // Right edge
+        TilePoint2D start =  tiles[4][5].getCoordinate();
+        TilePoint2D end =  tiles[4][15].getCoordinate();
         
         GameMap map = new GameMap(tiles, start, end);
         assertFalse(map.isValidGameMap(), "Map with start tile not on edge should be invalid");
@@ -62,8 +45,8 @@ public class MapTest {
     public void testValidGameMap_EndTileNotOnEdge() {
         // Test when ending tile is not on the edge
         Tile[][] tiles = createBasicValidMap();
-        TilePoint2D start = new TilePoint2D(0, 4); // Left edge
-        TilePoint2D end = new TilePoint2D(10, 4); // Not on edge
+        TilePoint2D start =  tiles[4][0].getCoordinate();
+        TilePoint2D end =  tiles[4][10].getCoordinate();
         
         GameMap map = new GameMap(tiles, start, end);
         assertFalse(map.isValidGameMap(), "Map with end tile not on edge should be invalid");
@@ -73,13 +56,13 @@ public class MapTest {
     public void testValidGameMap_StartAndEndSameTile() {
         // Test when start and end tiles are the same
         Tile[][] tiles = createBasicValidMap();
-        TilePoint2D start = new TilePoint2D(0, 4); // Left edge
-        TilePoint2D end = new TilePoint2D(0, 4); // Same as start
+         TilePoint2D start =  tiles[4][0].getCoordinate();
+        TilePoint2D end =  tiles[4][0].getCoordinate();
         
         GameMap map = new GameMap(tiles, start, end);
         assertFalse(map.isValidGameMap(), "Map with same start and end tiles should be invalid");
     }
-
+              /*  
     @Test
     public void testValidGameMap_StartTileNotPath() {
         // Test when starting tile is not a path tile

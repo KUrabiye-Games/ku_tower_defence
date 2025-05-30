@@ -204,6 +204,8 @@ public class GameMap implements Observable{
             return false; // Starting and ending tiles are the same
         }
 
+        buildTilePath(); // Build the path from the starting tile to the ending tile
+/*
         // check if the stating and ending tiles are on the edges of the map
         // they are supposed to be on the edges of the map
 
@@ -228,11 +230,11 @@ public class GameMap implements Observable{
         }
 
     
-        /*check if any of the tile codes 24 25 28 29 are in the path
-         *    also check if they are in the correct configuration of
-         *     24 25
-         *     28 29
-         */
+         // check if any of the tile codes 24 25 28 29 are in the path
+         //   also check if they are in the correct configuration of
+         //    24 25
+         //     28 29
+         
         
          for(int i = 0; i < MAP_HEIGHT; i++) {
             for (int j = 0; j < MAP_WIDTH; j++) {
@@ -270,7 +272,7 @@ public class GameMap implements Observable{
         // check if there is a single path from the starting tile to the ending tile
 
 
-        buildTilePath(); // Build the path from the starting tile to the ending tile
+        
         
         // check if the last tile is the error tile
 
@@ -282,7 +284,7 @@ public class GameMap implements Observable{
         if (tilePath.get(tilePath.size() - 1) != tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()]) {
             return false; // Invalid path
         }
-
+*/
 
 
         
