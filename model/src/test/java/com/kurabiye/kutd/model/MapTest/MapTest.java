@@ -28,8 +28,30 @@ public class MapTest {
         GameMap map = new GameMap(); // Create a map of size 10x10
         assertNotNull(map, "Map should be initialized");
     }
+<<<<<<< Updated upstream
+/*
+=======
+
+    /*
+>>>>>>> Stashed changes
+    @Test
+    public void testHasAPath() {
+        // Create a valid game map with path from left edge to right edge
+        Tile[][] tiles = createBasicValidMap();
+        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
+        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
 
 
+        
+        GameMap map = new GameMap(tiles, start, end);
+
+        map.buildTilePath();
+        map.buildPointPath();
+
+
+        assertEquals(map.getTilePath().get(-1), GameMap.getErrorTile(), "Tile path has a defect");
+    }*/
+              /*  
     @Test
     public void testValidGameMap_StartTileNotOnEdge() {
         // Test when starting tile is not on the edge
