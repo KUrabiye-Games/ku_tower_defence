@@ -25,18 +25,18 @@ import com.kurabiye.kutd.model.Tile.TileFactory;
  */
 public class MapEditorView {
 
-    private static final int TILE_SIZE = 64;
-    private static final int ROWS = 9;
-    private static final int COLS = 16;
+     static final int TILE_SIZE = 64;
+     static final int ROWS = 9;
+     static final int COLS = 16;
     private static final int BUTTON_SIZE = 48;
 
     private final Image[] tileImages = new Image[32]; //0-31 tile images
-    private int[][] mapData;
-    private int selectedTileType = 15; //default to buildable tile
+     int[][] mapData;
+     int selectedTileType = 15; //default to buildable tile
 
-    private Canvas canvas;
-    private GraphicsContext gc;
-    private Label statusLabel;
+     Canvas canvas;
+     GraphicsContext gc;
+     Label statusLabel;
 
     public void start(Stage stage) {
         loadTileImages();
@@ -199,7 +199,7 @@ public class MapEditorView {
         }
     }
 
-    private void initializeMapData() {
+     void initializeMapData() {
         mapData = new int[ROWS][COLS];
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
@@ -244,7 +244,27 @@ public class MapEditorView {
         canvas.setOnMouseDragged(e -> handleMapClick(e.getX(), e.getY()));
     }
 
-    private void handleMapClick(double x, double y) {
+    /**
+     * Handles mouse clicks on the map canvas to place tiles.
+     * 
+     * Requires:
+     * - x and y coordinates must be within canvas bounds (0 <= x < canvasWidth, 0
+     * <= y < canvasHeight)
+     * - selectedTileType must be a valid tile type (0 <= selectedTileType < 32)
+     * 
+     * Modifies:
+     * - Updates the mapData array at the calculated row and column
+     * - Modifies the canvas graphics by redrawing the affected tile
+     * 
+     * Effects:
+     * - The tile at the clicked position is changed to the selectedTileType
+     * - The visual representation on the canvas is updated to reflect the change
+     */
+    void handleMapClick(double x, double y) {
+        if (x < 0 || x >= COLS * TILE_SIZE || y < 0 || y >= ROWS * TILE_SIZE) {
+            return;
+        }
+        
         int col = (int) (x / TILE_SIZE);
         int row = (int) (y / TILE_SIZE);
 
