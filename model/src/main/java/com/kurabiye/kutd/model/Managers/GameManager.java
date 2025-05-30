@@ -428,6 +428,20 @@ public class GameManager implements Runnable{
         gameTimer.setTimeCoefficient(1);
     }
 
+    /**
+     * @requires (x >= 0 && x < gameMapWidth) &&
+     *           (y >= 0 && y < gameMapHeight) &&
+     *           (type != null) &&
+     *           (gameState == GameState.RUNNING) &&
+     *           (!isCellOccupied(x, y)) &&
+     *           (player.hasEnoughGold(type.getCost()))
+     *
+     * @modifies gameMap, player, towers
+     *
+     * @effects Places a tower of the given type at the specified (x, y) coordinates
+     *          on the map. Deducts the corresponding amount of gold from the player.
+     *          Adds the tower to the game state.
+     */
     public boolean buildTower(int xCoordinate, int yCoordinate, int towerType) {
         //check if the tile is buildable
         Tile tile = gameMap.getTile(xCoordinate, yCoordinate);
