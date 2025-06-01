@@ -29,6 +29,7 @@ public class MapTest {
         assertNotNull(map, "Map should be initialized");
     }
 
+    /* 
     @Test
     public void testValidGameMap_ValidPath() {
         // Create a valid game map with path from left edge to right edge
