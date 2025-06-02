@@ -6,48 +6,55 @@ import org.junit.jupiter.api.BeforeAll;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 
+
+/**
+ * MapTest.java
+ * 
+ * This class contains unit tests for the GameMap class isValidMap method.
+ * It tests functionalities such as map initialization, path validation,
+ * and edge cases for start and end tiles.
+ * 
+ * @author Atlas Berk Polat
+ * @version 1.0
+ * @since 2025-06-02
+ */
+
 public class MapTest {
 
     
-    /*
+    
     private static TileFactory tileFactory;
     
+    /*
+     * Sets up the TileFactory before all tests are run.
+     * This method is executed once before any test methods in this class.
+     * It initializes the tileFactory instance which is used to create Tile objects
+     * This ensures that all tests have access to a properly initialized TileFactory
+     * 
+     */
     @BeforeAll
     public static void setUp() {
         tileFactory = new TileFactory();
     }
+
+    /**
+     * Test to ensure that the GameMap can be initialized correctly.
+     * This test checks if a GameMap object can be created without any exceptions.
+     */
     
     @Test
     public void testMapInitialization() {
-        GameMap map = new GameMap(); // Create a map of size 10x10
+        GameMap map = new GameMap();
         assertNotNull(map, "Map should be initialized");
     }
 
-    
-    @Test
-    public void testHasAPath() {
-        // Create a valid game map with path from left edge to right edge
-        Tile[][] tiles = createBasicValidMap();
-        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
-        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
 
-
-        
-        GameMap map = new GameMap(tiles, start, end);
-
-        map.buildTilePath();
-        map.buildPointPath();
-
-
-        assertEquals(map.getTilePath().get(-1), GameMap.getErrorTile(), "Tile path has a defect");
-    }*/
-              /*  
+              
     @Test
     public void testValidGameMap_StartTileNotOnEdge() {
         // Test when starting tile is not on the edge
@@ -55,10 +62,11 @@ public class MapTest {
         TilePoint2D start =  tiles[4][5].getCoordinate();
         TilePoint2D end =  tiles[4][15].getCoordinate();
         
-        GameMap map = new GameMap(tiles, start, end);
-        assertFalse(map.isValidGameMap(), "Map with start tile not on edge should be invalid");
+
+
+        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Starting tile is not on the edge of the map", "Starting tile is not on the edge of the map");
     }
- 
+  
     @Test
     public void testValidGameMap_EndTileNotOnEdge() {
         // Test when ending tile is not on the edge
@@ -66,44 +74,44 @@ public class MapTest {
         TilePoint2D start =  tiles[4][0].getCoordinate();
         TilePoint2D end =  tiles[4][10].getCoordinate();
         
-        GameMap map = new GameMap(tiles, start, end);
-        assertFalse(map.isValidGameMap(), "Map with end tile not on edge should be invalid");
+        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Ending tile is not on the edge of the map", "Ending tile is not on the edge of the map");
     }
-  
+   
     @Test
     public void testValidGameMap_StartAndEndSameTile() {
         // Test when start and end tiles are the same
         Tile[][] tiles = createBasicValidMap();
-         TilePoint2D start =  tiles[4][0].getCoordinate();
+        TilePoint2D start =  tiles[4][0].getCoordinate();
         TilePoint2D end =  tiles[4][0].getCoordinate();
         
-        GameMap map = new GameMap(tiles, start, end);
-        assertFalse(map.isValidGameMap(), "Map with same start and end tiles should be invalid");
+        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Starting and ending tiles are the same", "Starting and ending tiles are the same");
     }
-              /*  
+               
     @Test
     public void testValidGameMap_StartTileNotPath() {
         // Test when starting tile is not a path tile
         Tile[][] tiles = createBasicValidMap();
-        tiles[4][0] = tileFactory.create(5); // Ground tile instead of path
-        TilePoint2D start = new TilePoint2D(0, 4); // Left edge
-        TilePoint2D end = new TilePoint2D(15, 4); // Right edge
+        tiles[8][6] = tileFactory.create(5); // Ground tile instead of path
+        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
+        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        GameMap map = new GameMap(tiles, start, end);
-        assertFalse(map.isValidGameMap(), "Map with non-path start tile should be invalid");
+        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Starting tile is not a path tile", "Starting tile is not a path tile");
+
     }
  
     @Test
     public void testValidGameMap_EndTileNotPath() {
         // Test when ending tile is not a path tile
         Tile[][] tiles = createBasicValidMap();
-        tiles[4][15] = tileFactory.create(5); // Ground tile instead of path
-        TilePoint2D start = new TilePoint2D(0, 4); // Left edge
-        TilePoint2D end = new TilePoint2D(15, 4); // Right edge
+        tiles[0][12] = tileFactory.create(5); // Ground tile instead of path
+        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
+        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        GameMap map = new GameMap(tiles, start, end);
-        assertFalse(map.isValidGameMap(), "Map with non-path end tile should be invalid");
+        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Ending tile is not a path tile", "Ending tile is not a pathXTGStile");
+
     }
+
+    
     
     @Test
     public void testValidGameMap_InsufficientBuildableTiles() {
@@ -122,11 +130,11 @@ public class MapTest {
         tiles[1][2] = tileFactory.create(15);
         tiles[1][3] = tileFactory.create(15);
         
-        TilePoint2D start = new TilePoint2D(0, 4); // Left edge
-        TilePoint2D end = new TilePoint2D(15, 4); // Right edge
+        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
+        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        GameMap map = new GameMap(tiles, start, end);
-        assertFalse(map.isValidGameMap(), "Map with less than 4 buildable tiles should be invalid");
+
+        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Insufficient buildable tiles", "Insufficient buildable tiles");
     }
     
     @Test
@@ -147,13 +155,15 @@ public class MapTest {
         tiles[1][3] = tileFactory.create(15);
         tiles[1][4] = tileFactory.create(15);
         
-        TilePoint2D start = new TilePoint2D(0, 4); // Left edge
-        TilePoint2D end = new TilePoint2D(15, 4); // Right edge
+        TilePoint2D start = new TilePoint2D(6, 8); // Left edge
+        TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        GameMap map = new GameMap(tiles, start, end);
-        assertTrue(map.isValidGameMap(), "Map with exactly 4 buildable tiles should be valid");
+
+        assertNotEquals(GameMap.isValidGameMap(tiles, start, end), "Insufficient buildable tiles", "Insufficient buildable tiles");
     }
-    
+
+
+    /* 
     @Test
     public void testValidGameMap_DisconnectedPath() {
         // Test when path is disconnected
@@ -443,7 +453,7 @@ public class MapTest {
         GameMap exactFourMap = new GameMap(exactFourTiles, start, end);
         assertTrue(exactFourMap.isValidGameMap(), "Map with exactly 4 buildable tiles should be valid");
     }
-
+*/ 
  
     private static final int[][] map = {
         { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
@@ -479,7 +489,7 @@ public class MapTest {
         return tiles; // Return the static map
     }
 
-
+    /*
     // Helper method to create a map with vertical path
     private Tile[][] createVerticalPathMap() {
         Tile[][] tiles = new Tile[GameMap.MAP_HEIGHT][GameMap.MAP_WIDTH];
@@ -512,7 +522,7 @@ public class MapTest {
         
         return tiles;
     }
-    
+
     // Helper method to create a complex valid map with curved path
     private Tile[][] createComplexValidMap() {
         Tile[][] tiles = new Tile[GameMap.MAP_HEIGHT][GameMap.MAP_WIDTH];
@@ -611,5 +621,5 @@ public class MapTest {
         
         return tiles;
     }
-*/ 
+*/
 }

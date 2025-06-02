@@ -1,5 +1,6 @@
 package com.kurabiye.kutd.model.Map;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,11 +37,11 @@ public class GameMap implements Observable{
      */ 
     private Tile[][] tiles; // 2D array representing the tiles on the map it will
 
-    private int startTileDirection = -1; // Direction of the starting tile
-    private int endTileDirection = -1; // Direction of the ending tile
+    //private int startTileDirection = -1; // Direction of the starting tile
+    //private int endTileDirection = -1; // Direction of the ending tile
 
-    private TilePoint2D startTileCoordinates; // Starting tile of the map
-    private TilePoint2D endTileCoordinates; // Ending tile of the map
+    //private TilePoint2D startTileCoordinates; // Starting tile of the map
+    //private TilePoint2D endTileCoordinates; // Ending tile of the map
 
     private List<Point2D> pointPath; // List of path tiles on the map
 
@@ -51,90 +52,67 @@ public class GameMap implements Observable{
         tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
     }
 
+    /**
+     * Constructor for the GameMap class.
+     * 
+     * @param tiles - 2D array of tiles representing the map
+     * @param startTileCoordinates - Coordinates of the starting tile
+     * @param endTileCoordinates - Coordinates of the ending tile
+     * 
+     * @throws IllegalArgumentException - If the game map is invalid
+     *
+     *
+     * @param tiles
+     * @param startTileCoordinates
+     * @param endTileCoordinates
+     */
+
     public GameMap(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
-        if (tiles.length != MAP_HEIGHT || tiles[0].length != MAP_WIDTH) {
-            throw new IllegalArgumentException("Invalid tile array dimensions");
+
+
+        String validationResult = isValidGameMap(tiles, startTileCoordinates, endTileCoordinates); // Validate the game map
+
+        if(!validationResult.equals("valid")){
+            throw new IllegalArgumentException(validationResult); // Throw an exception if the game map is invalid
         }
+
         this.tiles = tiles; // Initialize the tiles array with the provided tiles
 
-        this.startTileCoordinates = startTileCoordinates; // Set the starting tile
-        this.endTileCoordinates = endTileCoordinates; // Set the ending tile
+        //this.startTileCoordinates = startTileCoordinates; // Set the starting tile
+        //this.endTileCoordinates = endTileCoordinates; // Set the ending tile
 
-        int[] startTileDirections = tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()].getTileDirections();
-        int[] endTileDirections = tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()].getTileDirections();
-
-
-        // Set up the starting and ending tile directions
-        // If the starting tile in on the bottom edge and the tile has a direction 3 then set the staring tile direction to 3
-        
-
-        if (startTileCoordinates.getTileY() == MAP_HEIGHT - 1 && (startTileDirections[0] == 3 || startTileDirections[1] == 3)) {
-            startTileDirection = 3;
-        }
-        // If the starting the starting tile is on the left edge and the tile has a direction 0 then set the staring tile direction to 0
-
-        if (startTileCoordinates.getTileX() == 0 && (startTileDirections[0] == 0 || startTileDirections[1] == 0)) {
-            startTileDirection = 0;
-        }
-
-        // If the starting the starting tile is on the right edge and the tile has a direction 2 then set the staring tile direction to 2
-        if (startTileCoordinates.getTileX() == MAP_WIDTH - 1 && (startTileDirections[0] == 2 || startTileDirections[1] == 2)) {
-            startTileDirection = 2;
-        }
-
-        // If the starting the starting tile is on the top edge and the tile has a direction 1 then set the staring tile direction to 1
-        if (startTileCoordinates.getTileY() == 0 && (startTileDirections[0] == 1 || startTileDirections[1] == 1)) {
-            startTileDirection = 1;
-        }
-
-        if (startTileDirection == -1) {
-            throw new IllegalArgumentException("Invalid starting tile direction");
-        }
-
-        // Do the same for the ending tile
+        this.tilePath = buildTilePath(tiles, startTileCoordinates, endTileCoordinates); // Build the tile path from the starting tile to the ending tile
+        this.pointPath = buildPointPath(tilePath, startTileCoordinates, endTileCoordinates); // Build the point path from the starting tile to the ending tile
 
 
-        if (endTileCoordinates.getTileY() == MAP_HEIGHT - 1 && (endTileDirections[0] == 1 || endTileDirections[1] == 1)) {
-            endTileDirection = 1;
-        }
-
-        if (endTileCoordinates.getTileX() == 0 && (endTileDirections[0] == 0 || endTileDirections[1] == 0)) {
-            endTileDirection = 0;
-        }
-
-        if (endTileCoordinates.getTileX() == MAP_WIDTH - 1 && (endTileDirections[0] == 2 || endTileDirections[1] == 2)) {
-            endTileDirection = 2;
-
-        }
-
-        if (endTileCoordinates.getTileY() == 0 && (endTileDirections[0] == 3 || endTileDirections[1] == 3)) {
-            endTileDirection = 3;
-        }
-
-        if (endTileDirection == -1) {
-            throw new IllegalArgumentException("Invalid ending tile direction");
-        }
-
-
+        //this.endTileDirection = getTileDirection(tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()], endTileCoordinates); // Get the ending tile direction
+        //this.startTileDirection = getTileDirection(tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()], startTileCoordinates); 
 
 
     }
 
 
-    /*
+    /**
      * The following two methods are synchronized to ensure thread safety.
+     * * They allow getting and setting tiles at specific coordinates on the map.
+     * * @param x - x-coordinate of the tile
+     * * @param y - y-coordinate of the tile
      * 
+     * 
+     * * @return Tile - The tile at the specified coordinates
+     * 
+     * * @throws IllegalArgumentException - If the coordinates are out of bounds
      * 
      */
 
-    public synchronized Tile getTile(int x, int y) {
+    public synchronized Tile getTile(int x, int y) throws IllegalArgumentException {
         if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
             throw new IllegalArgumentException("Coordinates out of bounds");
         }
         return tiles[y][x]; // Return the tile at the specified coordinates
     }
 
-    public synchronized void setTile(int x, int y, Tile tile) {
+    public synchronized void setTile(int x, int y, Tile tile) throws IllegalArgumentException {
         if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
             throw new IllegalArgumentException("Coordinates out of bounds");
         }
@@ -143,21 +121,6 @@ public class GameMap implements Observable{
          // Set the tile at the specified coordinates
     }
 
-    public TilePoint2D getstartTileCoordinates() {
-        return startTileCoordinates; // Return the starting tile
-    }
-
-    public void setstartTileCoordinates(TilePoint2D startTileCoordinates) {
-        this.startTileCoordinates = startTileCoordinates; // Set the starting tile
-    }
-
-    public TilePoint2D getendTileCoordinates() {
-        return endTileCoordinates; // Return the ending tile
-    }
-
-    public void setendTileCoordinates(TilePoint2D endTileCoordinates) {
-        this.endTileCoordinates = endTileCoordinates; // Set the ending tile
-    }
 
     public List<Point2D> getPath() {
         return pointPath; // Return the list of path tiles
@@ -167,11 +130,36 @@ public class GameMap implements Observable{
 
 
 
-    public boolean isValidGameMap() {
+    public static String isValidGameMap(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
 
         // Check if the tiles array is null or has invalid dimensions
-        if (tiles == null || tiles.length != MAP_HEIGHT || tiles[0].length != MAP_WIDTH ) {
-            return false; // Invalid tiles array
+        if (tiles == null ) {
+            return "Tiles cannot be empty"; // Invalid tiles array
+        }
+
+        if (tiles.length != MAP_HEIGHT || tiles[0].length != MAP_WIDTH) {
+            return "Invalid map dimensions"; // Invalid map dimensions
+        }
+
+        // Check if the starting and ending tiles are null
+        if (startTileCoordinates == null) {
+            return "Start tile is Null"; // Invalid tiles
+        }
+
+        if (endTileCoordinates == null) {
+            return "End tile is Null"; // Invalid tiles
+        }
+
+        // Check if the starting and ending tiles are on the edges of the map
+
+        if ((startTileCoordinates.getTileX() != 0 && startTileCoordinates.getTileX() != MAP_WIDTH - 1) &&
+            (startTileCoordinates.getTileY() != 0 && startTileCoordinates.getTileY() != MAP_HEIGHT - 1)) {
+            return "Starting tile is not on the edge of the map"; // Starting tile is not on the edge of the map
+        }
+
+        if ((endTileCoordinates.getTileX() != 0 && endTileCoordinates.getTileX() != MAP_WIDTH - 1) &&
+            (endTileCoordinates.getTileY() != 0 && endTileCoordinates.getTileY() != MAP_HEIGHT - 1)) {
+            return "Ending tile is not on the edge of the map"; // Ending tile is not on the edge of the map
         }
 
         // check if the tiles have any null values
@@ -179,55 +167,63 @@ public class GameMap implements Observable{
         for (int i = 0; i < MAP_HEIGHT; i++) {
             for (int j = 0; j < MAP_WIDTH; j++) {
                 if (tiles[i][j] == null) {
-                    return false; // Invalid tile
+                    return "Some tile pieces are Null"; // Invalid tile
                 }
             }
         }
 
-        // Check if the starting and ending tiles are null
-        if (startTileCoordinates == null || endTileCoordinates == null) {
-            return false; // Invalid tiles
-        }
+        
 
 
         // Check if the starting and ending tiles are within the bounds of the map
         if (startTileCoordinates.getTileX() < 0 || startTileCoordinates.getTileX() >= MAP_WIDTH ||
-            startTileCoordinates.getTileY() < 0 || startTileCoordinates.getTileY() >= MAP_HEIGHT ||
-            endTileCoordinates.getTileX() < 0 || endTileCoordinates.getTileX() >= MAP_WIDTH ||
+            startTileCoordinates.getTileY() < 0 || startTileCoordinates.getTileY() >= MAP_HEIGHT
+           ) {
+            return "Start tile is out of the map bounds"; // Invalid coordinates
+        }
+
+        if (endTileCoordinates.getTileX() < 0 || endTileCoordinates.getTileX() >= MAP_WIDTH ||
             endTileCoordinates.getTileY() < 0 || endTileCoordinates.getTileY() >= MAP_HEIGHT) {
-            return false; // Invalid coordinates
+            return "End tile is out of the map bounds"; // Invalid coordinates
         }
 
         // check if the starting and ending tiles are not the same
 
         if (startTileCoordinates.getTileX() == endTileCoordinates.getTileX() && startTileCoordinates.getTileY() == endTileCoordinates.getTileY()) {
-            return false; // Starting and ending tiles are the same
+            return  "Starting and ending tiles are the same"; 
         }
 
-        buildTilePath(); // Build the path from the starting tile to the ending tile
-/*
-        // check if the stating and ending tiles are on the edges of the map
-        // they are supposed to be on the edges of the map
 
-        if ((startTileCoordinates.getTileX() != 0 && startTileCoordinates.getTileX() != MAP_WIDTH - 1 ) ||
-            (startTileCoordinates.getTileY() != 0 && startTileCoordinates.getTileY() != MAP_HEIGHT - 1)) {
-            return false; // Starting tile is not on the edge of the map
-        }
-
-        if ((endTileCoordinates.getTileX() != 0 && endTileCoordinates.getTileX() != MAP_WIDTH - 1 ) ||
-            (endTileCoordinates.getTileY() != 0 && endTileCoordinates.getTileY() != MAP_HEIGHT - 1)) {
-            return false; // Ending tile is not on the edge of the map
-        }
-
-        // check if the staring tile is a path tile
+        // Check if the starting tile is a path tile
 
         if (!tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()].isPathTile()) {
-            return false; // Starting tile is not a path tile
+            return "Starting tile is not a path tile"; // Starting tile is not a path tile
         }
-        // check if the ending tile is a path tile
+        // Check if the ending tile is a path tile
         if (!tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()].isPathTile()) {
-            return false; // Ending tile is not a path tile
+            return "Ending tile is not a path tile"; // Ending tile is not a path tile
         }
+
+        // Check if there is at least four buildable tiles
+
+        int buildableCount = 0; // Counter for buildable tiles
+
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                if (tiles[i][j].isBuildableTile()) {
+                    buildableCount++; // Increment the counter if the tile is buildable
+                }
+            }
+        }
+        if (buildableCount < 4) {
+            return "Insufficient buildable tiles"; // Insufficient buildable tiles
+        }
+
+        
+
+        //buildTilePath(); // Build the path from the starting tile to the ending tile
+/*
+
 
     
          // check if any of the tile codes 24 25 28 29 are in the path
@@ -253,19 +249,7 @@ public class GameMap implements Observable{
             }
 
         }
-        
-        // Check if there are at least four buildable tiles
-        int buildableCount = 0;
-        for (int i = 0; i < MAP_HEIGHT; i++) {
-            for (int j = 0; j < MAP_WIDTH; j++) {
-                if (tiles[i][j].isBuildableTile()) {
-                    buildableCount++;
-                }
-            }
-        }
-        if (buildableCount < 4) {
-            return false; // Insufficient buildable tiles
-        }
+    
 
 
 
@@ -293,37 +277,37 @@ public class GameMap implements Observable{
 
         // For example, check if the path is one piece
 
-        return true; // Valid game map
+        return "valid"; // Valid game map
     }
 
 
-    /*
+    /**
      * This method requires the GameMap to be a valid game map.
      * I do not want to repeat the code in the isValidGameMap method.
      * First check if the game map is valid.
      * Note that build path would add the ERROR_PATH to the end of the arraylist if there is no path
      * 
+     * @return ArrayList<Tile> - List of path tiles from the starting tile to the ending tile, if there is a path.
+     * * If there is no path, it returns an empty ArrayList.
+     * 
+     * 
      */
 
-    public void buildTilePath() {
+    public static List<Tile> buildTilePath(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
         
-        ArrayList<Tile> my_path = new ArrayList<>(); // List to store the path tiles
+        List<Tile> my_path = new ArrayList<>(); // List to store the path tiles
 
         Tile addTile = tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()]; // Get the starting tile
         
         my_path.add(addTile); // Add the starting tile to the path
+
+        int startTileDirection = getTileDirection(tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()], startTileCoordinates); // Get the starting tile direction
         
 
         int currentToDirection = findOtherEndTile(addTile, startTileDirection); // Set the current direction to the starting tile direction
 
-       
-
-
-
         do{
             
-           
-           
 
             // Check if only single one of the neighbours is a path tile and not already in the path
 
@@ -389,12 +373,13 @@ public class GameMap implements Observable{
         }while (addTile != tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()]); // Loop until the end tile is reached
 
         if (my_path.contains(ERROR_TILE)) {
+            return new ArrayList<Tile>();
         }
 
-        tilePath = my_path; // Return the list of path tiles
+        return my_path; // Return the list of path tiles
     }
 
-    private int findOtherEndTile(Tile tile, int direction) {
+    private static int findOtherEndTile(Tile tile, int direction) {
         // Find the other end tile of the path
         int otherEndTile = -1;
         if(tile.getTileDirections()[0] == direction) {
@@ -405,7 +390,7 @@ public class GameMap implements Observable{
         return otherEndTile;
     }
 
-    private int convertDirection(int direction) {
+    private static int convertDirection(int direction) {
         // Convert the direction to the opposite direction
         if (direction == 0) {
             return 2; // Convert left to right
@@ -420,14 +405,10 @@ public class GameMap implements Observable{
     }
 
 
-    public void buildPointPath(){
-        // Check if the tile path is already built
-        if(pointPath != null) {
-            return; // Return if the point path is already built
-        }
-        buildTilePath(); // Build the tile path
+    public static List<Point2D> buildPointPath(List<Tile> tilePath, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
 
-        ArrayList<Point2D> pathPoints = new ArrayList<>(); // List to store the path points
+
+        List<Point2D> pathPoints = new ArrayList<>(); // List to store the path points
 
         for (Tile tile : tilePath) {
             // Skip tiles with null coordinates or ERROR_TILE
@@ -440,6 +421,8 @@ public class GameMap implements Observable{
         // So that enemy spawn does not happen on the visible path
 
         Point2D startPoint = pathPoints.get(0); // Get the starting point
+
+        int startTileDirection = getTileDirection(tilePath.get(0), startTileCoordinates); // Get the starting tile direction
 
 
         if(startTileDirection == 0) {
@@ -458,6 +441,8 @@ public class GameMap implements Observable{
 
         Point2D endPoint = pathPoints.get(pathPoints.size() - 1); // Get the ending point
 
+        int endTileDirection = getTileDirection(tilePath.get(tilePath.size() - 1), endTileCoordinates); // Get the ending tile direction
+
         if(endTileDirection == 0) {
             pathPoints.add(endPoint.add(new Point2D(-4 * MAP_WIDTH, 0)));
         }
@@ -472,22 +457,56 @@ public class GameMap implements Observable{
         }
 
 
-        pointPath = pathPoints; // Return the list of path points
+        return pathPoints; // Return the list of path points
     }
 
+    
+
     public List<Point2D> getPointPath() {
-        if(pointPath == null) {
-            buildPointPath(); // Build the point path if it is not already built
-        }
+      
         return pointPath; // Return the list of path points
     }
     public List<Tile> getTilePath() {
-        if(tilePath == null) {
-            buildTilePath(); // Build the tile path if it is not already built
-        }
+
         return tilePath; // Return the list of path tiles
     }
 
+
+
+
+    public static int getTileDirection(Tile tile, TilePoint2D startTileCoordinates) {
+
+        int startTileDirection = -1; // Initialize the starting tile direction
+ 
+        int[] startTileDirections = tile.getTileDirections();
+
+        // Set up the starting and ending tile directions
+        // If the starting tile in on the bottom edge and the tile has a direction 3 then set the staring tile direction to 3
+        
+
+        if (startTileCoordinates.getTileY() == MAP_HEIGHT - 1 && (startTileDirections[0] == 3 || startTileDirections[1] == 3)) {
+            startTileDirection = 3;
+        }
+        // If the starting the starting tile is on the left edge and the tile has a direction 0 then set the staring tile direction to 0
+
+        if (startTileCoordinates.getTileX() == 0 && (startTileDirections[0] == 0 || startTileDirections[1] == 0)) {
+            startTileDirection = 0;
+        }
+
+        // If the starting the starting tile is on the right edge and the tile has a direction 2 then set the staring tile direction to 2
+        if (startTileCoordinates.getTileX() == MAP_WIDTH - 1 && (startTileDirections[0] == 2 || startTileDirections[1] == 2)) {
+            startTileDirection = 2;
+        }
+
+        // If the starting the starting tile is on the top edge and the tile has a direction 1 then set the staring tile direction to 1
+        if (startTileCoordinates.getTileY() == 0 && (startTileDirections[0] == 1 || startTileDirections[1] == 1)) {
+            startTileDirection = 1;
+        }
+
+        return startTileDirection; // Return the starting tile direction
+    }
+
+  
 
     /* Static map for the game
      * 
@@ -537,9 +556,6 @@ public class GameMap implements Observable{
         TilePoint2D endTileCoordinates = new TilePoint2D(12,0);
 
         GameMap my_map = new GameMap(tiles, startTileCoordinates, endTileCoordinates); // Return the static map
-
-        my_map.buildTilePath(); // Build the tile path
-        my_map.buildPointPath(); // Build the point path
 
         return my_map; // Return the static map
     }
@@ -610,9 +626,7 @@ public class GameMap implements Observable{
         GameMap other = (GameMap) obj; // Cast the object to GameMap
 
         // Compare the tile arrays and coordinates
-        return java.util.Arrays.deepEquals(this.tiles, other.tiles) &&
-               this.startTileCoordinates.equals(other.startTileCoordinates) &&
-               this.endTileCoordinates.equals(other.endTileCoordinates);
+        return java.util.Arrays.deepEquals(this.tiles, other.tiles);
     }
     
 
