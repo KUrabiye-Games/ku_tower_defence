@@ -11,6 +11,23 @@ import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.util.ObserverPattern.Observable;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 
+/**
+ * * This class represents the game map.
+ * * * It contains a 2D array of tiles, each tile has a specific code that determines its type.
+ * * * The map is divided into a grid of tiles, and each tile has a width and height.
+ * * * * The map is used to build and sell towers, and to determine the path of the enemies.
+ * * * * The map is also used to determine the starting and ending tiles of the path.
+ * 
+ * Version 2.0
+ * * This version includes the following changes:
+ * Made most functionalities static so that the map can be used without creating an instance of the GameMap class.
+ * isValidGameMap method is refactored to check the validity of the game map.
+ * 
+ * @author Atlas Berk Polat
+ * @version 2.0
+ * @since 2025-06-01
+ */
+
 public class GameMap implements Observable{
 
     private static final Tile ERROR_TILE = new Tile(1);
@@ -95,6 +112,7 @@ public class GameMap implements Observable{
     /**
      * The following two methods are synchronized to ensure thread safety.
      * * They allow getting and setting tiles at specific coordinates on the map.
+     * Usually used to build and sell the towers on the map.
      * * @param x - x-coordinate of the tile
      * * @param y - y-coordinate of the tile
      * 
@@ -121,7 +139,13 @@ public class GameMap implements Observable{
          // Set the tile at the specified coordinates
     }
 
-
+    /**
+     * Get the path of the game map.
+     * 
+     * @return List<Point2D> - List of path tiles from the starting tile to the ending tile
+     * 
+     * This method returns the list of path tiles on the map.
+     */
     public List<Point2D> getPath() {
         return pointPath; // Return the list of path tiles
     }
@@ -129,7 +153,29 @@ public class GameMap implements Observable{
 
 
 
-
+    /**
+     * This method checks if the game map is valid.
+     * It checks the following conditions:
+     * 1. The tiles array is not null and has valid dimensions.
+     * 2. The starting and ending tiles are not null.
+     * 3. The starting and ending tiles are on the edges of the map.
+     * 4. The tiles do not contain any null values.
+     * 5. The starting and ending tiles are within the bounds of the map.
+     * 6. The starting and ending tiles are not the same.
+     * 7. The starting tile is a path tile.
+     * 8. The ending tile is a path tile.
+     * 9. There are at least four buildable tiles on the map.
+     * 10. The path from the starting tile to the ending tile is valid.
+     * 11. The last tile in the path is the ending tile.
+     * 12. The castle tiles (24, 25, 28, 29) are in the correct configuration.
+     * 
+     *
+     * @param tiles - 2D array of tiles representing the map
+     * @param startTileCoordinates - Coordinates of the starting tile
+     * @param endTileCoordinates - Coordinates of the ending tile
+     *
+     * @return String - "valid" if the game map is valid, otherwise an error message
+     */
     public static String isValidGameMap(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
 
         // Check if the tiles array is null or has invalid dimensions
@@ -221,9 +267,22 @@ public class GameMap implements Observable{
 
         
 
-        //buildTilePath(); // Build the path from the starting tile to the ending tile
-/*
+        List<Tile> tilePath = buildTilePath(tiles, startTileCoordinates, endTileCoordinates); // Build the tile path from the starting tile to the ending tile
 
+        if (tilePath.isEmpty()) {
+            return "No path found from start to end tile"; // No path found
+        }
+
+        if (tilePath.contains(ERROR_TILE)) {
+            return "Tile path is disconnected or has an error";
+        }
+
+        // Check if the last element in the tilePath is the ending tile
+
+        if (tilePath.get(tilePath.size() - 1).getCoordinate().getTileX() != endTileCoordinates.getTileX() || 
+            tilePath.get(tilePath.size() - 1).getCoordinate().getTileY() != endTileCoordinates.getTileY()) {
+            return "Last tile in the path is not the ending tile"; // Last tile in the path is not the ending tile
+        }
 
     
          // check if any of the tile codes 24 25 28 29 are in the path
@@ -239,43 +298,16 @@ public class GameMap implements Observable{
                     //check if the tile is not on the right or bottom edge of the map
 
                     if(i == MAP_HEIGHT - 1 || j == MAP_WIDTH - 1) {
-                        return false; // Invalid tile
+                        return "Castle tiles should be together"; // Invalid tile
                     }
 
                     if(tiles[i][j+1].getTileCode() != 25 || tiles[i+1][j].getTileCode() != 28 || tiles[i+1][j+1].getTileCode() != 29) {
-                        return false; // Invalid tile
+                        return "Castle tiles should be together"; // Invalid tile
                     }
                 }
             }
 
         }
-    
-
-
-
-        // check if there is a single path from the starting tile to the ending tile
-
-
-        
-        
-        // check if the last tile is the error tile
-
-        if (tilePath.get(tilePath.size() - 1) == ERROR_TILE) {
-            return false; // Invalid path
-        }
-        // check if the last tile is the ending tile
-
-        if (tilePath.get(tilePath.size() - 1) != tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()]) {
-            return false; // Invalid path
-        }
-*/
-
-
-        
-
-        // More conditions will be added later
-
-        // For example, check if the path is one piece
 
         return "valid"; // Valid game map
     }
@@ -372,12 +404,10 @@ public class GameMap implements Observable{
 
         }while (addTile != tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()]); // Loop until the end tile is reached
 
-        if (my_path.contains(ERROR_TILE)) {
-            return new ArrayList<Tile>();
-        }
-
         return my_path; // Return the list of path tiles
     }
+
+
 
     private static int findOtherEndTile(Tile tile, int direction) {
         // Find the other end tile of the path
@@ -508,23 +538,8 @@ public class GameMap implements Observable{
 
   
 
-    /* Static map for the game
-     * 
-     * 
-     */
-    /*private static final int[][] map = {
-        { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
-        { 0, 13, 13, 13, 13, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
-        { 4, 15, 5, 15, 5, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
-        { 8, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
-        { 5, 7, 19, 18, 5, 5, 5, 0, 1, 2, 21, 5, 5, 31, 5, 5},
-        { 5, 7, 5, 5, 20, 0, 13, 10, 15, 8, 13, 2, 5, 5, 5, 5 },
-        { 5, 4, 5, 0, 13, 10, 5, 5, 5, 5, 30, 6, 5, 5, 5, 5 },
-        { 23, 7, 15, 7, 5, 5, 0, 1, 13, 13, 13, 10, 16, 5, 18, 5 },
-        { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
-    };*/
-
-    private static final int[][] map = {
+    // Static map for the game
+    private static final int[][] MAP = {
         { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
         { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
         { 4, 15, 7, 15, 7, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
@@ -545,7 +560,7 @@ public class GameMap implements Observable{
         // Create the tiles and set their properties
         for (int i = 0; i < MAP_HEIGHT; i++) {
             for (int j = 0; j < MAP_WIDTH; j++) {
-                Tile tile = tileFactory.create(map[i][j]); // Create a new tile with code using factory
+                Tile tile = tileFactory.create(MAP[i][j]); // Create a new tile with code using factory
                 tile.setCoordinate(new TilePoint2D(j, i)); // Set coordinates for the tile
                 tiles[i][j] = tile;
             }
