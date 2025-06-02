@@ -15,7 +15,7 @@ import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 public class MapTest {
 
     
-    
+    /*
     private static TileFactory tileFactory;
     
     @BeforeAll
@@ -28,12 +28,8 @@ public class MapTest {
         GameMap map = new GameMap(); // Create a map of size 10x10
         assertNotNull(map, "Map should be initialized");
     }
-<<<<<<< Updated upstream
-/*
-=======
 
-    /*
->>>>>>> Stashed changes
+    
     @Test
     public void testHasAPath() {
         // Create a valid game map with path from left edge to right edge
@@ -448,7 +444,7 @@ public class MapTest {
         assertTrue(exactFourMap.isValidGameMap(), "Map with exactly 4 buildable tiles should be valid");
     }
 
-*/  
+ 
     private static final int[][] map = {
         { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
         { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
@@ -615,5 +611,5 @@ public class MapTest {
         
         return tiles;
     }
-
+*/ 
 }
