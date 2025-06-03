@@ -4,6 +4,7 @@ import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameManager;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Map.StaticMap;
 
 public class GamePlayController {
 
@@ -15,7 +16,7 @@ public class GamePlayController {
 
     public GamePlayController() {
 
-        GameMap defaultGameMap = GameMap.getPrebuiltMap();
+        GameMap defaultGameMap = StaticMap.getPrebuiltMap();
         gameManager = new GameManager(defaultGameMap);
     }
 

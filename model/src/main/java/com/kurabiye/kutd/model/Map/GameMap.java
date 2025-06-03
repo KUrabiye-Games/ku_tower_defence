@@ -162,11 +162,6 @@ public class GameMap implements Observable{
 
 
 
-    public GameMap getPrebuiltMap() {
-        return StaticMap.getPrebuiltMap(); // Return the prebuilt static map
-    }
-
-
     private int[][] cachedIntArrayMap; // Cached result for lazy evaluation
 
     /** Convert the Game Map to a 2D array of integers using the tile codes.
