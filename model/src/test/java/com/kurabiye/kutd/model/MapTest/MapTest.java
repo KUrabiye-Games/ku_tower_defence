@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Map.GameMapValidator;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
@@ -68,7 +69,9 @@ public class MapTest {
         
 
 
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Starting tile is not on the edge of the map", "Starting tile is not on the edge of the map");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Starting tile is not on the edge of the map");
     }
     /**
      * Test with valid game map
@@ -82,7 +85,9 @@ public class MapTest {
         TilePoint2D start =  tiles[4][0].getCoordinate();
         TilePoint2D end =  tiles[4][10].getCoordinate();
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Ending tile is not on the edge of the map", "Ending tile is not on the edge of the map");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Ending tile is not on the edge of the map");
     }
    /**
     * Test with valid game map
@@ -95,7 +100,9 @@ public class MapTest {
         TilePoint2D start =  tiles[4][0].getCoordinate();
         TilePoint2D end =  tiles[4][0].getCoordinate();
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Starting and ending tiles are the same", "Starting and ending tiles are the same");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Starting and ending tiles are the same");
     }
     /**
      * Test with valid game map
@@ -110,7 +117,9 @@ public class MapTest {
         TilePoint2D start = new TilePoint2D(6, 8); // Left edge
         TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Starting tile is not a path tile", "Starting tile is not a path tile");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Starting tile is not a path tile");
 
     }
  
@@ -127,7 +136,9 @@ public class MapTest {
         TilePoint2D start = new TilePoint2D(6, 8); // Left edge
         TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Ending tile is not a path tile", "Ending tile is not a pathXTGStile");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Ending tile is not a path tile");
 
     }
 
@@ -158,7 +169,9 @@ public class MapTest {
         TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
 
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Insufficient buildable tiles", "Insufficient buildable tiles");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Insufficient buildable tiles");
     }
     /**
      * Test with valid game map
@@ -177,17 +190,20 @@ public class MapTest {
                 }
             }
         }
-        // Add exactly 4 buildable tiles
-        tiles[1][1] = tileFactory.create(15);
-        tiles[1][2] = tileFactory.create(15);
-        tiles[1][3] = tileFactory.create(15);
-        tiles[1][4] = tileFactory.create(15);
-        
+       // Add exactly 4 buildable tiles
+        tiles[2][1] = tileFactory.create(15);
+        tiles[2][3] = tileFactory.create(15);
+        tiles[5][4] = tileFactory.create(15);
+        tiles[7][2] = tileFactory.create(15);
+  
+
         TilePoint2D start = new TilePoint2D(6, 8); // Left edge
         TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
 
-        assertNotEquals(GameMap.isValidGameMap(tiles, start, end), "Insufficient buildable tiles", "Insufficient buildable tiles");
+        assertDoesNotThrow(() -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Insufficient buildable tiles");
     }
 
     /**
@@ -207,7 +223,9 @@ public class MapTest {
         TilePoint2D start = new TilePoint2D(6, 8); // Left edge
         TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Tile path is disconnected or has an error", "\"Tile path is disconnected or has an error");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Tile path is disconnected or has an error");
 
     }
 
@@ -227,7 +245,9 @@ public class MapTest {
         TilePoint2D start = new TilePoint2D(6, 8); // Left edge
         TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Some tile pieces are Null", "Some tile pieces are Null");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Some tile pieces are Null");
     }
     /**
      * Test with null start coordinates
@@ -242,7 +262,9 @@ public class MapTest {
         TilePoint2D start = null; // Left edge
         TilePoint2D end = new TilePoint2D(12, 0); // Right edge
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Start tile is Null", "Start tile is Null");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Start tile is Null");
     }
 
      /**
@@ -257,7 +279,9 @@ public class MapTest {
         TilePoint2D start = new TilePoint2D(6, 8); // Left edge
         TilePoint2D end = null; // Right edge
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "End tile is Null", "End tile is Null");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "End tile is Null");
     }
 
     /**
@@ -274,7 +298,9 @@ public class MapTest {
         TilePoint2D end = new TilePoint2D(15, 8); // Bottom edge
         
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end),"valid" , "Map with start on top edge should be valid");
+        assertDoesNotThrow(() -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Map with start on top edge should be valid");
     }
      
     /**
@@ -291,7 +317,9 @@ public class MapTest {
         TilePoint2D end = new TilePoint2D(15, 8); // Bottom edge
         
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end),"valid" , "Map with start on top edge should be valid");
+        assertDoesNotThrow(() -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Map with start on top edge should be valid");
     }
     
     /**
@@ -310,7 +338,9 @@ public class MapTest {
         TilePoint2D start = new TilePoint2D(6, 8); 
         TilePoint2D end = new TilePoint2D(12, 0); 
         
-        assertEquals(GameMap.isValidGameMap(tiles, start, end), "Castle tiles should be together", "Castle tiles should be together");
+        assertThrows(IllegalArgumentException.class, () -> {
+            GameMapValidator.isValidGameMap(tiles, start, end);
+        }, "Castle tiles should be together");
     }
     
 
@@ -322,18 +352,19 @@ public class MapTest {
     @Test
     public void testValidGameMap_OutOfBoundsCoordinates() {
         // Test with coordinates out of bounds
-        //Tile[][] tiles = createBasicValidMap();
+        Tile[][] tiles = createBasicValidMap();
+        TilePoint2D end = new TilePoint2D(12, 0); // Example end coordinate
         
         assertThrows(IllegalArgumentException.class, () -> {
-            new TilePoint2D(-1, 4); // Negative coordinates should throw exception
+            GameMapValidator.isValidGameMap(tiles, new TilePoint2D(-1, 4), end);
         }, "Negative coordinates should throw exception");
         
         assertThrows(IllegalArgumentException.class, () -> {
-            new TilePoint2D(16, 4); // X coordinate out of bounds
+            GameMapValidator.isValidGameMap(tiles, new TilePoint2D(16, 4), end);
         }, "X coordinate out of bounds should throw exception");
         
         assertThrows(IllegalArgumentException.class, () -> {
-            new TilePoint2D(4, 9); // Y coordinate out of bounds
+            GameMapValidator.isValidGameMap(tiles, new TilePoint2D(4, 9), end);
         }, "Y coordinate out of bounds should throw exception");
     }
 
