@@ -12,14 +12,14 @@ import com.kurabiye.kutd.util.ObserverPattern.Observable;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 
 /**
- * * This class represents the game map.
- * * * It contains a 2D array of tiles, each tile has a specific code that determines its type.
- * * * The map is divided into a grid of tiles, and each tile has a width and height.
- * * * * The map is used to build and sell towers, and to determine the path of the enemies.
- * * * * The map is also used to determine the starting and ending tiles of the path.
+ * This class represents the game map.
+ * It contains a 2D array of tiles, each tile has a specific code that determines its type.
+ * The map is divided into a grid of tiles, and each tile has a width and height.
+ * The map is used to build and sell towers, and to determine the path of the enemies.
+ * The map is also used to determine the starting and ending tiles of the path.
  * 
  * Version 2.0
- * * This version includes the following changes:
+ * This version includes the following changes:
  * Made most functionalities static so that the map can be used without creating an instance of the GameMap class.
  * isValidGameMap method is refactored to check the validity of the game map.
  * 
@@ -39,7 +39,8 @@ public class GameMap implements Observable{
     public static final int MAP_WIDTH = 16; // Width of the map
     public static final int MAP_HEIGHT = 9; // Height of the map
 
-    /* [0] 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 x-axis
+    /**
+     * [0] 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 x-axis
      * [1] 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
      *   .
      *   .
@@ -53,12 +54,6 @@ public class GameMap implements Observable{
      * tiles[y-axis][x-axis]
      */ 
     private Tile[][] tiles; // 2D array representing the tiles on the map it will
-
-    //private int startTileDirection = -1; // Direction of the starting tile
-    //private int endTileDirection = -1; // Direction of the ending tile
-
-    //private TilePoint2D startTileCoordinates; // Starting tile of the map
-    //private TilePoint2D endTileCoordinates; // Ending tile of the map
 
     private List<Point2D> pointPath; // List of path tiles on the map
 
@@ -95,15 +90,10 @@ public class GameMap implements Observable{
 
         this.tiles = tiles; // Initialize the tiles array with the provided tiles
 
-        //this.startTileCoordinates = startTileCoordinates; // Set the starting tile
-        //this.endTileCoordinates = endTileCoordinates; // Set the ending tile
 
         this.tilePath = buildTilePath(tiles, startTileCoordinates, endTileCoordinates); // Build the tile path from the starting tile to the ending tile
         this.pointPath = buildPointPath(tilePath, startTileCoordinates, endTileCoordinates); // Build the point path from the starting tile to the ending tile
 
-
-        //this.endTileDirection = getTileDirection(tiles[endTileCoordinates.getTileY()][endTileCoordinates.getTileX()], endTileCoordinates); // Get the ending tile direction
-        //this.startTileDirection = getTileDirection(tiles[startTileCoordinates.getTileY()][startTileCoordinates.getTileX()], startTileCoordinates); 
 
 
     }
@@ -129,6 +119,19 @@ public class GameMap implements Observable{
         }
         return tiles[y][x]; // Return the tile at the specified coordinates
     }
+    /**
+     * The following two methods are synchronized to ensure thread safety.
+     * * They allow getting and setting tiles at specific coordinates on the map.
+     * Usually used to build and sell the towers on the map.
+     * * @param x - x-coordinate of the tile
+     * * @param y - y-coordinate of the tile
+     * 
+     * 
+     * * @return Tile - The tile at the specified coordinates
+     * 
+     * * @throws IllegalArgumentException - If the coordinates are out of bounds
+     * 
+     */
 
     public synchronized void setTile(int x, int y, Tile tile) throws IllegalArgumentException {
         if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
@@ -169,7 +172,9 @@ public class GameMap implements Observable{
      * 11. The last tile in the path is the ending tile.
      * 12. The castle tiles (24, 25, 28, 29) are in the correct configuration.
      * 
-     *
+     * 
+     * It is static so that it can be used without creating an instance of the GameMap class.
+     *      *
      * @param tiles - 2D array of tiles representing the map
      * @param startTileCoordinates - Coordinates of the starting tile
      * @param endTileCoordinates - Coordinates of the ending tile
@@ -408,7 +413,15 @@ public class GameMap implements Observable{
     }
 
 
-
+    /**
+     * This method finds the other end tile of the path based on the current tile and direction.
+     * It checks the tile's directions and returns the other end tile in the opposite direction.
+     * 
+     * @param tile - The current tile
+     * @param direction - The current direction
+     * 
+     * @return int - The other end tile of the path, or -1 if not found
+     */
     private static int findOtherEndTile(Tile tile, int direction) {
         // Find the other end tile of the path
         int otherEndTile = -1;
@@ -419,6 +432,15 @@ public class GameMap implements Observable{
         }
         return otherEndTile;
     }
+
+    /**
+     * This method converts the direction to the opposite direction.
+     * It is used to convert the direction of the tile to the opposite direction.
+     * 
+     * @param direction - The current direction
+     * 
+     * @return int - The opposite direction (0, 1, 2, or 3)
+     */
 
     private static int convertDirection(int direction) {
         // Convert the direction to the opposite direction
@@ -434,8 +456,17 @@ public class GameMap implements Observable{
         return -1; // Invalid direction
     }
 
-
-    public static List<Point2D> buildPointPath(List<Tile> tilePath, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
+    /**
+     * This method builds the point path from the tile path.
+     * It converts the tile coordinates to point coordinates and adds them to the path.
+     * 
+     * @param tilePath - List of tiles representing the path
+     * @param startTileCoordinates - Coordinates of the starting tile
+     * @param endTileCoordinates - Coordinates of the ending tile
+     * 
+     * @return List<Point2D> - List of path points from the starting tile to the ending tile
+     */
+    private static List<Point2D> buildPointPath(List<Tile> tilePath, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
 
 
         List<Point2D> pathPoints = new ArrayList<>(); // List to store the path points
@@ -490,21 +521,28 @@ public class GameMap implements Observable{
         return pathPoints; // Return the list of path points
     }
 
-    
-
+    /**
+     * This method returns the point path of the game map.
+     * It is used to get the path points from the starting tile to the ending tile.
+     * 
+     * @return List<Point2D> - List of path points from the starting tile to the ending tile
+     */
     public List<Point2D> getPointPath() {
       
         return pointPath; // Return the list of path points
     }
-    public List<Tile> getTilePath() {
 
-        return tilePath; // Return the list of path tiles
-    }
+    /**
+     * This method gets the direction of the tile based on its coordinates.
+     * It checks the tile's position on the map and returns the direction accordingly.
+     * 
+     * @param tile - The tile to get the direction for
+     * @param startTileCoordinates - The coordinates of the starting tile
+     * 
+     * @return int - The direction of the tile (0, 1, 2, or 3)
+     */
 
-
-
-
-    public static int getTileDirection(Tile tile, TilePoint2D startTileCoordinates) {
+    private static int getTileDirection(Tile tile, TilePoint2D startTileCoordinates) {
 
         int startTileDirection = -1; // Initialize the starting tile direction
  
