@@ -7,7 +7,6 @@ import java.util.List;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Tile.Tile;
-import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.util.ObserverPattern.Observable;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 
@@ -163,59 +162,30 @@ public class GameMap implements Observable{
 
 
 
-    // Static map for the game
-    private static final int[][] MAP = {
-        { 5, 5, 5, 5, 16, 5, 17, 5, 5, 5, 24, 25, 7, 5, 5, 19 },
-        { 0, 1, 2, 5, 0, 1, 2, 5, 5, 18, 28, 29, 6, 23, 16, 5 },
-        { 4, 15, 7, 15, 7, 22, 8, 13, 13, 9, 1, 9, 10, 5, 5, 5 },
-        { 8, 2, 8, 9, 10, 5, 5, 5, 5, 5, 5, 5, 5, 17, 27, 5 },
-        { 5, 7, 19, 18, 5, 5, 5, 0, 1, 2, 15, 5, 5, 31, 5, 5},
-        { 5, 7, 5, 5, 15, 0, 13, 10, 15, 8, 13, 2, 5, 5, 5, 5 },
-        { 5, 4, 5, 0, 13, 10, 0, 1, 2, 5, 30, 6, 5, 5, 5, 5 },
-        { 23, 7, 15, 7, 5, 5, 4, 18, 8, 13, 13, 10, 16, 5, 18, 5 },
-        { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
-    };
- 
- 
-
-    public static GameMap getPrebuiltMap() {
-        Tile[][] tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
-        TileFactory tileFactory = new TileFactory();
-
-        // Create the tiles and set their properties
-        for (int i = 0; i < MAP_HEIGHT; i++) {
-            for (int j = 0; j < MAP_WIDTH; j++) {
-                Tile tile = tileFactory.create(MAP[i][j]); // Create a new tile with code using factory
-                tile.setCoordinate(new TilePoint2D(j, i)); // Set coordinates for the tile
-                tiles[i][j] = tile;
-            }
-        }
-
-        // Set the starting and ending tiles
-        TilePoint2D startTileCoordinates = new TilePoint2D(6, 8);
-        TilePoint2D endTileCoordinates = new TilePoint2D(12,0);
-
-        GameMap my_map = new GameMap(tiles, startTileCoordinates, endTileCoordinates); // Return the static map
-
-        return my_map; // Return the static map
+    public GameMap getPrebuiltMap() {
+        return StaticMap.getPrebuiltMap(); // Return the prebuilt static map
     }
 
 
-    /* Convert the Game Map to an 2D array of integers
-     * using the tile codes
+    private int[][] cachedIntArrayMap; // Cached result for lazy evaluation
+
+    /** Convert the Game Map to a 2D array of integers using the tile codes.
+     * This method uses lazy evaluation to compute the array only once.
      * 
+     * @return int[][] - 2D array of integers representing the map
      */
+    public int[][] toIntArray() {
+        // If the cached result is null, compute it
+        if (cachedIntArrayMap == null) {
+            cachedIntArrayMap = new int[MAP_HEIGHT][MAP_WIDTH]; // Initialize the integer array
 
-    public static int[][] toIntArray(GameMap gameMap) {
-        int[][] intArray = new int[MAP_HEIGHT][MAP_WIDTH]; // Initialize the integer array
-
-        for (int i = 0; i < MAP_HEIGHT; i++) {
-            for (int j = 0; j < MAP_WIDTH; j++) {
-                intArray[i][j] = gameMap.getTile(j, i).getTileCode(); // Get the tile code and set it in the array
+            for (int i = 0; i < MAP_HEIGHT; i++) {
+                for (int j = 0; j < MAP_WIDTH; j++) {
+                    cachedIntArrayMap[i][j] = tiles[i][j].getTileCode(); // Get the tile code and set it in the array
+                }
             }
         }
-
-        return intArray; // Return the integer array
+        return cachedIntArrayMap; // Return the cached result
     }
 
 
@@ -265,8 +235,16 @@ public class GameMap implements Observable{
 
         GameMap other = (GameMap) obj; // Cast the object to GameMap
 
-        // Compare the tile arrays and coordinates
-        return java.util.Arrays.deepEquals(this.tiles, other.tiles);
+        // Compare the tile codes of each tile
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                if (this.tiles[i][j].getTileCode() != other.tiles[i][j].getTileCode()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
     
 
