@@ -144,6 +144,8 @@ public class GameMap implements Observable{
         if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
             throw new IllegalArgumentException("Coordinates out of bounds");
         }
+        changed = true; // Set the changed flag to true to indicate that the map has changed
+
         tiles[y][x] = tile;
         notifyObservers(tile);
          // Set the tile at the specified coordinates
@@ -164,6 +166,8 @@ public class GameMap implements Observable{
 
     private int[][] cachedIntArrayMap; // Cached result for lazy evaluation
 
+    private boolean changed = true; // Flag to indicate if the map has changed
+
     /** Convert the Game Map to a 2D array of integers using the tile codes.
      * This method uses lazy evaluation to compute the array only once.
      * 
@@ -171,7 +175,7 @@ public class GameMap implements Observable{
      */
     public int[][] toIntArray() {
         // If the cached result is null, compute it
-        if (cachedIntArrayMap == null) {
+        if (cachedIntArrayMap == null  || changed) {
             cachedIntArrayMap = new int[MAP_HEIGHT][MAP_WIDTH]; // Initialize the integer array
 
             for (int i = 0; i < MAP_HEIGHT; i++) {
@@ -179,6 +183,8 @@ public class GameMap implements Observable{
                     cachedIntArrayMap[i][j] = tiles[i][j].getTileCode(); // Get the tile code and set it in the array
                 }
             }
+
+            changed = false; // Reset the changed flag after computation
         }
         return cachedIntArrayMap; // Return the cached result
     }
