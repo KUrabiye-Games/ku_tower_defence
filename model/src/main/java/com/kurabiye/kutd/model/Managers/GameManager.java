@@ -428,6 +428,20 @@ public class GameManager implements Runnable{
         gameTimer.setTimeCoefficient(1);
     }
 
+    /**
+     * @requires (x >= 0 && x < gameMapWidth) &&
+     *           (y >= 0 && y < gameMapHeight) &&
+     *           (type != null) &&
+     *           (gameState == GameState.RUNNING) &&
+     *           (!isCellOccupied(x, y)) &&
+     *           (player.hasEnoughGold(type.getCost()))
+     *
+     * @modifies gameMap, player, towers
+     *
+     * @effects Places a tower of the given type at the specified (x, y) coordinates
+     *          on the map. Deducts the corresponding amount of gold from the player.
+     *          Adds the tower to the game state.
+     */
     public boolean buildTower(int xCoordinate, int yCoordinate, int towerType) {
         //check if the tile is buildable
         Tile tile = gameMap.getTile(xCoordinate, yCoordinate);
@@ -438,6 +452,17 @@ public class GameManager implements Runnable{
             return false; // Tile is not buildable
         }
 
+        int tileCode;
+
+        if (towerType == 0) {
+            tileCode = 20; // Example tile code for tower type 0
+        } else if (towerType == 1) {
+            tileCode = 21; // Example tile code for tower type 1
+        } else if (towerType == 2) {
+            tileCode = 26; // Example tile code for tower type 2
+        } else {
+            return false; // Invalid tower type
+        }
         // Check if the player has enough resources
         if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[0][towerType]) { // Example cost check
             return false; // Not enough gold
@@ -451,18 +476,6 @@ public class GameManager implements Runnable{
         tower.setTileCoordinate(new TilePoint2D(xCoordinate, yCoordinate));
         // Add the tower to the list of towers
         towers.add(tower);
-
-        int tileCode;
-
-        if (towerType == 0) {
-            tileCode = 20; // Example tile code for tower type 0
-        } else if (towerType == 1) {
-            tileCode = 21; // Example tile code for tower type 1
-        } else if (towerType == 2) {
-            tileCode = 26; // Example tile code for tower type 2
-        } else {
-            return false; // Invalid tower type
-        }
 
         Tile towerTile = tileFactory.create(tileCode); // Create the tower tile using the factory
         gameMap.setTile(xCoordinate, yCoordinate, towerTile);
