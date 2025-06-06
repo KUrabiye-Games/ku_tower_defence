@@ -13,7 +13,7 @@ import java.util.List;
  * @since: 2025-04-28
  */
 
-public class GameMapRepository implements Serializable{
+public final class GameMapRepository implements Serializable{
 
         private static final long serialVersionUID = 1L; // Unique ID for serialization
 

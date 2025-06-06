@@ -176,7 +176,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         controller.setGameMapObserver(this);
         controller.startGame();
 
-        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
+        map = controller.getGameManager().getGameMap().toIntArray();
 
         // Create canvas with the calculated dimensions
         canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -749,7 +749,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         int imgNum = ((int) (pastTime * 6)) % 6;
 
         // GraphicsContext gc = canvas.getGraphicsContext2D();
-        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
+        map = controller.getGameManager().getGameMap().toIntArray();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
@@ -837,7 +837,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         goldText.setText(String.valueOf(currentGold));
         healthText.setText(String.valueOf(currentHealth));
 
-        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
+        map = controller.getGameManager().getGameMap().toIntArray();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
         double deltaTime = 0.0; // Placeholder for actual deltaTime
