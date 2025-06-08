@@ -2,9 +2,11 @@ package com.kurabiye.kutd.model.Managers;
 
 
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Managers.EffectManagers.SlowDownManager;
 import com.kurabiye.kutd.model.Projectile.DamageType;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
 import com.kurabiye.kutd.model.Projectile.ProjectileState;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
 public class CollisionManager {
@@ -13,6 +15,7 @@ public class CollisionManager {
 
     private DynamicArrayList<IEnemy> enemies;
     private DynamicArrayList<IProjectile> projectiles;
+    private SlowDownManager slowDownManager; // Manager for slow down effects
 
     /**
      * Constructor for the CollisionManager class.
@@ -23,6 +26,11 @@ public class CollisionManager {
     public CollisionManager(DynamicArrayList<IEnemy> enemies, DynamicArrayList<IProjectile> projectiles) {
         this.enemies = enemies;
         this.projectiles = projectiles;
+    }
+
+
+    public void setSlowDownManager(SlowDownManager slowDownManager) {
+        this.slowDownManager = slowDownManager; // Set the slow down manager
     }
 
 
@@ -59,24 +67,29 @@ public class CollisionManager {
                 }
 
                 boolean collisionOccurred = false; // Flag to check if a collision occurred
+               
+                double distanceToTarget = projectile.getCoordinate().distance(projectile.getTarget());
 
                 for (IEnemy enemy : enemies) {
 
                     double distance = projectile.getCoordinate().distance(enemy.getCoordinate());
                     float damageRadius = projectile.getProjectileAreaDamage();
 
-                    double distanceToTarget = projectile.getCoordinate().distance(projectile.getTarget());
                     
                     if (distance < damageRadius) { // Check for collision
                        
                         
                         enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
-                        
+
                         if (enemy.isDead()) {
                             int reward = enemy.getKillReward();
                             totalGoldEarned += reward; // Add gold to the total for killing the enemy
                             enemies.removeLater(enemy); // Mark the enemy for removal
+                        }else if (projectile.getProjectileType() == ProjectileType.MAGIC) {
+                            // If the projectile is magic, apply area damage
+                            slowDownManager.addEnemyOnEffect(enemy); // Add the enemy to the slow down effect manager
                         }
+
                         collisionOccurred = true; // Set the collision flag to true
                         
                         if(projectile.getProjectileAreaDamage() <= 1f){
@@ -87,19 +100,7 @@ public class CollisionManager {
                     }else if(distanceToTarget < deltaTime * projectile.getSpeedVector().magnitude()){
                         // Check if the projectile has reached its target
 
-
-                             enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
-                        
-                            if (enemy.isDead()) {
-                            int reward = enemy.getKillReward();
-                            totalGoldEarned += reward; // Add gold to the total for killing the enemy
-                            enemies.removeLater(enemy); // Mark the enemy for removal
-                            }
-                            collisionOccurred = true; // Set the collision flag to true
-                        
-                        projectiles.removeLater(projectile); // Remove the projectile if it has reached its target
-                            
-                        
+                            projectile.getCoordinate().add(projectile.getTarget().subtract(projectile.getCoordinate()) ); // Move the projectile to its target coordinate
 
                     }
                 }

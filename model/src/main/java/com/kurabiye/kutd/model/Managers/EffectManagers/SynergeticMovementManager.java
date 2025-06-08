@@ -1,36 +1,26 @@
-package com.kurabiye.kutd.model.Managers;
+package com.kurabiye.kutd.model.Managers.EffectManagers;
 
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
-public class EffectManager {
+public class SynergeticMovementManager {
 
-    private static final int TILE_SIZE = 120; // Size of a tile in pixels
+     private static final int TILE_SIZE = 120; // Size of a tile in pixels
 
 
-    private DynamicArrayList<IEnemy> enemies; // List of enemies to apply effects on
+
+    private DynamicArrayList<IEnemy> enemies;
 
     /**
-     * Constructor for the EffectManager class.
+     * Constructor for the SynergeticMovementManager class.
      * Initializes the list of enemies.
      *
      * @param enemies List of enemies in the game.
      */
-    public EffectManager(DynamicArrayList<IEnemy> enemies) {
+    public SynergeticMovementManager(DynamicArrayList<IEnemy> enemies) {
         this.enemies = enemies; // Set the list of enemies
-    }
-
-    /**
-     * Applies effects to the enemies based on their states.
-     * This method iterates through the list of enemies and applies effects based on their states.
-     */
-
-    public void applyEffects(double deltaTime) {
-        applySynergeticMovement(deltaTime);
-        applySlowDown(deltaTime);
-        // Add more effects as needed
     }
 
     class SynergeticPair{
@@ -65,7 +55,7 @@ public class EffectManager {
     private DynamicArrayList<SynergeticPair> synergeticPairs = new DynamicArrayList<>();
 
 
-    private void applySynergeticMovement(double deltaTime) {
+    public void applySynergeticMovement(double deltaTime) {
 
 
         // Check for synergetic movement behavior
@@ -113,11 +103,8 @@ public class EffectManager {
 
     }
 
-    private void applySlowDown(double deltaTime) {
-        // Check for slowdown behavior
 
-       
 
-    }
+    
 
 }

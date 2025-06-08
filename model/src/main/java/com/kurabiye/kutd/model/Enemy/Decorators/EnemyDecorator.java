@@ -6,7 +6,7 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
 
 public abstract class EnemyDecorator implements IEnemy {
 

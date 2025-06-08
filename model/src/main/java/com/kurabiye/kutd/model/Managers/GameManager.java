@@ -75,7 +75,7 @@ public class GameManager implements Runnable{
 
     private CollisionManager collisionManager; // Manager for handling collisions between projectiles and enemies
 
-    private EffectManager effectManager; // Manager for handling effects like synergetic movement
+    private MainEffectManager effectManager; // Manager for handling effects like synergetic movement
 
 
     public GameManager(GameMap gameMap) {
@@ -101,7 +101,11 @@ public class GameManager implements Runnable{
 
         this.collisionManager = new CollisionManager(enemyManager.getDynamicEnemies(), projectileManager.getDynamicProjectiles()); // Initialize the collision manager with enemies and projectiles
 
-        this.effectManager = new EffectManager(enemyManager.getDynamicEnemies()); // Initialize the effect manager with enemies
+
+        this.effectManager = new MainEffectManager(enemyManager.getDynamicEnemies()); // Initialize the effect manager with enemies
+
+        this.collisionManager.setSlowDownManager(effectManager.getSlowDownManager()); // Set the slow down manager in the collision manager
+
     }
 
     public void setGameUpdateListener(IGameUpdateListener gameUpdateListener) {
@@ -185,7 +189,7 @@ public class GameManager implements Runnable{
 
             // Check for synergetic movement behavior
 
-            //effectManager.applyEffects(deltaTime);// Apply synergetic movement effects to enemies
+            effectManager.applyEffects(deltaTime);// Apply synergetic movement effects to enemies
             
 
             // Check if the game is over
