@@ -1,62 +1,88 @@
 package com.kurabiye.kutd.model.Map;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/* * GameMapRepository.java
- * This class is responsible for managing the game map data, including loading and saving map data,
- * and providing access to the map data for other components of the game.
- * 
- * 
- * @author: Atlas Berk Polat
- * @version: 1.0
- * @since: 2025-04-28
- */
+public final class GameMapRepository implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private static final String REPOSITORY_FILE = System.getProperty("user.home") + "/.kutd/maps/repository.dat";
+    private static GameMapRepository instance;
+    private Map<String, GameMap> gameMaps;
 
-public final class GameMapRepository implements Serializable{
+    private GameMapRepository() {
+        this.gameMaps = new HashMap<>();
+        loadRepository();
+    }
 
-        private static final long serialVersionUID = 1L; // Unique ID for serialization
+    public static synchronized GameMapRepository getInstance() {
+        if (instance == null) {
+            instance = new GameMapRepository();
+        }
+        return instance;
+    }
 
-        private static GameMapRepository instance; // Singleton instance of GameMapRepository
-
-        private List<GameMap> gameMaps; // List of game maps
-
-        private GameMapRepository() {
-            // Private constructor to prevent instantiation
+    public MapOperationResult addGameMap(GameMap map) {
+        if (map.getName() == null || map.getName().isEmpty()) {
+            return new MapOperationResult(false, "Map name cannot be empty");
         }
 
+        gameMaps.put(map.getName(), map);
+        boolean saved = saveRepository();
+        return new MapOperationResult(saved, 
+            saved ? "Map saved successfully" : "Failed to save map");
+    }
 
-        public static GameMapRepository getInstance() {
-            if (instance == null) {
-                instance = new GameMapRepository(); // Create a new instance if it doesn't exist
+    public GameMap getGameMap(String name) {
+        return gameMaps.get(name);
+    }
+
+    public List<String> getAvailableMapNames() {
+        return new ArrayList<>(gameMaps.keySet());
+    }
+
+    private boolean saveRepository() {
+        try {
+            File directory = new File(REPOSITORY_FILE).getParentFile();
+            if (!directory.exists()) {
+                directory.mkdirs();
             }
-            return instance; // Return the singleton instance
+
+            try (ObjectOutputStream oos = new ObjectOutputStream(
+                    new FileOutputStream(REPOSITORY_FILE))) {
+                oos.writeObject(this);
+            }
+            return true;
+        } catch (IOException e) {
+            System.err.println("Failed to save repository: " + e.getMessage());
+            return false;
         }
+    }
 
-
-        public List<GameMap> getGameMaps() {
-            return gameMaps; // Return the list of game maps
-        }
-
-        public void addGameMap(GameMap gameMap) {
-            gameMaps.add(gameMap); // Add a new game map to the list
-        }
-
-        public void removeGameMap(GameMap gameMap) {
-            gameMaps.remove(gameMap); // Remove a game map from the list
-        }
-
-        public void removeGameMap(int index) {
-            if (index >= 0 && index < gameMaps.size()) {
-                gameMaps.remove(index);
-            } else {
-                throw new IndexOutOfBoundsException("Invalid map index: " + index);
+    private void loadRepository() {
+        File file = new File(REPOSITORY_FILE);
+        if (file.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(
+                    new FileInputStream(file))) {
+                GameMapRepository loaded = (GameMapRepository) ois.readObject();
+                this.gameMaps = loaded.gameMaps;
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Failed to load repository: " + e.getMessage());
+                this.gameMaps = new HashMap<>();
             }
         }
+    }
 
-        private Object readResolve() {
-            // Ensure that the singleton instance is returned during deserialization
-            return getInstance();
-        }
-
+    private Object readResolve() {
+        instance = this;
+        return this;
+    }
 }

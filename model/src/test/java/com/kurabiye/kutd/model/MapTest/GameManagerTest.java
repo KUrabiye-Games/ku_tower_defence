@@ -36,7 +36,7 @@ public class GameManagerTest {
             new UserPreference.Builder().setStartingGold(1000)
         );
         // Use the prebuilt map and initialize the game manager
-        GameMap gameMap = GameMap.getPrebuiltMap(); 
+        GameMap gameMap = StaticMap.getPrebuiltMap(); 
         gameManager = new GameManager(gameMap);
         gameManager.startGame(); 
 
@@ -87,7 +87,7 @@ public class GameManagerTest {
                 .setStartingGold(0)
         );
 
-        GameMap gameMap = GameMap.getPrebuiltMap();
+        GameMap gameMap = StaticMap.getPrebuiltMap();
         gameManager = new GameManager(gameMap);
         gameManager.startGame();
 

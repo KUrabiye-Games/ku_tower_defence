@@ -55,6 +55,8 @@ public class GameMap implements Observable{
 
     private List<Tile> tilePath;
 
+    private String name; // Name of the game map
+
 
     public GameMap() {
         tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
@@ -246,6 +248,22 @@ public class GameMap implements Observable{
         }
 
         return true;
+    }
+
+    public String getName() {
+        return name; // Return the name of the game map
+    }
+    public void setName(String name) {
+        this.name = name; // Set the name of the game map
+    }
+
+    public Tile[][] getTiles() {
+        return tiles; // Return the 2D array of tiles representing the map
+    }
+    public void setTiles(Tile[][] tiles) {
+        this.tiles = tiles; // Set the 2D array of tiles representing the map
+        this.changed = true; // Set the changed flag to true to indicate that the map has changed
+        inititializePaths(new TilePoint2D(0, 0), new TilePoint2D(MAP_WIDTH - 1, MAP_HEIGHT - 1)); // Reinitialize the paths with default start and end points
     }
     
 

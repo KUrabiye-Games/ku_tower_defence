@@ -5,8 +5,10 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,7 +18,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
+import java.util.List;
+
+import com.kurabiye.kutd.controller.MapEditorController;
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Map.MapOperationResult;
 import com.kurabiye.kutd.model.Tile.Tile;
 import com.kurabiye.kutd.model.Tile.TileFactory;
 
@@ -38,7 +44,11 @@ public class MapEditorView {
      GraphicsContext gc;
      Label statusLabel;
 
+     private MapEditorController controller;
+
     public void start(Stage stage) {
+        controller = new MapEditorController();
+        
         loadTileImages();
         initializeMapData();
 
@@ -274,20 +284,62 @@ public class MapEditorView {
         }
     }
 
-    private void saveMap() {
-        statusLabel.setText("Saving map... (TODO: Implement saving)");
-    }
-
-    private void loadMap() {
-        statusLabel.setText("Loading map... (TODO: Implement loading)");
-    }
-
     private void validateMap() {
         statusLabel.setText("Validating map... (TODO: Implement validation)");
     }
 
     private void returnToMenu(Stage stage) {
         new MainMenuView().start(stage);
+    }
+
+
+    private void saveMap() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Save Map");
+        dialog.setHeaderText("Enter a name for your map:");
+        dialog.setContentText("Map name:");
+
+        dialog.showAndWait().ifPresent(mapName -> {
+            MapOperationResult result = controller.saveMap(mapName);
+            if (result.isSuccess()) {
+                showSuccess(result.getMessage());
+            } else {
+                showError(result.getMessage());
+            }
+        });
+    }
+
+    private void loadMap() {
+        List<String> mapNames = controller.getAvailableMapNames();
+        if (mapNames.isEmpty()) {
+            showError("No saved maps available");
+            return;
+        }
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(mapNames.get(0), mapNames);
+        dialog.setTitle("Load Map");
+        dialog.setHeaderText("Select a map to load:");
+        dialog.setContentText("Map:");
+
+        dialog.showAndWait().ifPresent(mapName -> {
+            GameMap loadedMap = controller.loadMap(mapName);
+            if (loadedMap != null) {
+                drawMap();
+                showSuccess("Map loaded successfully");
+            } else {
+                showError("Failed to load map");
+            }
+        });
+    }
+
+    public void showError(String message) {
+        statusLabel.setText("Error: " + message);
+        statusLabel.setStyle("-fx-background-color: #ff4444; -fx-padding: 5px;");
+    }
+
+    public void showSuccess(String message) {
+        statusLabel.setText(message);
+        statusLabel.setStyle("-fx-background-color: #44ff44; -fx-padding: 5px;");
     }
 
 }
