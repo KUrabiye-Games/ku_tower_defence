@@ -49,6 +49,8 @@ public class Tower implements ITower{
     // Level up
 
 
+    // TODO: add a level number to the tower class, so that we can implement level up functionality later
+
     public Tower(int sellReturn, float range, float attackSpeed) {
         
         this.sellReturn = sellReturn; // Set the sell return of the tower

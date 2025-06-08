@@ -42,7 +42,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * Regular add method - adds item immediately to the list
      */
     @Override
-    public boolean add(T item) {
+    public synchronized boolean add(T item) {
         return super.add(item);
     }
     
@@ -50,7 +50,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * Regular remove method - removes item immediately from the list
      */
     @Override
-    public boolean remove(Object item) {
+    public synchronized boolean remove(Object item) {
         boolean result = super.remove(item);
         // Also remove from pending operations if it was there
         pendingRemovals.remove(item);
@@ -63,14 +63,14 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * This allows safe removal during iteration.
      * @param item The item to mark for removal
      */
-    public void removeLater(T item) {
+    public synchronized void removeLater(T item) {
         pendingRemovals.add(item);
     }
     
     /**
      * Commits all pending removals, actually removing the marked items from the list.
      */
-    public void removeCommit() {
+    public synchronized void removeCommit() {
         for (T item : pendingRemovals) {
             super.remove(item);
         }
@@ -81,14 +81,14 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * Stages an item for addition. The actual addition happens when commitAdd() is called.
      * @param item The item to stage for addition
      */
-    public void addLater(T item) {
+    public synchronized void addLater(T item) {
         pendingAdditions.add(item);
     }
     
     /**
      * Commits all pending additions, actually adding the staged items to the list.
      */
-    public void addCommit() {
+    public synchronized void addCommit() {
         for (T item : pendingAdditions) {
             super.add(item);
         }
@@ -100,7 +100,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * This method is provided for convenience to apply all changes at once.
      */
 
-    public void commitAll() {
+    public synchronized void commitAll() {
         removeCommit();
         addCommit();
     }
@@ -111,7 +111,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * over the actual current state of the list.
      * @return Iterator that shows all current items
      */
-    public Iterator<T> unfilteredIterator() {
+    public synchronized Iterator<T> unfilteredIterator() {
         return super.iterator();
     }
     
@@ -121,7 +121,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * This is the default iterator behavior.
      * @return Iterator that filters out items marked for removal
      */
-    public Iterator<T> filteredIterator() {
+    public synchronized Iterator<T> filteredIterator() {
         return new DeferredOperationIterator();
     }
     
@@ -130,7 +130,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * Use unfilteredIterator() if you want to see all current items.
      */
     @Override
-    public Iterator<T> iterator() {
+    public synchronized Iterator<T> iterator() {
         return unfilteredIterator();
     }
     
@@ -138,7 +138,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * Gets the number of pending removals
      * @return Number of items marked for removal
      */
-    public int getPendingRemovalCount() {
+    public synchronized int getPendingRemovalCount() {
         return pendingRemovals.size();
     }
     
@@ -146,7 +146,7 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * Gets the number of pending additions
      * @return Number of items staged for addition
      */
-    public int getPendingAdditionCount() {
+    public synchronized int getPendingAdditionCount() {
         return pendingAdditions.size();
     }
       /**
@@ -154,20 +154,20 @@ public class DynamicArrayList<T> extends ArrayList<T> {
      * @param item The item to check
      * @return true if the item is marked for removal
      */
-    public boolean isMarkedForRemoval(T item) {
+    public synchronized boolean isMarkedForRemoval(T item) {
         return pendingRemovals.contains(item);
     }
     
     /**
      * Clears all pending operations without committing them
      */
-    public void clearPendingOperations() {
+    public synchronized void clearPendingOperations() {
         pendingRemovals.clear();
         pendingAdditions.clear();
     }
     
 
-    public boolean repOk() {
+    public synchronized boolean repOk() {
         // 1. Check for null fields
         if (pendingRemovals == null || pendingAdditions == null) return false;
 

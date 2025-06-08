@@ -29,6 +29,9 @@ import com.kurabiye.kutd.util.ObserverPattern.Observer;
 
 public class GameMap implements Observable{
 
+
+    // TO-DO: Add name for the map so that user can access 
+
     public static final Tile ERROR_TILE = new Tile(1);
 
 

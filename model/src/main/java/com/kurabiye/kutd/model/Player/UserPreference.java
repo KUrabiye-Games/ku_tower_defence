@@ -66,7 +66,7 @@ public class UserPreference implements Serializable {
 
         waveList = new ArrayList<>(); // Initialize with an empty list
         ArrayList<int[]> wave1 = new ArrayList<>();
-        wave1.add(new int[]{2,0}); // Example wave with different enemy types
+        wave1.add(new int[]{1,1}); // Example wave with different enemy types
         wave1.add(new int[]{3,0}); // Example group with different enemy types
         waveList.add(wave1); // Add the first wave to the list
         ArrayList<int[]> wave2 = new ArrayList<>();

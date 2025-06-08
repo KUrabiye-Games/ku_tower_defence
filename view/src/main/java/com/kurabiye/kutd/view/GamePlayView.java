@@ -18,29 +18,26 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+
+import java.util.List;
+
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-import com.kurabiye.kutd.model.Enemy.Enemy;
+
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
-import com.kurabiye.kutd.model.Managers.GameManager.GameState;
-import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Managers.GameState;
+
 import com.kurabiye.kutd.model.Projectile.IProjectile;
-import com.kurabiye.kutd.model.Projectile.Projectile;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
-import com.kurabiye.kutd.model.Tower.Tower;
 
-import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
+
 import javafx.geometry.VPos;
 import javafx.scene.input.MouseEvent;
 
@@ -102,16 +99,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private Image[] projectileImages = new Image[3]; // Array to store projectile images
 
-    ArrayList<IEnemy> enemies;
-    ArrayList<ITower> towers;
+    List<IEnemy> enemies;
+    List<ITower> towers;
     // Projectiles projectiles;
 
     // Removed Enemiea Projectiles from here
 
-    private ArrayList<IEnemy> deadEnemies;
-    private ArrayList<IProjectile> deadProjectiles;
+  
 
-    ArrayList<IProjectile> projectiles;
+    List<IProjectile> projectiles;
 
     private int currentGold;
     private int currentHealth;
@@ -163,8 +159,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
 
-        this.deadEnemies = controller.getGameManager().getEnemiesToRemove();
-        this.deadProjectiles = controller.getGameManager().getProjectilesToRemove();
+       
 
         this.projectiles = controller.getGameManager().getProjectiles();
         this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
@@ -350,7 +345,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             }
     
             // Call the controller's sellTower method with the tower type
-            boolean success = controller.sellTower(col, row, towerType);
+            boolean success = controller.sellTower(col, row);
             if (success) {
             } else {
             }
@@ -831,15 +826,30 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     @Override
     public void update(Object arg) {
+
+
+
         currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         
-        goldText.setText(String.valueOf(currentGold));
-        healthText.setText(String.valueOf(currentHealth));
+        
+         if (goldText != null) {
+            goldText.setText(String.valueOf(currentGold));
+            
+         }   
+        if (healthText != null) {
+
+            healthText.setText(String.valueOf(currentHealth));
+        }
 
         map = controller.getGameManager().getGameMap().toIntArray();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawMap(gc);
+
+        if (gc == null) {
+             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+             drawMap(gc);
+        }
+       
+        
         double deltaTime = 0.0; // Placeholder for actual deltaTime
         updateView(deltaTime); // Pass a dummy deltaTime for now
     }

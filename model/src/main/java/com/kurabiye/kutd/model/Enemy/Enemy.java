@@ -93,9 +93,9 @@ public class Enemy implements IEnemy {
         if(Math.random() < 0.03) { // 3% chance to teleport the enemy back to the start of the path
             pathPointIndex = 0; // Reset the path point index to 0
             coordinate = movePath.get(0); // Set the coordinate of the enemy to the first point in the path
-*/
+
             
-    }
+    }*/
 }
 
     public int getKillReward() {

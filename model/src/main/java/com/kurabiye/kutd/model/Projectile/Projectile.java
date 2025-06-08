@@ -37,6 +37,8 @@ public class Projectile implements IProjectile {
 
     private ProjectileType projectileType; // Type of the projectile
 
+    // Todo: Add projecctile level
+
     //private Point2D startCoordinate; // Starting coordinate of the projectile on the map
 
     private Point2D targetCoordinate; // Ending coordinate of the projectile on the map
