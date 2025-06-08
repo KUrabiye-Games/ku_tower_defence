@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
-import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile;

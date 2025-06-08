@@ -17,32 +17,19 @@ public class SlowDownDecorator extends EnemyDecorator {
     // This class is a decorator for the IEnemy interface
     // It adds synergetic movement behavior to the enemy
 
-    private int originalSpeed; // Original speed of the enemy
-
     public SlowDownDecorator(IEnemy enemy) {
         super(enemy); // Initialize the decorator with an IEnemy instance
         this.remainigEffectTime = 4.0; // Set the remaining effect time to 5 seconds
-        applySlowDown(); // Apply the slow down effect to the enemy
+        
     }
 
     @Override
     public void move(double deltaTime) {
         // Implement synergetic movement logic here
         // For example, modify the enemy's move direction based on some conditions
-        super.move(deltaTime); // Call the original move method from the decorated enemy
+        enemy.move(deltaTime); // Call the original move method from the decorated enemy
         remainigEffectTime -= deltaTime; // Decrease the remaining effect time
-        if (remainigEffectTime <= 0) {
-            this.setSpeed(originalSpeed);
-        }
-    }
 
-    private void applySlowDown() {
-        // Implement the synergetic movement logic here
-        // This could involve modifying the enemy's path or speed based on certain conditions
-        // For example, if the enemy is a goblin, it might move faster when near a knight
-        originalSpeed = enemy.getSpeed(); // Store the original speed
-
-        enemy.setSpeed((int) (enemy.getSpeed()  * 0.8)); // Example of combining speeds);
     }
 
     public boolean isEffectActive() {
@@ -58,6 +45,14 @@ public class SlowDownDecorator extends EnemyDecorator {
     @Override
     public EffectTypes getEffectType() {
         return EffectTypes.SLOW_DOWN; // Return the effect type for this decorator
+    }
+
+    @Override
+    public int getSpeed() {
+        if (remainigEffectTime > 0) {
+            return (int)(super.getSpeed() * 0.8); // Return the original speed if the effect is not active
+        }
+        return super.getSpeed(); // Return the original speed if the effect is not active
     }
 
 }

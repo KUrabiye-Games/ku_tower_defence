@@ -2,6 +2,8 @@ package com.kurabiye.kutd.model.Managers;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
@@ -11,6 +13,7 @@ import com.kurabiye.kutd.model.Projectile.IProjectile;
 import com.kurabiye.kutd.model.Timer.GameTimer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
+import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
 
 /** GameManager.java
@@ -78,6 +81,8 @@ public class GameManager implements Runnable{
 
     private MainEffectManager effectManager; // Manager for handling effects like synergetic movement
 
+    private CollactableManager collectableManager; // Manager for handling collectable items
+
 
     public GameManager(GameMap gameMap) {
         this.gameState = GameState.INITIALIZING; // Initialize game state to RUNNING
@@ -107,6 +112,9 @@ public class GameManager implements Runnable{
 
         this.collisionManager.setSlowDownManager(effectManager.getSlowDownManager()); // Set the slow down manager in the collision manager
 
+        this.collectableManager = new CollactableManager(player); // Initialize the collectable manager with the player
+
+        this.collisionManager.setCollectableManager(collectableManager); // Set the collectable manager in the collision manager
     }
 
     public void setGameUpdateListener(IGameUpdateListener gameUpdateListener) {
@@ -339,25 +347,80 @@ public class GameManager implements Runnable{
      * This method provides information about the current wave and group index.
      * It only delegates the call to the wave manager.
      * 
+     * @returns the current wave index and group index
      */
 
     public int getCurrentWaveIndex() {
         return enemyManager.getWaveManager().getCurrentWaveIndex(); // Return the current wave index
     }
 
+    /**
+     * This method provides information about the current group index.
+     * It only delegates the call to the wave manager.
+     * 
+     * @returns the current group index
+     */
     public int getCurrentGroupIndex() {
         return enemyManager.getWaveManager().getCurrentGroupIndex(); // Return the current group index
     }
 
      /**
      * This metthods delegates the call to the tower manager to build a tower at the specified coordinates.
+     * @effects gameMap, player, towers
+     * 
+     * @param xCoordinate The x coordinate where the tower should be built
+     * @param yCoordinate The y coordinate where the tower should be built
+     * @param towerType The type of tower to be built
+     * @return true if the tower was successfully built, false otherwise
      */
     public boolean buildTower(int xCoordinate, int yCoordinate, TowerType towerType) {
         return towerManager.buildTower(xCoordinate, yCoordinate, towerType); // Build a tower at the specified coordinates
     }
-    
+     /**
+     * This metthods delegates the call to the tower manager to sell a tower at the specified coordinates.
+     * @effects gameMap, player, towers
+     * 
+     * @param xCoordinate The x coordinate where the tower should be built
+     * @param yCoordinate The y coordinate where the tower should be built
+     * @param towerType The type of tower to be sold
+     * @return true if the tower was successfully sold, false otherwise
+     */
     public boolean sellTower(int xCoordinate, int yCoordinate) {
         return towerManager.sellTower(xCoordinate, yCoordinate); // Sell the tower at the specified coordinates
+    }
+ /**
+     * This metthods delegates the call to the tower manager to upgrade a tower at the specified coordinates.
+     * @effects gameMap, player, towers
+     * 
+     * @param xCoordinate The x coordinate where the tower should be built
+     * @param yCoordinate The y coordinate where the tower should be built
+     * @param towerType The type of tower to be upgraded
+     * @return true if the tower was successfully upgraded, false otherwise
+     */
+    public boolean upgradeTower(int xCoordinate, int yCoordinate) {
+        return towerManager.upgradeTower(xCoordinate, yCoordinate); // Upgrade the tower at the specified coordinates
+    }
+
+    /**
+     * Handle user clicks for collecting items
+     * This method delegates the call to the collectable manager to handle clicks on collectable items.
+     * @param clickPosition The position where the user clicked
+     * @return true if a collectable was collected, false otherwise
+     */
+    public boolean handleCollectableClick(Point2D clickPosition) {
+        return collectableManager.handleClick(clickPosition);
+    }
+
+
+     /**
+     * Get collectables for view rendering
+     * This method provides the list of collectables to be rendered in the view.
+     * It delegates the call to the collectable manager.
+     * 
+     * @return The list of collectables
+     */
+    public DynamicArrayList<ICollectable<?>> getCollectables() {
+        return collectableManager.getCollectables();
     }
 
     

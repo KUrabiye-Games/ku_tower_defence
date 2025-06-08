@@ -68,9 +68,17 @@ public class SynergeticMovementManager {
                             if (distance < TILE_SIZE) { // If the distance is less than 1 tile
                                 // Check if the goblin isn't already decorated with synergetic movement
                                 if (!(knight instanceof SynergeticMoveDecorator)) {
-                                    // Wrap the knight with the synergetic movement decorator
-                                    // Implementation would go here
+                                    // check if the knight is in a pair with a goblin
 
+                                    boolean alreadyInPair = false; // Flag to check if the knight is already in a synergetic pair
+                                    for (SynergeticPair pair : synergeticPairs) {
+                                        if (pair.getSynergeticKnight() == knight) {
+                                            alreadyInPair = true; // If the knight is already in a synergetic pair with the goblin, do nothing
+                                        }
+                                    }
+
+                                    if (!alreadyInPair) {
+                                        
                                     enemies.removeLater(knight); // Remove the goblin from the enemies list
                                     // Create a new synergetic enemy with the knight's properties
 
@@ -78,6 +86,9 @@ public class SynergeticMovementManager {
                                     synergeticPairs.addLater(synergeticPair); // Add the synergetic pair to the list
 
                                     enemies.addLater(synergeticPair.getSynergeticKnight());
+                                    }
+                                    
+
                                 }
                             }
                         }

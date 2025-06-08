@@ -80,16 +80,20 @@ public class TowerManager {
         }
 
         int tileCode;
-
-        if (towerType.getValue() == 0) {
-            tileCode = 20; // Example tile code for tower type 0
-        } else if (towerType.getValue() == 1) {
-            tileCode = 21; // Example tile code for tower type 1
-        } else if (towerType.getValue() == 2) {
-            tileCode = 26; // Example tile code for tower type 2
-        } else {
+        switch (towerType) {
+            case ARTILLERY:
+                tileCode = 20; // Example tile code for tower type 0
+                break;
+            case MAGE:
+                tileCode = 21; // Example tile code for tower type 1
+                break;
+            case ARCHER:
+                tileCode = 26; // Example tile code for tower type 2
+                break;
+            default:
             return false; // Invalid tower type
         }
+
         // Check if the player has enough resources
         if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[towerType.getValue()][0]) { // Example cost check
             return false; // Not enough gold
@@ -126,6 +130,56 @@ public class TowerManager {
             }
         }
         return false; // Tower not found at the given coordinates
+    }
+
+
+    public boolean upgradeTower(int xCoordinate, int yCoordinate) {
+        // Logic to upgrade a tower
+        // Check if the tower exists at the given coordinates
+
+        // look for a tower in the list of towers
+        for (ITower tower : towers) {
+            if (tower.getTileCoordinate().getTileX() == xCoordinate && tower.getTileCoordinate().getTileY() == yCoordinate) {
+                // Tower found, upgrade it
+                if (tower.canUpgrade()) { // Upgrade the tower
+
+
+                    int cost = userPreferences.getTowerConstructionCost()[tower.getTowerType().getValue()][tower.getTowerLevel() + 1]; // Get the cost of upgrading the tower
+
+                    // Check if the player has enough resources
+                    if(player.getCurrentGold() < cost) { // Example cost check
+                        return false; // Not enough gold
+                }
+
+                    tower.upgrade(); // Upgrade the tower
+                    player.buyTower(cost); // Deduct cost from player's gold
+
+                     int tileCode;
+
+                    switch (tower.getTowerType()) {
+                        case ARTILLERY:
+                        // TODO: Replace with actual tile codes for each tower type
+                            tileCode = 20; // Example tile code for tower type 0
+                            break;
+                        case MAGE:
+                        // TODO: Replace with actual tile codes for each tower type
+                            tileCode = 21; // Example tile code for tower type 1
+                            break;
+                        case ARCHER:
+                        // TODO: Replace with actual tile codes for each tower type
+                            tileCode = 26; // Example tile code for tower type 2
+                            break;
+                        default:
+                            return false; // Invalid tower type
+                        }
+
+                    Tile upgradedTile = tileFactory.create(tileCode); // Create the upgraded tower tile using the factory
+                    gameMap.setTile(xCoordinate, yCoordinate, upgradedTile); // Update the tile on the game map
+                    return true; // Tower upgraded successfully
+                }
+            }
+        }
+        return false; // Tower not found or cannot be upgraded
     }
 
 

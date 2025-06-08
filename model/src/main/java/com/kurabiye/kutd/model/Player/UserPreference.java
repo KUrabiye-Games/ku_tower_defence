@@ -96,9 +96,9 @@ public class UserPreference implements Serializable {
             {100, 100}
         }; // Cost for each tower type [TowerType][Level]
         towerEffectiveRange = new float[][]
-        {{300.0f, 300.0f},
-        {300.0f, 300.0f},
-        {200.0f, 200.0f} // Effective range for each tower type [Type][Level]
+        {{270.0f, 300.0f},
+        {300.0f, 320.0f},
+        {400.0f, 450.0f} // Effective range for each tower type [Type][Level]
     }; // Range for each tower type
 
         // Tower rate of fire for each type and level

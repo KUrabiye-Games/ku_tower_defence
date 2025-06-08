@@ -120,12 +120,6 @@ public interface IEnemy {
     void setSpeed(int speed); // Set the speed of the enemy
 
 
-    /**
-     * Set the coordinate of the enemy to a new coordinate.
-     * Use the points of the path to set the coordinate.
-     * 
-     * @param trayPointIndex The index of the point in the path to set as the new coordinate
-     * @throws IndexOutOfBoundsException if the index is out of bounds of the path
-     */
+
 
 }

@@ -23,6 +23,8 @@ import java.util.List;
 
 
 import com.kurabiye.kutd.controller.GamePlayController;
+import com.kurabiye.kutd.model.Collectable.GoldBag;
+import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 import com.kurabiye.kutd.model.Enemy.IEnemy;
@@ -30,7 +32,7 @@ import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
 
 import com.kurabiye.kutd.model.Projectile.IProjectile;
-
+import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
@@ -394,11 +396,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             case 0: // Star button - creates Magic tower
                 towerType = TowerType.MAGE; // MAGIC tower type
                 break;
-            case 1: // Bomb button - creates Artillery tower
-                towerType = TowerType.ARTILLERY; // ARTILLERY tower type
+            case 1: //  Arrow button - creates Archer tower
+                    towerType = TowerType.ARCHER; // ARROW tower type
                 break;
-            case 2: // Arrow button - creates Archer tower
-                towerType = TowerType.ARCHER; // ARROW tower type
+            case 2: //  Bomb button - creates Artillery  tower
+                
+                 towerType = TowerType.ARTILLERY; // ARTILLERY tower type
                 break;
             default:
                 return;
@@ -814,14 +817,38 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         // End of projectile rendering
 
+        
+
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
 
-        // Update explosion animations (AnimationTimer handles the rendering)
+        
 
+        // Update explosion animations (AnimationTimer handles the rendering)
+        renderCollectables(gc);
 
         
     }
+
+    public void renderCollectables(GraphicsContext gc) {
+    DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
+    
+    for (ICollectable<?> collectable : collectables) {
+        if (collectable instanceof GoldBag) {
+            GoldBag goldBag = (GoldBag) collectable;
+            Point2D pos = goldBag.getCoordinates();
+            
+            // Render gold bag sprite/image
+            gc.setFill(Color.GREEN);
+            gc.fillOval(pos.getX() - 15, pos.getY() - 15, 30, 30);
+            
+            // Optional: Show remaining time or gold amount
+            gc.setFill(Color.BLACK);
+            gc.fillText(String.valueOf(goldBag.getItem()), 
+                       pos.getX() - 10, pos.getY() + 5);
+        }
+    }
+}
 
    
 

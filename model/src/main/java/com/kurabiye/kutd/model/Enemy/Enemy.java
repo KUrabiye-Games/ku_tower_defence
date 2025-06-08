@@ -116,9 +116,12 @@ public class Enemy implements IEnemy {
             
         }
 
+
         Point2D nextPoint = movePath.get(pathPointIndex); // Get the next point on the path
 
-        if(this.coordinate.distance(nextPoint) < speed * deltaTime) {
+        int currentSpeed = getSpeed(); // Get the speed of the enemy
+
+        if(this.coordinate.distance(nextPoint) < currentSpeed * deltaTime) {
             pathPointIndex++; // Increment the path point index
 
             // Check if pathPointIndex is within the range of movePath
@@ -135,7 +138,7 @@ public class Enemy implements IEnemy {
         // Normalize the distance vector
         double distance = distanceVector.magnitude(); // Calculate the magnitude of the distance vector
         if(distance > 0) {
-            distanceVector = distanceVector.multiply(speed * deltaTime / distance); // Scale the distance vector by speed and delta time
+            distanceVector = distanceVector.multiply(currentSpeed * deltaTime / distance); // Scale the distance vector by speed and delta time
         }
         coordinate = coordinate.add(distanceVector); // Update the coordinate of the enemy
 

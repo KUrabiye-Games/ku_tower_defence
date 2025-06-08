@@ -16,6 +16,7 @@ public class CollisionManager {
     private DynamicArrayList<IEnemy> enemies;
     private DynamicArrayList<IProjectile> projectiles;
     private SlowDownManager slowDownManager; // Manager for slow down effects
+    private CollactableManager collectableManager; // Manager for collectable items
 
     /**
      * Constructor for the CollisionManager class.
@@ -32,6 +33,13 @@ public class CollisionManager {
     public void setSlowDownManager(SlowDownManager slowDownManager) {
         this.slowDownManager = slowDownManager; // Set the slow down manager
     }
+
+    // set the collectable manager
+    public void setCollectableManager(CollactableManager collectableManager) {
+        // This method can be used to set the collectable manager if needed
+        this.collectableManager = collectableManager; // Set the collectable manager
+    }
+        
 
 
     /**
@@ -84,6 +92,18 @@ public class CollisionManager {
                         if (enemy.isDead()) {
                             int reward = enemy.getKillReward();
                             totalGoldEarned += reward; // Add gold to the total for killing the enemy
+
+                            // Spawn a collectable item if the enemy is dead
+                            if (collectableManager != null) {
+
+                                double randomValue =  Math.random(); // Generate a random value between 0 and 1
+                                // 50% chance to spawn a gold bag
+                                if (randomValue < 0.5) { 
+                                                collectableManager.spawnGoldBag(enemy.getCoordinate()); // Spawn a gold bag at the enemy's coordinate
+
+                                }
+
+                            }
                             enemies.removeLater(enemy); // Mark the enemy for removal
                         }else if (projectile.getProjectileType() == ProjectileType.MAGIC 
                         && projectile.getProjectileLevel() > 1) {

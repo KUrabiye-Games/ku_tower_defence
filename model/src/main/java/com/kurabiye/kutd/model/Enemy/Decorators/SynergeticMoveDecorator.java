@@ -22,32 +22,23 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
 
     public SynergeticMoveDecorator(IEnemy enemy) {
         super(enemy); // Initialize the decorator with an IEnemy instance
-        applySynergeticMovement();
-    }
 
-    @Override
-    public void move(double deltaTime) {
-        // Implement synergetic movement logic here
-        // For example, modify the enemy's move direction based on some conditions
-        super.move(deltaTime); // Call the original move method from the decorated enemy
-    }
-
-    private void applySynergeticMovement() {
-        enemy.setSpeed((goblinSpeed + knightSpeed) / 2); // Example of combining speeds);
     }
 
     @Override
     public IEnemy removeDecoration(){
         // This method can be used to remove the decoration and return the original enemy
-
-        enemy.setSpeed(knightSpeed);
-
         return enemy; // Return the original enemy without the synergetic movement behavior
     }
 
     @Override
     public EffectTypes getEffectType() {
         return EffectTypes.SYNERGYTIC_MOVEMENT; // Return the effect type for this decorator
+    }
+
+    @Override
+    public int getSpeed() {
+        return (int)((goblinSpeed + knightSpeed) / 2); // Return the speed of the enemy after applying synergetic movement
     }
 
 }
