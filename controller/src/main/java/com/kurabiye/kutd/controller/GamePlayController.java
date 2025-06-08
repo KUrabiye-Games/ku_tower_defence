@@ -62,8 +62,8 @@ public class GamePlayController {
         return gameManager.buildTower(x, y, towerType);
     }
 
-    public boolean sellTower(int x, int y, int towerType) {
-        return gameManager.sellTower(x, y, towerType);
+    public boolean sellTower(int x, int y) {
+        return gameManager.sellTower(x, y);
     }
 
     private void terminateGameThread() {
