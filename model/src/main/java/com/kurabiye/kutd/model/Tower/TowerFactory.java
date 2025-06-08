@@ -2,7 +2,7 @@ package com.kurabiye.kutd.model.Tower;
 
 
 import com.kurabiye.kutd.model.Player.UserPreference;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.ArcherStrategy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.ArtilleryStrategy;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.MageStrategy;
@@ -35,23 +35,13 @@ import com.kurabiye.kutd.util.FactoryPattern.EnumFactory;
  * @since 2025-04-23
  */
 
-public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> { // Implementing the Factory interface for Tower objects
+public class TowerFactory implements EnumFactory<Tower, TowerType> { // Implementing the Factory interface for Tower objects
 
-    public enum TowerType {  // already static enum
-        ARTILLERY, // 0 // Artillery tower type
-        MAGE, // 1 // Mage tower type
-        ARCHER // 2 // Archer tower type
-    }
+
 
     // Using volatile to ensure visibility across threads
     private static volatile TowerFactory instance = null; // Singleton instance
 
-    private final UserPreference userPreferences; // User preferences object
-
-    private TowerFactory(UserPreference userPreferences) {
-        // Private constructor to prevent instantiation
-        this.userPreferences = userPreferences; // Initialize user preferences
-    }
 
     /**
      * Thread-safe singleton implementation using double-checked locking
@@ -70,7 +60,7 @@ public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> 
                     if(userPref == null) {
                         throw new IllegalStateException("UserPreference instance is not initialized.");
                     }
-                    instance = new TowerFactory(userPref); // Initialize with user preferences
+                    instance = new TowerFactory(); // Initialize with user preferences
                 }
             }
         }
@@ -93,57 +83,35 @@ public class TowerFactory implements EnumFactory<Tower, TowerFactory.TowerType> 
      */
     @Override
     public Tower create(TowerType type) {
-        
-        
-       
-        Tower tower = null;
+
+        Tower tower = new Tower(type); // Create a new Tower object with the specified type
 
 
-        
-        switch(type) {
-            case ARCHER:
-                // Create archer tower with parameters from userPreferences
-                tower = new Tower((int) (userPreferences.getTowerSellReturn()[0] * userPreferences.getTowerConstructionCost()[0][0]), 
-                                        userPreferences.getTowerEffectiveRange()[0][0], 
-                                        userPreferences.getTowerRateOfFire()[0][0]
-                                        );
-                tower.setAttackStrategy(new ArcherStrategy());
-                tower.setProjectileType(ProjectileType.ARROW);
-                // Set other properties from userPreferences
-                break;
+        // Set the attack strategy based on the tower type
 
-            case MAGE:
-                // Create mage tower with parameters from userPreferences
-                tower = new Tower((int) (userPreferences.getTowerSellReturn()[1] * userPreferences.getTowerConstructionCost()[0][2]), 
-                                     userPreferences.getTowerEffectiveRange()[0][1], 
-                                     userPreferences.getTowerRateOfFire()[0][1]
-                                     );
-                tower.setAttackStrategy(new MageStrategy());
-                tower.setProjectileType(ProjectileType.MAGIC);
-                // Set other properties from userPreferences
-                break;
-
+        switch (type) {
             case ARTILLERY:
-                // Create artillery tower with parameters from userPreferences
-                tower = new Tower((int) (userPreferences.getTowerSellReturn()[2] * userPreferences.getTowerConstructionCost()[0][1]), 
-                                          userPreferences.getTowerEffectiveRange()[0][2], 
-                                          userPreferences.getTowerRateOfFire()[0][2]
-                                          );
-                tower.setAttackStrategy(new ArtilleryStrategy());
-                tower.setProjectileType(ProjectileType.ARTILLERY);
-                // Set other properties from userPreferences
+                tower.setAttackStrategy(new ArtilleryStrategy()); // Set artillery attack strategy
+                tower.setProjectileType(ProjectileType.ARTILLERY); // Set projectile type to ARTILLERY
                 break;
-                
-            
+            case MAGE:
+                tower.setAttackStrategy(new MageStrategy()); // Set mage attack strategy
+                tower.setProjectileType(ProjectileType.MAGIC); // Set projectile type to MAGIC
+                break;
+            case ARCHER:
+                tower.setAttackStrategy(new ArcherStrategy()); // Set archer attack strategy
+                tower.setProjectileType(ProjectileType.ARROW); // Set projectile type to ARROW
+                break;
             default:
-                throw new IllegalArgumentException("Invalid tower type: " + type);
-                
+                throw new IllegalArgumentException("Invalid Tower Type: " + type); // Handle invalid tower types
         }
-
-       
         
-        return tower;
-    }
 
+        return tower; // Return the created tower
+    
+    }
+        
+        
+       
 
 }

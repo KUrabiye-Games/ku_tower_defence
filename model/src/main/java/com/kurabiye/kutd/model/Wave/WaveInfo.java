@@ -18,26 +18,18 @@ import com.kurabiye.kutd.model.Player.UserPreference;
 
 public class WaveInfo {
 
-    /*
-     * 
-     * private int numberOfWaves; // Total number of waves in the game
-    private int numberOfGroupsPerWave; // Number of groups per wave
-    private int numberOfEnemiesPerGroup; // Number of enemies per group
-    private int delayBetweenWaves; // Delay between waves in milliseconds
-    private int delayBetweenGroups; // Delay between groups in milliseconds
-    private int[] enemyComposition; // Composition of types of enemies for a given group or wave
-     */
 
-    //private UserPreference userPreferences; // Singleton instance of UserPreference
+    private UserPreference userPreferences = UserPreference.getInstance(); // Singleton instance of UserPreference
 
-     private ArrayList<ArrayList<int[]>> waveDecomposition; // Number of groups per wave // Composition of types of enemies for a given group or wave
+
+
+    private ArrayList<ArrayList<int[]>> waveDecomposition; // Number of groups per wave // Composition of types of enemies for a given group or wave
     
     private int defaultDelayBetweenWaves; // Default delay between waves in milliseconds
     private int defaultDelayBetweenGroups; // Default delay between groups in milliseconds
     
 
-
-    public WaveInfo(UserPreference userPreferences) {
+    public WaveInfo() {
         //this.userPreferences = userPreferences; // Get the singleton instance of UserPreference
 
         this.waveDecomposition = userPreferences.getWaveList(); // Get the wave decomposition from user preferences

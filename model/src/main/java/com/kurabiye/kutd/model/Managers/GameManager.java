@@ -1,32 +1,22 @@
 package com.kurabiye.kutd.model.Managers;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
-import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
+import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-import com.kurabiye.kutd.model.Enemy.Enemy;
-import com.kurabiye.kutd.model.Enemy.EnemyFactory;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
-import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
-import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Player.Player;
-import com.kurabiye.kutd.model.Player.UserPreference;
-import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
-import com.kurabiye.kutd.model.Projectile.DamageType;
-import com.kurabiye.kutd.model.Projectile.ProjectileState;
-import com.kurabiye.kutd.model.Tile.Tile;
-import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Timer.GameTimer;
-import com.kurabiye.kutd.model.Tower.Tower;
 import com.kurabiye.kutd.model.Tower.ITower;
-import com.kurabiye.kutd.model.Tower.TowerFactory;
-import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
+import com.kurabiye.kutd.model.Tower.TowerType;
+import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
-/* GameManager.java
+
+/** GameManager.java
  * This class is responsible for managing the game state, including
  * the game loop, player input, and game events. It will also handle
  * the interactions between different game components, such as enemies,
@@ -41,28 +31,16 @@ import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
 
 public class GameManager implements Runnable{
 
-    private static final int TILE_SIZE = 120; // Size of a tile in pixels
+    
 
-
+    // The target frames per second for the game loop
     private static final int TARGET_FPS = 60; // Target frames per second
 
-    private WaveManager waveManager; // Wave manager for handling enemy waves
     
     // Thread management
     private Thread gameThread; // Reference to the game thread
     private volatile boolean running = true; // Flag to control thread execution
 
-
-    // Add a flag to control test enemy spawning
-
-
-    public enum GameState {
-        INITIALIZING,
-        RUNNING,
-        PAUSED,
-        GAME_LOST,
-        GAME_WON,
-    }
 
     private volatile GameState gameState; // Current state of the game
 
@@ -72,35 +50,38 @@ public class GameManager implements Runnable{
 
     private Player player; // Player object
 
-    private UserPreference userPreferences; // User preferences object
 
+    // These should be retrieved from the respective managers
+    // Use the dynamic array list to store enemies and projectiles
 
-    private TowerFactory towerFactory; // Tower factory for creating towers
-
-    private EnemyFactory enemyFactory; // Enemy factory for creating enemies
-
-
-    private ArrayList<Point2D> path; // Path for enemies to follow
-
-    private ArrayList<ITower> towers; // List of towers in the game
-    private ArrayList<IEnemy> enemies; // List of enemies in the game
-    private ArrayList<IProjectile> projectiles; // List of projectiles in the game
-
+    private List<ITower> towers; // List of towers in the game
     
+    private List<IEnemy> enemies; // List of enemies in the game
 
-
-    // Tile Factory to build new Towers
-    private TileFactory tileFactory; // Tile factory for creating tiles
+    private List<IProjectile> projectiles; // List of projectiles in the game
 
 
     // The callback for the view update method
-    
     private IGameUpdateListener gameUpdateListener; // Listener for game updates
 
-    private ArrayList<IEnemy> synergeticEnemies;
-    private ArrayList<IEnemy> enemiesToAdd = new ArrayList<>(); // List of synergetic enemies to remove
-    private ArrayList<IEnemy> enemiesToRemove = new ArrayList<>(); // List of enemies to remove
-    private ArrayList<IProjectile> projectilesToRemove = new ArrayList<>(); // List of projectiles to remove
+
+    
+
+
+
+    // Helper managers
+
+    private TowerManager towerManager; // Manager for handling tower-related operations
+
+    private EnemyManager enemyManager; // Manager for handling enemy-related operations
+
+    private ProjectileManager projectileManager; // Manager for handling projectile-related operations
+
+    private CollisionManager collisionManager; // Manager for handling collisions between projectiles and enemies
+
+    private MainEffectManager effectManager; // Manager for handling effects like synergetic movement
+
+    private CollactableManager collectableManager; // Manager for handling collectable items
 
 
     public GameManager(GameMap gameMap) {
@@ -108,24 +89,32 @@ public class GameManager implements Runnable{
         this.gameTimer = GameTimer.getInstance(); // Get the singleton instance of GameTimer
         this.gameTimer.setTimeCoefficient(1); // Set the time coefficient to 1 (normal speed)
         this.gameMap = gameMap; // Initialize the game map
-        this.userPreferences = UserPreference.getInstance(); // Initialize user preferences
-        this.player = new Player(userPreferences); // Initialize the player object
-
-        path = (ArrayList<Point2D>) gameMap.getPointPath(); // Get the path from the game map
-
-        this.waveManager = new WaveManager(this.userPreferences); // Initialize the wave manager
-        this.towerFactory = TowerFactory.getInstance(); // Initialize the tower factory
-
-        this.enemyFactory = EnemyFactory.getInstance(); // Initialize the enemy factory
-        this.enemyFactory.setEnemyPath(path); // Set the enemy path in the factory
+        this.player = new Player(); // Initialize the player object
         
-        this.towers = new ArrayList<>(); // Initialize the list of towers
-        this.enemies = new ArrayList<>(); // Initialize the list of enemies
-        this.projectiles = new ArrayList<>(); // Initialize the list of projectiles
 
-        this.synergeticEnemies = new ArrayList<>(); // Initialize the list of synergetic enemies
+        
+        this.enemyManager = new EnemyManager((ArrayList<Point2D>) gameMap.getPointPath()); // Initialize the enemy manager
+        this.enemies = enemyManager.getEnemies();
 
-        this.tileFactory = new TileFactory(); // Initialize the tile factory
+        
+        this.projectileManager = new ProjectileManager(); // Initialize the projectile manager
+        this.projectiles = projectileManager.getProjectiles(); // Get the list of projectiles from the projectile manager
+
+
+
+        this.towerManager = new TowerManager(gameMap, player, projectileManager, enemies);
+        this.towers = towerManager.getTowers();
+
+        this.collisionManager = new CollisionManager(enemyManager.getDynamicEnemies(), projectileManager.getDynamicProjectiles()); // Initialize the collision manager with enemies and projectiles
+
+
+        this.effectManager = new MainEffectManager(enemyManager.getDynamicEnemies()); // Initialize the effect manager with enemies
+
+        this.collisionManager.setSlowDownManager(effectManager.getSlowDownManager()); // Set the slow down manager in the collision manager
+
+        this.collectableManager = new CollactableManager(player); // Initialize the collectable manager with the player
+
+        this.collisionManager.setCollectableManager(collectableManager); // Set the collectable manager in the collision manager
     }
 
     public void setGameUpdateListener(IGameUpdateListener gameUpdateListener) {
@@ -134,10 +123,13 @@ public class GameManager implements Runnable{
 
     @Override
     public void run() {
-        // Game loop
+ 
+        // Debugging: Print the initial game state
+        // System.out.println("Game started with state: " + gameState);
         while (running && gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
 
-            gameTimer.resetTimer();
+            gameTimer.update(); // Update the game timer
+
             while (running && gameState != GameState.PAUSED) {
                 
             // Check if thread has been requested to stop
@@ -160,215 +152,61 @@ public class GameManager implements Runnable{
             gameTimer.update(); // Update the game timer
             double deltaTime = gameTimer.getDeltaTime(); // Get the delta time from the game timer
 
-            // Create new enemies
-            // Using our test enemy code
-            int enemyIndex = waveManager.getEnemy(deltaTime); // Get the index of the enemy to spawn
-           
-            if (enemyIndex > -1) {
-                Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
-                enemies.add(enemy); // Add the enemy to the list of enemies
-            } else if (enemyIndex == -2 && enemies.size() == 0) {
-                // No enemies left to spawn
-                gameState = GameState.GAME_WON; // Set game state to GAME_WON
+
+
+            // Spawn enemies based on the current wave and game state
+            if(!enemyManager.spawnEnemies(deltaTime)) {
+                // If there are no more enemies to spawn, check if the game is won
+                if (enemies.size() == 0) {
+                    gameState = GameState.GAME_WON; // Set game state to GAME_WON
+                }
             }
 
             
 
+            // Move enemies based on the elapsed time
+            int arrivedEnemiesCount = enemyManager.moveEnemies(deltaTime); // Move enemies and get the count of arrived enemies
 
-         
-
-
-            // Update enemies position
-            Iterator<IEnemy> enemyIterator = enemies.iterator(); // Create an iterator for the list of enemies
-
-            while (enemyIterator.hasNext()) {
-                IEnemy enemy = enemyIterator.next(); // Get the next enemy
-               
-                enemy.move(deltaTime); // Update the enemy's position
+            if (arrivedEnemiesCount > 0) {
+                // If any enemies have arrived, reduce the player's health
+                player.loseHealth(arrivedEnemiesCount); // Reduce player's health based on the number of arrived enemies
                 
-                if (enemy.hasArrived()) {
-                    enemyIterator.remove(); // Remove the enemy from the list if it is out of bounds
-                    player.loseHealth(); // Deduct health from the player
-                }
             }
+            // Create projectiles for the towers
 
-            // Towers look for targets and create projectiles
-            for (ITower tower : towers) {
-                // Check if the tower can attack     
-                // Get the projectile from the tower
-                Projectile projectile = tower.attack(enemies, deltaTime); // Attack enemies and get the projectile
-                if (projectile != null) {
-                    projectiles.add(projectile); // Add the projectile to the list of projectiles
-                }
-            }
+            towerManager.createProjectiles(deltaTime); // Create projectiles for the towers
 
-            // Update projectiles position
-            for (IProjectile projectile : projectiles) {
-                
-                projectile.move(deltaTime); // Update each projectile's position
-            }
+            // Move projectiles based on the elapsed time
+            projectileManager.moveProjectiles(deltaTime); // Move all projectiles based on the elapsed time
+
+           
 
             // Check for collisions between projectiles and enemies
-            // Keep track of projectiles that need to be removed
-            // Keep track of the enemies that are dead and need to be removed
-            
-            projectilesToRemove.clear(); // Clear the list of projectiles to remove
-            enemiesToRemove.clear(); // Clear the list of enemies to remove
-
-            for (IProjectile projectile : projectiles) {
-                // Check if any collision occurred
-
-                if (projectile.getProjectileState() == ProjectileState.DEAD) {
-                    projectilesToRemove.add(projectile); // Skip if the projectile is stopped
-                }
-
-                if (projectile.getProjectileState() == ProjectileState.STOPPED) {
-                    continue; // Skip if the projectile is stopped
-                }
-
-                if (projectile.getProjectileState() == ProjectileState.MOVING) {
-                    continue; // Skip if the projectile is dead
-                }
-
-                if (projectile.getDamageType() == DamageType.AREA) {
-                    continue; // Skip if the projectile is an area explosion
-                    
-                }
-
-                boolean collisionOccurred = false; // Flag to check if a collision occurred
-
-                for (IEnemy enemy : enemies) {
-                    double distance = projectile.getCoordinate().distance(enemy.getCoordinate());
-                    float damageRadius = projectile.getProjectileAreaDamage();
-
-                    double distanceToTarget = projectile.getCoordinate().distance(projectile.getTarget());
-                    
-                    if (distance < damageRadius) { // Check for collision
-                       
-                        
-                        enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
-                        
-                        if (enemy.isDead()) {
-                            int reward = enemy.getKillReward();
-                            player.earnGold(reward); // Add gold to the player for killing the enemy
-                            enemiesToRemove.add(enemy); // Mark the enemy for removal
-                        }
-                        collisionOccurred = true; // Set the collision flag to true
-                        
-                        if(projectile.getProjectileAreaDamage() <= 1f){
-                            projectilesToRemove.add(projectile); // Mark the projectile for removal
-                            break; // Exit the loop if a collision occurred
-                        }
-                    }else if(distanceToTarget < deltaTime * projectile.getSpeedVector().magnitude()){
-                        // Check if the projectile has reached its target
-
-
-                             enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
-                        
-                            if (enemy.isDead()) {
-                            int reward = enemy.getKillReward();
-                            player.earnGold(reward); // Add gold to the player for killing the enemy
-                            enemiesToRemove.add(enemy); // Mark the enemy for removal
-                            }
-                            collisionOccurred = true; // Set the collision flag to true
-                        
-                            projectilesToRemove.add(projectile); // Mark the projectile for removal
-                            
-                        
-
-                    }
-                }
-
-                if(collisionOccurred) {
-                    // Remove the projectile if it has collided with an enemy
-                    projectilesToRemove.add(projectile); // Mark the projectile for removal
-                }
-            }
+            int totalGoldEarned = collisionManager.calculateCollisions(deltaTime); // Calculate collisions and get total gold earned
 
 
             // Check the explosion type of projectiles
 
-            for (IProjectile projectile : projectiles) {
-                if (projectile.getDamageType() == DamageType.AREA) {
-                    // check if the projectile is close enough to the its target
-                    double distance = projectile.getCoordinate().distance(projectile.getTarget());
+            totalGoldEarned += collisionManager.calculateExplosions(deltaTime); // Check the explosion type of projectiles and add gold earned
 
-                    if (distance < deltaTime * projectile.getSpeedVector().magnitude()) {
-                        // Apply area damage to all enemies within the explosion radius
-                        for (IEnemy enemy : enemies) {
-                            double distanceToEnemy = projectile.getCoordinate().distance(enemy.getCoordinate());
-                            if (distanceToEnemy < projectile.getProjectileAreaDamage()) {
-                                enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
-                                if (enemy.isDead()) {
-                                    int reward = enemy.getKillReward();
-                                    player.earnGold(reward); // Add gold to the player for killing the enemy
-                                    enemiesToRemove.add(enemy); // Mark the enemy for removal
-                                }
-                            }
-                        }
-                        projectilesToRemove.add(projectile); // Mark the projectile for removal
-                    }
+            // Add gold to the player's total gold
 
-                }
+            if (totalGoldEarned > 0) {
+                player.earnGold(totalGoldEarned); // Add the total gold earned to the player's gold
             }
 
-
-            /*
-             * Checking if there is any knight within a tile distance to a goblin
-             * If there is, the knight will be decorated SynergeticMoveDecorator
-             * This will allow the knight to move faster when near a goblin
-             * This is a synergetic movement behavior
-             * 
-             */
 
             // Check for synergetic movement behavior
 
-
-
-
-            for (IEnemy knight : enemies) {
-                if (knight.getEnemyType() == EnemyType.KNIGHT) { // Check if the enemy is a knight
-                    for (IEnemy goblin : enemies) {
-                        if (goblin.getEnemyType() == EnemyType.GOBLIN) { // Check if the enemy is a knight
-                            double distance = knight.getCoordinate().distance(goblin.getCoordinate()); // Calculate distance between knight and goblin
-                            if (distance < TILE_SIZE) { // If the distance is less than 2 tiles
-                                 enemiesToRemove.add(knight); // Mark the knight for removal
-                                // Create a new synergetic enemy with the knight's properties
-
-                                int[] enemySpeeds = UserPreference.getInstance().getEnemyMovementSpeed();
-
-                                IEnemy synergeticKnight = new SynergeticMoveDecorator(knight, enemySpeeds[0] , enemySpeeds[1]); // Create a new synergetic knight with the knight's properties
-
-                                synergeticEnemies.add(synergeticKnight); // Add the synergetic knight to the list of synergetic enemies
-                                enemiesToAdd.add(synergeticKnight); // Add the synergetic knight to the list of enemies to add
-                            }
-                        }else{
-                            // then remove the decorated knight from the synergetic enemies list
-                            // if the knight is decorated, remove the decoration
-
-                            if (synergeticEnemies.contains(knight)) {
-                                synergeticEnemies.remove(knight); // Remove the knight from the synergetic enemies list
-                                // remove the decorated knight from the enemies list
-                                enemiesToRemove.add(knight); // Mark the knight for removal
-                                knight = ((SynergeticMoveDecorator) knight).removeDecoration(); // Remove the decoration from the knight
-                                enemiesToAdd.add(knight); // Add the knight to the list of enemies to add
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Remove dead enemies from the list
-            enemies.removeAll(enemiesToRemove); // Remove the marked enemies from the list
-            // Remove projectiles that have collided with enemies
-            projectiles.removeAll(projectilesToRemove); // Remove the marked projectiles from the list
-
+            effectManager.applyEffects(deltaTime);// Apply synergetic movement effects to enemies
             
 
             // Check if the game is over
             if (player.getCurrentHealth() <= 0) {
                 gameState = GameState.GAME_LOST; // Set game state to GAME_LOST
             }
+
+            // Let the view if there is a game update listener
 
             if (gameUpdateListener != null) {
                 gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
@@ -386,9 +224,7 @@ public class GameManager implements Runnable{
         }
     }
 
-    public GameMap getGameMap() {
-        return gameMap; // Get the game map
-    }
+    
 
     // Controller methods
     public void pauseGame() {
@@ -407,17 +243,6 @@ public class GameManager implements Runnable{
         // Handle game over logic
     }
 
-    public GameState getGameState() {
-        return gameState;
-    }
-
-    public void returnToMainMenu() {
-        gameState = GameState.INITIALIZING;
-        running = false; // Stop the game loop
-        // Handle return to main menu logic
-        
-    }
-
     public void speedUpGame() {
         // Increase game speed
         gameTimer.setTimeCoefficient(2.0);
@@ -428,78 +253,17 @@ public class GameManager implements Runnable{
         gameTimer.setTimeCoefficient(1);
     }
 
+
     /**
-     * @requires (x >= 0 && x < gameMapWidth) &&
-     *           (y >= 0 && y < gameMapHeight) &&
-     *           (type != null) &&
-     *           (gameState == GameState.RUNNING) &&
-     *           (!isCellOccupied(x, y)) &&
-     *           (player.hasEnoughGold(type.getCost()))
-     *
-     * @modifies gameMap, player, towers
-     *
-     * @effects Places a tower of the given type at the specified (x, y) coordinates
-     *          on the map. Deducts the corresponding amount of gold from the player.
-     *          Adds the tower to the game state.
+     * This method starts the game by creating a new thread and setting the game state to RUNNING.
+     * It also resets the game timer to start counting from zero.
+     * @requires gameState == GameState.INITIALIZING
+     * @modifies gameState, gameTimer
+     * @effects Starts the game by creating a new thread and setting the game state to RUNNING.
+     *         Resets the game timer to start counting from zero.
+     * 
      */
-    public boolean buildTower(int xCoordinate, int yCoordinate, int towerType) {
-        //check if the tile is buildable
-        Tile tile = gameMap.getTile(xCoordinate, yCoordinate);
-        if (tile == null) {
-            return false; // Invalid tile coordinates
-        }
-        if (!tile.isBuildableTile()) {
-            return false; // Tile is not buildable
-        }
-
-        int tileCode;
-
-        if (towerType == 0) {
-            tileCode = 20; // Example tile code for tower type 0
-        } else if (towerType == 1) {
-            tileCode = 21; // Example tile code for tower type 1
-        } else if (towerType == 2) {
-            tileCode = 26; // Example tile code for tower type 2
-        } else {
-            return false; // Invalid tower type
-        }
-        // Check if the player has enough resources
-        if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[0][towerType]) { // Example cost check
-            return false; // Not enough gold
-        }
-
-        player.buyTower(userPreferences.getTowerConstructionCost()[0][towerType]); // Deduct cost from player's gold
-        // Create the tower using the TowerFactory
-
-        Tower tower = towerFactory.create(TowerType.values()[towerType]); // Create the tower using the factory
-        // Set the tower's coordinates
-        tower.setTileCoordinate(new TilePoint2D(xCoordinate, yCoordinate));
-        // Add the tower to the list of towers
-        towers.add(tower);
-
-        Tile towerTile = tileFactory.create(tileCode); // Create the tower tile using the factory
-        gameMap.setTile(xCoordinate, yCoordinate, towerTile);
-
-        return true;
-    }
-    
-    public boolean sellTower(int xCoordinate, int yCoordinate, int towerType) {
-        // Logic to sell a tower
-        // Check if the tower exists at the given coordinates
-
-        // look for a tower in the list of towers
-        for (ITower tower : towers) {
-            if (tower.getTileCoordinate().getTileX() == xCoordinate && tower.getTileCoordinate().getTileY() == yCoordinate) {
-                // Tower found, sell it
-                player.sellTower(tower.getSellReturn()); // Add sell return to player's gold
-                towers.remove(tower); // Remove the tower from the list
-                Tile buildableTile = this.tileFactory.create(15); // Create a buildable tile using the factory
-                gameMap.setTile(xCoordinate, yCoordinate, buildableTile);
-                return true; // Tower sold successfully
-            }
-        }
-        return false; // Tower not found at the given coordinates
-    }
+   
 
     public void startGame() {
         // Create a new thread using this instance (which implements Runnable)
@@ -541,16 +305,20 @@ public class GameManager implements Runnable{
 
     // Info provider methods for the view
 
+    public GameMap getGameMap() {
+        return gameMap; // Get the game map
+    }
 
-    public ArrayList<ITower> getTowers() {
+
+    public List<ITower> getTowers() {
         return towers; // Return the list of towers
     }
 
-    public ArrayList<IEnemy> getEnemies() {
+    public List<IEnemy> getEnemies() {
         return enemies; // Return the list of enemies
     }
 
-    public ArrayList<IProjectile> getProjectiles() {
+    public List<IProjectile> getProjectiles() {
         return projectiles; // Return the list of projectiles
     }
 
@@ -562,23 +330,98 @@ public class GameManager implements Runnable{
         return gameTimer; // Return the game timer
     }
 
-    public UserPreference getUserPreferences() {
-        return userPreferences; // Return the user preferences
+    public GameState getGameState() {
+        return gameState; // Return the current game state
     }
+
+    public void returnToMainMenu() {
+        gameState = GameState.INITIALIZING;
+        running = false; // Stop the game loop
+        // Handle return to main menu logic
+        
+    }
+
+
+    /**
+     * Information provider methods for the wave manager
+     * This method provides information about the current wave and group index.
+     * It only delegates the call to the wave manager.
+     * 
+     * @returns the current wave index and group index
+     */
 
     public int getCurrentWaveIndex() {
-        return waveManager.getCurrentWaveIndex(); // Return the current wave index
+        return enemyManager.getWaveManager().getCurrentWaveIndex(); // Return the current wave index
     }
 
+    /**
+     * This method provides information about the current group index.
+     * It only delegates the call to the wave manager.
+     * 
+     * @returns the current group index
+     */
     public int getCurrentGroupIndex() {
-        return waveManager.getCurrentGroupIndex(); // Return the current group index
+        return enemyManager.getWaveManager().getCurrentGroupIndex(); // Return the current group index
     }
 
-    public ArrayList<IEnemy> getEnemiesToRemove() {
-        return enemiesToRemove; // Return the list of enemies to remove
+     /**
+     * This metthods delegates the call to the tower manager to build a tower at the specified coordinates.
+     * @effects gameMap, player, towers
+     * 
+     * @param xCoordinate The x coordinate where the tower should be built
+     * @param yCoordinate The y coordinate where the tower should be built
+     * @param towerType The type of tower to be built
+     * @return true if the tower was successfully built, false otherwise
+     */
+    public boolean buildTower(int xCoordinate, int yCoordinate, TowerType towerType) {
+        return towerManager.buildTower(xCoordinate, yCoordinate, towerType); // Build a tower at the specified coordinates
     }
-    public ArrayList<IProjectile> getProjectilesToRemove() {
-        return projectilesToRemove; // Return the list of projectiles to remove
+     /**
+     * This metthods delegates the call to the tower manager to sell a tower at the specified coordinates.
+     * @effects gameMap, player, towers
+     * 
+     * @param xCoordinate The x coordinate where the tower should be built
+     * @param yCoordinate The y coordinate where the tower should be built
+     * @param towerType The type of tower to be sold
+     * @return true if the tower was successfully sold, false otherwise
+     */
+    public boolean sellTower(int xCoordinate, int yCoordinate) {
+        return towerManager.sellTower(xCoordinate, yCoordinate); // Sell the tower at the specified coordinates
+    }
+ /**
+     * This metthods delegates the call to the tower manager to upgrade a tower at the specified coordinates.
+     * @effects gameMap, player, towers
+     * 
+     * @param xCoordinate The x coordinate where the tower should be built
+     * @param yCoordinate The y coordinate where the tower should be built
+     * @param towerType The type of tower to be upgraded
+     * @return true if the tower was successfully upgraded, false otherwise
+     */
+    public boolean upgradeTower(int xCoordinate, int yCoordinate) {
+        return towerManager.upgradeTower(xCoordinate, yCoordinate); // Upgrade the tower at the specified coordinates
     }
 
+    /**
+     * Handle user clicks for collecting items
+     * This method delegates the call to the collectable manager to handle clicks on collectable items.
+     * @param clickPosition The position where the user clicked
+     * @return true if a collectable was collected, false otherwise
+     */
+    public boolean handleCollectableClick(Point2D clickPosition) {
+        return collectableManager.handleClick(clickPosition);
+    }
+
+
+     /**
+     * Get collectables for view rendering
+     * This method provides the list of collectables to be rendered in the view.
+     * It delegates the call to the collectable manager.
+     * 
+     * @return The list of collectables
+     */
+    public DynamicArrayList<ICollectable<?>> getCollectables() {
+        return collectableManager.getCollectables();
+    }
+
+    
 }

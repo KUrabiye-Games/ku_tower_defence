@@ -5,11 +5,10 @@ import javafx.scene.image.Image;
 
 
 import com.kurabiye.kutd.model.Coordinates.*;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
-import com.kurabiye.kutd.model.Enemy.Enemy;
 
 import com.kurabiye.kutd.model.Player.UserPreference;
 
@@ -82,7 +81,7 @@ public class EnemyView {
      * @param gc GraphicsContext to draw on
      * @param enemies List of enemies to render
      */
-    public void renderEnemies(GraphicsContext gc, ArrayList<IEnemy> enemies, int enemyImage) {
+    public void renderEnemies(GraphicsContext gc, List<IEnemy> enemies, int enemyImage) {
         for (IEnemy enemy : enemies) {
             renderEnemy(gc, enemy, enemyImage);
         }

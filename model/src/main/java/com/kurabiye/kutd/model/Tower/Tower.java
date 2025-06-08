@@ -5,12 +5,12 @@ import java.util.List;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
-import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile;
 
 import com.kurabiye.kutd.model.Projectile.ProjectileFactory;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
 
@@ -28,6 +28,8 @@ import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 public class Tower implements ITower{
 
 
+    private static final UserPreference userPreferences = UserPreference.getInstance(); // User preferences for tower construction costs
+
    
     private float range; // Range of the tower
     private float attackSpeed; // Attack speed of the tower
@@ -39,21 +41,21 @@ public class Tower implements ITower{
 
     private double lastAttackTime; // Time of the last attack
    
-    //private int level; // Level of the tower maybe later
-    private int sellReturn; // The amount of money returned when the tower is sold
-
     private ProjectileFactory projectileFactory = ProjectileFactory.getInstance(); // Factory for creating projectiles
 
     private ProjectileType projectileType; // Type of projectile used by the tower
 
     // Level up
 
+    private int towerLevel = 1; // Level of the tower, default is 1
+    private int maxLevel = 2; // Maximum level of the tower, can be changed later
 
-    public Tower(int sellReturn, float range, float attackSpeed) {
-        
-        this.sellReturn = sellReturn; // Set the sell return of the tower
-        this.range = range; // Set the range of the tower
-        this.attackSpeed = attackSpeed; // Set the attack speed of the tower
+    private TowerType towerType; // Type of the tower, can be used for different tower types
+
+
+    public Tower(TowerType towerType) {
+        this.range = userPreferences.getTowerEffectiveRange()[towerType.getValue()][0]; // Set the range of the tower
+        this.attackSpeed = userPreferences.getTowerRateOfFire()[towerType.getValue()][0]; // Set the attack speed of the tower
 
     }
 
@@ -80,7 +82,14 @@ public class Tower implements ITower{
 
 
 
-    // and we will need to implement the attack method in the subclasses of the tower class
+    /**
+     *
+     * This method attacks the enemies within the tower's range.
+     * It uses the attack strategy to find the target enemy and creates a projectile to attack that enemy.
+     * @param enemies The list of enemies to attack.
+     * @param deltaTime The time passed since the last attack.
+     * @return A Projectile object representing the attack, or null if no attack can be made.
+     */
     @Override
     public Projectile attack(List<IEnemy> enemies, double deltaTime) {
         // Use the attack strategy to find the target enemy
@@ -113,7 +122,7 @@ public class Tower implements ITower{
         }
         
         try {
-            Enemy targetEnemy = (Enemy) attackStrategy.findTarget(filteredEnemies);
+            IEnemy targetEnemy = attackStrategy.findTarget(filteredEnemies);
 
             if (targetEnemy == null) {
                 return null; // No target found
@@ -123,7 +132,7 @@ public class Tower implements ITower{
             // Add console logging for debugging
            
             
-            Projectile projectile = projectileFactory.createProjectile(projectileType, attackPoint, targetEnemy.getCoordinate()); // Create a projectile using the factory
+            Projectile projectile = projectileFactory.createProjectile(projectileType, attackPoint, targetEnemy.getCoordinate(), towerLevel); // Create a projectile using the factory
 
             // Check if the projectile's speed vector is zero
 
@@ -139,17 +148,68 @@ public class Tower implements ITower{
         }
     }
 
+    /**
+     * Gets the tile coordinate of the tower.
+     * 
+     * @return The tile coordinate of the tower.
+     */
+
     public TilePoint2D getTileCoordinate() {
         return tileCoordinate; // Get the tile coordinate of the tower
     }
-
-    /*public void setTileCoordinate(TilePoint2D tileCoordinate) { // In case we add a feature to move the tower
-        this.tileCoordinate = tileCoordinate; // Set the tile coordinate of the tower
-    }*/
-
-
+    /**
+     * Gets the range of the tower.
+     * 
+     * @return The range of the tower.
+     */
     public synchronized int getSellReturn() {
-        return sellReturn; // Get the sell return of the tower
+        // calculate the total money spend to build and upgrade the tower
+        int totalCost = 0;
+        for (int i = 1; i <= towerLevel; i++) {
+            totalCost += userPreferences.getTowerConstructionCost()[towerType.getValue()][i]; // Add the construction cost for each level
+        }
+
+        return (int) (totalCost * userPreferences.getTowerSellReturn()[towerType.getValue()]); // Return 50% of the total cost as the sell return
+    }
+
+    @Override
+    public boolean upgrade() {
+        if (canUpgrade()) {
+            towerLevel++; // Increment the tower level
+            return true; // Return true to indicate successful upgrade
+        }
+
+        return false; // Return false if the tower cannot be upgraded
+    }
+
+    @Override
+    public boolean canUpgrade() {
+        // Check if the tower can be upgraded based on its current level and maximum level
+        return towerLevel < maxLevel; // Return true if the tower can be upgraded, false otherwise
+    }
+
+    @Override
+    public int getTowerLevel() {
+        return towerLevel; // Get the current level of the tower
+    }
+
+    @Override
+    public int getUpgradeCost() {
+        if (towerLevel < maxLevel) {
+            return UserPreference.getInstance().getTowerConstructionCost()[towerType.getValue()][towerLevel + 1]; // Get the upgrade cost for the next level
+            
+        }
+        return -1; // Return 0 if the tower is already at maximum level
+    }
+
+    @Override
+    public int getMaxLevel() {
+        return maxLevel; // Get the maximum level of the tower
+    }
+
+    @Override
+    public TowerType getTowerType() {
+        return towerType; // Get the type of the tower
     }
 
 }
