@@ -1,5 +1,6 @@
 package com.kurabiye.kutd.model.Enemy.Decorators;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Player.UserPreference;
 
 
 /**
@@ -16,11 +17,12 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
     // This class is a decorator for the IEnemy interface
     // It adds synergetic movement behavior to the enemy
 
-    private int goblinSpeed; // Speed of the goblin
-    private int knightSpeed; // Speed of the knight
+    private int goblinSpeed = UserPreference.getInstance().getEnemyMovementSpeed()[0]; // Speed of the goblin
+    private int knightSpeed = UserPreference.getInstance().getEnemyMovementSpeed()[1]; // Speed of the knight
 
-    public SynergeticMoveDecorator(IEnemy enemy, int goblinSpeed, int knightSpeed) {
+    public SynergeticMoveDecorator(IEnemy enemy) {
         super(enemy); // Initialize the decorator with an IEnemy instance
+        applySynergeticMovement();
     }
 
     @Override
@@ -30,10 +32,7 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
         super.move(deltaTime); // Call the original move method from the decorated enemy
     }
 
-    public void applySynergeticMovement() {
-        // Implement the synergetic movement logic here
-        // This could involve modifying the enemy's path or speed based on certain conditions
-        // For example, if the enemy is a goblin, it might move faster when near a knight
+    private void applySynergeticMovement() {
         enemy.setSpeed((goblinSpeed + knightSpeed) / 2); // Example of combining speeds);
     }
 
@@ -44,6 +43,11 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
         enemy.setSpeed(knightSpeed);
 
         return enemy; // Return the original enemy without the synergetic movement behavior
+    }
+
+    @Override
+    public EffectTypes getEffectType() {
+        return EffectTypes.SYNERGYTIC_MOVEMENT; // Return the effect type for this decorator
     }
 
 }

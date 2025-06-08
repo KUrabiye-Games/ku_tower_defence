@@ -21,6 +21,7 @@ public class SlowDownDecorator extends EnemyDecorator {
 
     public SlowDownDecorator(IEnemy enemy) {
         super(enemy); // Initialize the decorator with an IEnemy instance
+        this.remainigEffectTime = 4.0; // Set the remaining effect time to 5 seconds
     }
 
     @Override
@@ -46,6 +47,11 @@ public class SlowDownDecorator extends EnemyDecorator {
         enemy.setSpeed(originalSpeed);
 
         return enemy; // Return the original enemy without the synergetic movement behavior
+    }
+
+    @Override
+    public EffectTypes getEffectType() {
+        return EffectTypes.SLOW_DOWN; // Return the effect type for this decorator
     }
 
 }
