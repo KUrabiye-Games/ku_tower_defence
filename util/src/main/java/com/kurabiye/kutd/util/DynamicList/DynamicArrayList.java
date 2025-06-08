@@ -1,4 +1,4 @@
-package com.kurabiye.kutd.DynamicList;
+package com.kurabiye.kutd.util.DynamicList;
 
 import java.util.ArrayList;
 import java.util.HashSet;

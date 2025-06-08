@@ -2,7 +2,7 @@ package com.kurabiye.kutd.DynamicArrayList;
 
 import org.junit.jupiter.api.Test;
 
-import com.kurabiye.kutd.DynamicList.DynamicArrayList;
+import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
 import java.util.Iterator;
 import org.junit.jupiter.api.BeforeAll;
