@@ -21,6 +21,8 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
 
     public SynergeticMoveDecorator(IEnemy enemy, int goblinSpeed, int knightSpeed) {
         super(enemy); // Initialize the decorator with an IEnemy instance
+        this.goblinSpeed = goblinSpeed; // Set the goblin speed
+        this.knightSpeed = knightSpeed; // Set the knight speed
     }
 
     @Override

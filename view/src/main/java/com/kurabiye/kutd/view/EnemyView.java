@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 
 import com.kurabiye.kutd.model.Player.UserPreference;
@@ -20,8 +21,11 @@ import com.kurabiye.kutd.model.Player.UserPreference;
 public class EnemyView {
     private final int TILE_SIZE;
     private final int COLS = 16; // Number of columns in the game map
-   // private final int ROWS = 9; // Number of rows in the game map
-    
+    // private final int ROWS = 9; // Number of rows in the game map
+
+    // Add this field to the EnemyView class
+    private Image zapIcon;
+
     // Different enemy images for different enemy types
     private Image[] enemyImages;
     
@@ -47,6 +51,13 @@ public class EnemyView {
                     enemyImages[type.getValue() * 6 + i] = createFallbackImage(type);
                 }
             }
+        }
+
+        // Load the zap icon
+        try {
+            zapIcon = new Image(getClass().getResourceAsStream("/assets/effects/Zap.png"));
+        } catch (Exception e) {
+            zapIcon = null; // Fallback if image can't be loaded
         }
     }
 
@@ -138,10 +149,20 @@ public class EnemyView {
                 gc.drawImage(enemyImages[enemyType.getValue() * 6 + enemyImage], centeredX, centeredY, TILE_SIZE, TILE_SIZE);
             }
 
-           
-            
             // Draw health bar above the enemy
             renderHealthBar(gc, enemy, viewX - TILE_SIZE/2, viewY - TILE_SIZE/2);
+
+            // Draw zap icon for synergetic knights
+            if (enemy instanceof SynergeticMoveDecorator && 
+                enemy.getEnemyType() == EnemyType.KNIGHT && 
+                zapIcon != null) {
+                
+                double iconSize = TILE_SIZE / 3;
+                double iconX = viewX - (iconSize / 2);
+                double iconY = viewY - 60; // Position above the enemy with some padding
+                
+                gc.drawImage(zapIcon, iconX, iconY, iconSize, iconSize);
+            }
         }
     }
     

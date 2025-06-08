@@ -326,33 +326,43 @@ public class GameManager implements Runnable{
 
 
 
-            for (IEnemy knight : enemies) {
-                if (knight.getEnemyType() == EnemyType.KNIGHT) { // Check if the enemy is a knight
+            for (IEnemy knight : new ArrayList<>(enemies)) { // Create copy to avoid modification issues
+                if (knight.getEnemyType() == EnemyType.KNIGHT) {
+                    boolean foundNearbyGoblin = false;
+                    
+                    // Check if there's a goblin nearby
                     for (IEnemy goblin : enemies) {
-                        if (goblin.getEnemyType() == EnemyType.GOBLIN) { // Check if the enemy is a knight
-                            double distance = knight.getCoordinate().distance(goblin.getCoordinate()); // Calculate distance between knight and goblin
-                            if (distance < TILE_SIZE) { // If the distance is less than 2 tiles
-                                 enemiesToRemove.add(knight); // Mark the knight for removal
-                                // Create a new synergetic enemy with the knight's properties
-
-                                int[] enemySpeeds = UserPreference.getInstance().getEnemyMovementSpeed();
-
-                                IEnemy synergeticKnight = new SynergeticMoveDecorator(knight, enemySpeeds[0] , enemySpeeds[1]); // Create a new synergetic knight with the knight's properties
-
-                                synergeticEnemies.add(synergeticKnight); // Add the synergetic knight to the list of synergetic enemies
-                                enemiesToAdd.add(synergeticKnight); // Add the synergetic knight to the list of enemies to add
+                        if (goblin.getEnemyType() == EnemyType.GOBLIN) {
+                            double distance = knight.getCoordinate().distance(goblin.getCoordinate());
+                            if (distance < TILE_SIZE) {
+                                foundNearbyGoblin = true;
+                                break;
                             }
-                        }else{
-                            // then remove the decorated knight from the synergetic enemies list
-                            // if the knight is decorated, remove the decoration
-
-                            if (synergeticEnemies.contains(knight)) {
-                                synergeticEnemies.remove(knight); // Remove the knight from the synergetic enemies list
-                                // remove the decorated knight from the enemies list
-                                enemiesToRemove.add(knight); // Mark the knight for removal
-                                knight = ((SynergeticMoveDecorator) knight).removeDecoration(); // Remove the decoration from the knight
-                                enemiesToAdd.add(knight); // Add the knight to the list of enemies to add
-                            }
+                        }
+                    }
+                    
+                    // Handle synergy activation
+                    if (foundNearbyGoblin && !(knight instanceof SynergeticMoveDecorator)) {
+                        int[] enemySpeeds = UserPreference.getInstance().getEnemyMovementSpeed();
+                        SynergeticMoveDecorator synergeticKnight = new SynergeticMoveDecorator(
+                            knight, enemySpeeds[0], enemySpeeds[1]
+                        );
+                        synergeticKnight.applySynergeticMovement();
+                        
+                        int knightIndex = enemies.indexOf(knight);
+                        if (knightIndex != -1) {
+                            enemies.set(knightIndex, synergeticKnight);
+                            synergeticEnemies.add(synergeticKnight);
+                        }
+                    }
+                    // Handle synergy deactivation
+                    else if (!foundNearbyGoblin && knight instanceof SynergeticMoveDecorator) {
+                        synergeticEnemies.remove(knight);
+                        IEnemy originalKnight = ((SynergeticMoveDecorator) knight).removeDecoration();
+                        
+                        int knightIndex = enemies.indexOf(knight);
+                        if (knightIndex != -1) {
+                            enemies.set(knightIndex, originalKnight);
                         }
                     }
                 }
