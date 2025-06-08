@@ -13,7 +13,7 @@ import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.Tower;
 import com.kurabiye.kutd.model.Tower.TowerFactory;
-import com.kurabiye.kutd.model.Tower.TowerFactory.TowerType;
+import com.kurabiye.kutd.model.Tower.TowerType;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
 public class TowerManager {
@@ -69,7 +69,7 @@ public class TowerManager {
      *          on the map. Deducts the corresponding amount of gold from the player.
      *          Adds the tower to the game state.
      */
-    public boolean buildTower(int xCoordinate, int yCoordinate, int towerType) {
+    public boolean buildTower(int xCoordinate, int yCoordinate, TowerType towerType) {
         //check if the tile is buildable
         Tile tile = gameMap.getTile(xCoordinate, yCoordinate);
         if (tile == null) {
@@ -81,24 +81,24 @@ public class TowerManager {
 
         int tileCode;
 
-        if (towerType == 0) {
+        if (towerType.getValue() == 0) {
             tileCode = 20; // Example tile code for tower type 0
-        } else if (towerType == 1) {
+        } else if (towerType.getValue() == 1) {
             tileCode = 21; // Example tile code for tower type 1
-        } else if (towerType == 2) {
+        } else if (towerType.getValue() == 2) {
             tileCode = 26; // Example tile code for tower type 2
         } else {
             return false; // Invalid tower type
         }
         // Check if the player has enough resources
-        if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[0][towerType]) { // Example cost check
+        if(player.getCurrentGold() < userPreferences.getTowerConstructionCost()[towerType.getValue()][0]) { // Example cost check
             return false; // Not enough gold
         }
 
-        player.buyTower(userPreferences.getTowerConstructionCost()[0][towerType]); // Deduct cost from player's gold
+        player.buyTower(userPreferences.getTowerConstructionCost()[towerType.getValue()][0]); // Deduct cost from player's gold
         // Create the tower using the TowerFactory
 
-        Tower tower = towerFactory.create(TowerType.values()[towerType]); // Create the tower using the factory
+        Tower tower = towerFactory.create(towerType); // Create the tower using the factory
         // Set the tower's coordinates
         tower.setTileCoordinate(new TilePoint2D(xCoordinate, yCoordinate));
         // Add the tower to the list of towers

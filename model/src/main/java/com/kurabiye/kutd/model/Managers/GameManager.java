@@ -10,6 +10,7 @@ import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
 import com.kurabiye.kutd.model.Timer.GameTimer;
 import com.kurabiye.kutd.model.Tower.ITower;
+import com.kurabiye.kutd.model.Tower.TowerType;
 
 
 /** GameManager.java
@@ -351,7 +352,7 @@ public class GameManager implements Runnable{
      /**
      * This metthods delegates the call to the tower manager to build a tower at the specified coordinates.
      */
-    public boolean buildTower(int xCoordinate, int yCoordinate, int towerType) {
+    public boolean buildTower(int xCoordinate, int yCoordinate, TowerType towerType) {
         return towerManager.buildTower(xCoordinate, yCoordinate, towerType); // Build a tower at the specified coordinates
     }
     

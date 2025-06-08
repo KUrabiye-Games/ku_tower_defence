@@ -69,4 +69,12 @@ public interface IProjectile {
        */
         Point2D getTarget();
     
+
+    /**
+     * Get the level of the projectile
+     * 
+     * @return The level of the projectile
+     * */
+      public int getProjectileLevel();
+
 }

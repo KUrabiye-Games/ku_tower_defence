@@ -5,6 +5,7 @@ import com.kurabiye.kutd.model.Managers.GameManager;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Map.StaticMap;
+import com.kurabiye.kutd.model.Tower.TowerType;
 
 public class GamePlayController {
 
@@ -58,7 +59,7 @@ public class GamePlayController {
         gameManager.slowDownGame();
     }
 
-    public boolean buildTower(int x, int y, int towerType) {
+    public boolean buildTower(int x, int y, TowerType towerType) {
         return gameManager.buildTower(x, y, towerType);
     }
 

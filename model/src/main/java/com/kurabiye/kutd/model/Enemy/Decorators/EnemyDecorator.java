@@ -6,7 +6,8 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
-import com.kurabiye.kutd.model.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Projectile.IProjectile;
+
 
 public abstract class EnemyDecorator implements IEnemy {
 
@@ -33,8 +34,8 @@ public abstract class EnemyDecorator implements IEnemy {
     }
 
     @Override
-    public void getDamage(ProjectileType projectileType) {
-        enemy.getDamage(projectileType);
+    public void getDamage(IProjectile projectile) {
+        enemy.getDamage(projectile);
     }
 
     @Override

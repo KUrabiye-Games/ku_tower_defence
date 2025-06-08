@@ -33,6 +33,7 @@ import com.kurabiye.kutd.model.Projectile.IProjectile;
 
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
+import com.kurabiye.kutd.model.Tower.TowerType;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -388,16 +389,16 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private void handleBuildButtonClick(int buttonId, int row, int col) {
         
         // Map button IDs to tower types (0=Magic/Star, 1=Artillery/Bomb, 2=Archer/Arrow)
-        int towerType;
+        TowerType towerType;
         switch(buttonId) {
             case 0: // Star button - creates Magic tower
-                towerType = 1; // MAGIC tower type
+                towerType = TowerType.MAGE; // MAGIC tower type
                 break;
             case 1: // Bomb button - creates Artillery tower
-                towerType = 2; // ARTILLERY tower type
+                towerType = TowerType.ARTILLERY; // ARTILLERY tower type
                 break;
             case 2: // Arrow button - creates Archer tower
-                towerType = 0; // ARROW tower type
+                towerType = TowerType.ARCHER; // ARROW tower type
                 break;
             default:
                 return;

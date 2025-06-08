@@ -79,14 +79,15 @@ public class CollisionManager {
                     if (distance < damageRadius) { // Check for collision
                        
                         
-                        enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
+                        enemy.getDamage(projectile); // Apply damage to the enemy
 
                         if (enemy.isDead()) {
                             int reward = enemy.getKillReward();
                             totalGoldEarned += reward; // Add gold to the total for killing the enemy
                             enemies.removeLater(enemy); // Mark the enemy for removal
-                        }else if (projectile.getProjectileType() == ProjectileType.MAGIC) {
-                            // If the projectile is magic, apply area damage
+                        }else if (projectile.getProjectileType() == ProjectileType.MAGIC 
+                        && projectile.getProjectileLevel() > 1) {
+                            // If the projectile is magic, and its level is greater than 1, apply slow down effect
                             slowDownManager.addEnemyOnEffect(enemy); // Add the enemy to the slow down effect manager
                         }
 
@@ -141,7 +142,7 @@ public class CollisionManager {
                         for (IEnemy enemy : enemies) {
                             double distanceToEnemy = projectile.getCoordinate().distance(enemy.getCoordinate());
                             if (distanceToEnemy < projectile.getProjectileAreaDamage()) {
-                                enemy.getDamage(projectile.getProjectileType()); // Apply damage to the enemy
+                                enemy.getDamage(projectile); // Apply damage to the enemy
                                 if (enemy.isDead()) {
                                     int reward = enemy.getKillReward();
                                     totalGoldEarned += reward; // Add gold to the total for killing the enemy

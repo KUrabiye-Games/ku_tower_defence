@@ -60,7 +60,7 @@ public class Projectile implements IProjectile {
 
 
 
-    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType damageType) {
+    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType damageType, int projectileLevel) {
         this.damageType = damageType; // Set the explosion type
         this.projectileType = projectileType;
         //this.startCoordinate = startCoordinate;
@@ -82,7 +82,7 @@ public class Projectile implements IProjectile {
 
         this.coordinate = startCoordinate; // Set the starting coordinate of the projectile
    
-   
+        this.projectileLevel = projectileLevel; // Set the level of the projectile
     }
 
     
@@ -168,9 +168,6 @@ public class Projectile implements IProjectile {
     }
 
 
-    public void setProjectileLevel(int level) {
-        this.projectileLevel = level; // Set the projectile's level
-    }
     public int getProjectileLevel() {
         return projectileLevel; // Get the projectile's level
     }
