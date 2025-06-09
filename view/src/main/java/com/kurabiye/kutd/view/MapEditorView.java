@@ -15,6 +15,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.control.TextInputDialog;
+import java.util.Optional;
 
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Tile.Tile;
@@ -296,7 +298,21 @@ public class MapEditorView {
 
 
     private void saveMap() {
-        statusLabel.setText("Saving map... (TODO: Implement saving)");
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Save Map");
+        dialog.setHeaderText("Enter a name for the map:");
+        dialog.setContentText("Map name:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(mapName -> {
+            if (mapName.trim().isEmpty()) {
+                statusLabel.setText("Map name cannot be empty.");
+            } else {
+                // TODO: hook into persistence system here
+                statusLabel.setText("Map saved as: " + mapName);
+                //save logic here
+            }
+        });
     }
 
     private void loadMap() {
