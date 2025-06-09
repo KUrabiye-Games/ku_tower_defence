@@ -122,7 +122,7 @@ public class CollisionManager {
                         // Check if the projectile has reached its target
 
                             projectile.getCoordinate().add(projectile.getTarget().subtract(projectile.getCoordinate()) ); // Move the projectile to its target coordinate
-                            projectile.setProjectileState(ProjectileState.STOPPED); // Set the projectile state to stopped
+                            // projectile.setProjectileState(ProjectileState.STOPPED); // Set the projectile state to stopped
                     }
                 }
 
