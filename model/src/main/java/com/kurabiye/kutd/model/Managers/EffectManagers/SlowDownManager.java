@@ -33,7 +33,7 @@ public class SlowDownManager {
     public void applySlowDown(double deltaTime) {
 
         for (SlowDownDecorator enemy : onEffectEnemies) {
-                if (!enemy.isEffectActive()) {
+                if (enemy.isOver()) {
 
                     IEnemy originalEnemy = enemy.removeDecoration(); // Remove the slow down effect and get the original enemy
                     enemies.remove(originalEnemy); // Remove the original enemy from the list of enemies

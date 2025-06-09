@@ -57,7 +57,7 @@ java {
 
 // Configure JavaFX plugin
 javafx {
-    version = "24" // Use latest compatible version
+    version = "22" // Use latest compatible version
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.media", "javafx.graphics")
 }
 
