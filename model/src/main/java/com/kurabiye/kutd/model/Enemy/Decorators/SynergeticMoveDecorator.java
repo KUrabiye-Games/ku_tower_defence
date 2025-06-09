@@ -25,6 +25,8 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
     public SynergeticMoveDecorator(IEnemy enemy) {
         super(enemy); // Initialize the decorator with an IEnemy instance
 
+
+
     }
 
     @Override

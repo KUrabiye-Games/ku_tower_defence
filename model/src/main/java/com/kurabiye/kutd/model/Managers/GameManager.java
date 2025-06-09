@@ -204,6 +204,7 @@ public class GameManager implements Runnable{
 
             // update collectables
             collectableManager.updateCollectables(deltaTime); // Update collectables based on the elapsed time
+
             
 
             // Check if the game is over
