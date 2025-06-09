@@ -2,9 +2,7 @@ package com.kurabiye.kutd.model.Enemy;
 
 import java.util.ArrayList;
 
-
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.GoblinMoveStrategy;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.KnightMoveStrategy;
 
@@ -38,10 +36,21 @@ public class EnemyFactory {
     }
     
 
-    // Create an enemy of a specific type with default values
+     /**
+     * @requires enemyType != null && enemyPath != null && enemyPath.size() > 0
+     * @modifies none
+     * @effects 
+     *    - returns a new Enemy object initialized with values from userPreferences
+     *    - assigns appropriate MoveStrategy based on enemyType
+     *    - sets initial position of enemy to the first point in enemyPath
+     *    - throws IllegalArgumentException if enemyType is invalid
+     */
+
     public Enemy createEnemy(EnemyType enemyType) {
         
+
         Enemy newEnemy = new Enemy(enemyType);
+
 
         switch (enemyType) {
             case EnemyType.GOBLIN:
