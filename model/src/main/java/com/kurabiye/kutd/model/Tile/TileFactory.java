@@ -2,37 +2,23 @@ package com.kurabiye.kutd.model.Tile;
 
 import com.kurabiye.kutd.util.FactoryPattern.CodeFactory;
 
-/* TileFactory.java
+/** TileFactory.java
  * This class is responsible for creating tile objects.
  * It is a factory class that can be used to create different types of tiles.
  * 
+ * 
+ * @author Atlas Berk Polat
+ * @version 2.0
+ * @since 2025-06-03
  */
 
 public class TileFactory implements CodeFactory<Tile> {
-    // This method creates a tile object based on the given code.
 
-    /*
-     *  if(isIn(tileCode, new int[]{0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14})) {
-                isPathTile = true; // Set the tile as a path tile
-            }
-
-            if(tileCode == 15) {
-                isBuildableTile = true; // Set the tile as buildable
-            }
-
-            if(tileCode == 5) {
-                isGroundTile = true; // Set the tile as a starting tile
-            }
-
-            if(isIn(tileCode, new int[]{20, 21, 26})){
-                isTowerTile = true; // Set the tile as a tower tile
-            }
-
-            if(isIn(tileCode, new int[]{16, 17, 18, 19, 22, 23, 24, 25, 27, 28, 29, 30, 31})) {
-                isDecorationTile = true; // Set the tile as a starting tile
-            }
-     * 
-     * 
+    /**
+     * Creates a Tile object based on the provided code.
+     * @requires code >= 0 && code <= 31
+     * @param code The code representing the type of tile to create.
+     * @return A Tile object corresponding to the provided code.
      */
     @Override
     public Tile create(int code) {
@@ -119,8 +105,13 @@ public class TileFactory implements CodeFactory<Tile> {
     }
 
 
-    // Helper method
-
+    
+    /**
+     * Checks if a number is present in an array.
+     * @param num
+     * @param arr
+     * @return
+     */
     private static boolean isIn(int num, int[] arr){
 
         for (int i = 0; i < arr.length; i++) {

@@ -28,6 +28,7 @@ public class GameManagerTest {
      * - Starts the game.
      * - Sets a buildable tile at position (2, 3) for use in tower tests.
      */
+
     // @BeforeEach
     // public void setup() {
     //     // Reset preferences and set a high starting gold
@@ -39,6 +40,8 @@ public class GameManagerTest {
     //     GameMap gameMap = GameMap.getPrebuiltMap(); 
     //     gameManager = new GameManager(gameMap);
     //     gameManager.startGame(); 
+
+
 
     //     // Make sure tile (2, 3) is buildable by setting a buildable tile code
     //     int tileCode = 15;
@@ -87,9 +90,11 @@ public class GameManagerTest {
     //             .setStartingGold(0)
     //     );
 
+
     //     GameMap gameMap = GameMap.getPrebuiltMap();
     //     gameManager = new GameManager(gameMap);
     //     gameManager.startGame();
+
 
     //     boolean result = gameManager.buildTower(2, 3, 0);
     //     assertFalse(result, "Should fail due to insufficient gold");

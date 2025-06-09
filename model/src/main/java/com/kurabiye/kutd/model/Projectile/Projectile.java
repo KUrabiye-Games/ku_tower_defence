@@ -15,27 +15,15 @@ import com.kurabiye.kutd.model.Projectile.ProjectileMoveStrategy.IProjectileMove
 
 public class Projectile implements IProjectile {
 
-    public enum ProjectileType { // Enum for different projectile types
-        ARROW(0), // Arrow projectile type
-        MAGIC(1), // Magic projectile type
-        ARTILLERY(2); // Artillery projectile type
 
-        private final int value;
-
-        ProjectileType(int value) {
-            this.value = value;
-        }
-        
-        public int getValue() {
-            return value;
-        }
-    }
 
 
     //private final static double EPSILON = 1; // Epsilon value for floating point comparison
 
 
     private ProjectileType projectileType; // Type of the projectile
+
+    // Todo: Add projecctile level
 
     //private Point2D startCoordinate; // Starting coordinate of the projectile on the map
 
@@ -72,7 +60,7 @@ public class Projectile implements IProjectile {
 
 
 
-    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType damageType) {
+    public Projectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, IProjectileMoveStrategy moveStrategy, float projectileAreaDamage, DamageType damageType, int projectileLevel) {
         this.damageType = damageType; // Set the explosion type
         this.projectileType = projectileType;
         //this.startCoordinate = startCoordinate;
@@ -94,7 +82,7 @@ public class Projectile implements IProjectile {
 
         this.coordinate = startCoordinate; // Set the starting coordinate of the projectile
    
-   
+        this.projectileLevel = projectileLevel; // Set the level of the projectile
     }
 
     
@@ -180,9 +168,6 @@ public class Projectile implements IProjectile {
     }
 
 
-    public void setProjectileLevel(int level) {
-        this.projectileLevel = level; // Set the projectile's level
-    }
     public int getProjectileLevel() {
         return projectileLevel; // Get the projectile's level
     }
