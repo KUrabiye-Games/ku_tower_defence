@@ -8,6 +8,7 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.EnemyFactory;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
 /**
@@ -57,6 +58,16 @@ public class EnemyManager {
         // Iterate through the list of enemies and update their positions
 
         for (IEnemy enemy : enemies) {
+
+            // check if the enemy is the instance of SynergeticMoveDecorator
+            if (enemy instanceof SynergeticMoveDecorator) {
+                // Debug message to indicate that a synergetic move decorator is being processed
+                //System.out.println("Processing SynergeticMoveDecorator for enemy: " + enemy.getEnemyType());
+                // Print the enemy speed for debugging
+                //System.out.println("Synergetic Speed: " + enemy.getSpeed());
+            }
+
+
             enemy.move(deltaTime); // Update the enemy's position based on the delta time
             if (enemy.hasArrived()) {
                 enemies.removeLater(enemy); // Remove the enemy from the list if it has arrived at its destination

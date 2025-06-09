@@ -59,23 +59,27 @@ public class CollactableManager {
         for (ICollectable<?> collectable : collectables) {
             double distance = collectable.getCoordinates().distance(clickPosition);
             
-            if (distance <= CLICK_RADIUS && collectable instanceof GoldBag) {
+            if (distance <= CLICK_RADIUS ) {
                 // check if the type is GoldBag
                 if (collectable instanceof GoldBag) {
-                    GoldBag goldBag = (GoldBag) collectable;
-                
-                    // Give gold to player
-                    player.earnGold(goldBag.getItem());
-                
-                    // Remove the collected item
-                    collectables.removeLater(collectable);
-                    collectables.removeCommit();
-                
-                    return true; // Successfully collected
+                    return collectGoldBag((GoldBag) collectable); // Collect the gold bag if clicked within radius
                 }
             }
         }
         return false; // Nothing was collected
+    }
+
+
+    private boolean collectGoldBag(GoldBag goldBag) {
+        
+                    // Give gold to player
+                    player.earnGold(goldBag.getItem());
+                
+                    // Remove the collected item
+                    collectables.remove(goldBag);
+                            
+                    return true; // Successfully collected
+
     }
 
 

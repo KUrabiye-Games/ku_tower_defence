@@ -331,27 +331,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 
     private void handleSellButtonClick(int row, int col) {
-        int tileId = map[row][col];
-            int towerType;
-            switch (tileId) {
-                case 20: // Example: Tower type 0
-                    towerType = 0;
-                    break;
-                case 21: // Example: Tower type 1
-                    towerType = 1;
-                    break;
-                case 26: // Example: Tower type 2
-                    towerType = 2;
-                    break;
-                default:
-                    return;
-            }
+    
     
             // Call the controller's sellTower method with the tower type
-            boolean success = controller.sellTower(col, row);
-            if (success) {
-            } else {
-            }
+            controller.sellTower(col, row);
     
            removeButtonContainer();
     }
