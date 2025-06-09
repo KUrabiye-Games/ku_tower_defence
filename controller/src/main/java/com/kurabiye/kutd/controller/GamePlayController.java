@@ -4,6 +4,8 @@ import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameManager;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Map.StaticMap;
+import com.kurabiye.kutd.model.Tower.TowerType;
 
 public class GamePlayController {
 
@@ -15,7 +17,7 @@ public class GamePlayController {
 
     public GamePlayController() {
 
-        GameMap defaultGameMap = GameMap.getPrebuiltMap();
+        GameMap defaultGameMap = StaticMap.getPrebuiltMap();
         gameManager = new GameManager(defaultGameMap);
     }
 
@@ -57,12 +59,12 @@ public class GamePlayController {
         gameManager.slowDownGame();
     }
 
-    public boolean buildTower(int x, int y, int towerType) {
+    public boolean buildTower(int x, int y, TowerType towerType) {
         return gameManager.buildTower(x, y, towerType);
     }
 
-    public boolean sellTower(int x, int y, int towerType) {
-        return gameManager.sellTower(x, y, towerType);
+    public boolean sellTower(int x, int y) {
+        return gameManager.sellTower(x, y);
     }
 
     private void terminateGameThread() {

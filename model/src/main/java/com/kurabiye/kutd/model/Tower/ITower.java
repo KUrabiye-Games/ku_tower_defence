@@ -8,7 +8,7 @@ import com.kurabiye.kutd.model.Enemy.IEnemy;
 
 import com.kurabiye.kutd.model.Projectile.Projectile;
 
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
 import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
 /**
@@ -64,6 +64,12 @@ public interface ITower {
      * @return The tower's attack strategy
      */
     IAttackStrategy getAttackStrategy();
+
+    /**
+     * Gets the type of tower
+     * @return  The type of tower
+     */
+    TowerType getTowerType();
     
     /**
      * Sets the projectile type that this tower will fire
@@ -78,4 +84,42 @@ public interface ITower {
      * @return The type of projectile
      */
     ProjectileType getProjectileType();
+
+    /**
+     * Upgrades the tower to the next level
+     * 
+     * @return true if the upgrade was successful, false otherwise
+     */
+    boolean upgrade();
+
+    /**
+     * Checks if the tower can be upgraded
+     * 
+     * @return true if the tower can be upgraded, false otherwise
+     */
+    boolean canUpgrade();
+
+
+    /**
+     * Gets the current level of the tower
+     * 
+     * @return The current level of the tower
+     */
+    int getTowerLevel();
+
+
+    /**
+     * Gets the cost to upgrade the tower to the next level
+     * 
+     * @return The cost of upgrading the tower
+     */
+    int getUpgradeCost();
+
+
+    /**
+     * Gets the maximum level the tower can reach
+     * 
+     * @return The maximum level of the tower
+     */
+    int getMaxLevel();
 }

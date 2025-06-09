@@ -18,29 +18,29 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+
+import java.util.List;
+
 
 import com.kurabiye.kutd.controller.GamePlayController;
+import com.kurabiye.kutd.model.Collectable.GoldBag;
+import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-import com.kurabiye.kutd.model.Enemy.Enemy;
+
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
-import com.kurabiye.kutd.model.Managers.GameManager.GameState;
-import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Managers.GameState;
+
 import com.kurabiye.kutd.model.Projectile.IProjectile;
-import com.kurabiye.kutd.model.Projectile.Projectile;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
-import com.kurabiye.kutd.model.Tower.Tower;
+import com.kurabiye.kutd.model.Tower.TowerType;
 
-import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
+
 import javafx.geometry.VPos;
 import javafx.scene.input.MouseEvent;
 
@@ -102,16 +102,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private Image[] projectileImages = new Image[3]; // Array to store projectile images
 
-    ArrayList<IEnemy> enemies;
-    ArrayList<ITower> towers;
+    List<IEnemy> enemies;
+    List<ITower> towers;
     // Projectiles projectiles;
 
     // Removed Enemiea Projectiles from here
 
-    private ArrayList<IEnemy> deadEnemies;
-    private ArrayList<IProjectile> deadProjectiles;
+  
 
-    ArrayList<IProjectile> projectiles;
+    List<IProjectile> projectiles;
 
     private int currentGold;
     private int currentHealth;
@@ -122,6 +121,31 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private int[][] map;
     
+    /**
+    * Initializes and starts the game view with the provided stage and controller.
+    * 
+    * @requires stage != null && controller != null
+    * @requires JavaFX Application Thread is running
+    * @requires controller.getGameManager() != null
+    * @requires all required asset files exist in resources (/assets/tiles/, /assets/buttons/, /assets/projectiles/, /assets/ui/)
+    * 
+    * @modifies this.controller, this.currentStage, this.isEndGamePopupShown
+    * @modifies this.enemyView, this.enemies, this.towers, this.projectiles
+    * @modifies this.currentGold, this.currentHealth, this.currentWave
+    * @modifies this.canvas, this.gc, this.root, this.map
+    * @modifies stage (sets title, scene, maximized state, and shows the stage)
+    * @modifies controller (sets listeners and starts the game)
+    * 
+    * @effects Loads all required assets (tiles, button icons, projectile images)
+    * @effects Creates and configures the game canvas with calculated dimensions
+    * @effects Sets up the UI layout with game elements positioned on screen
+    * @effects Initializes the game state by connecting to the controller's game manager
+    * @effects Registers this view as a listener for game updates and observer for player/map changes
+    * @effects Starts the game thread through the controller
+    * @effects Sets the stage title to "Game Map" and maximizes the window
+    * @effects Sets up mouse click handlers for tile interactions
+    * @effects Applies custom cursor if available, falls back to default cursor on failure
+    */
     public void start(Stage stage, GamePlayController controller) {
         
         loadTiles();
@@ -138,8 +162,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
 
-        this.deadEnemies = controller.getGameManager().getEnemiesToRemove();
-        this.deadProjectiles = controller.getGameManager().getProjectilesToRemove();
+       
 
         this.projectiles = controller.getGameManager().getProjectiles();
         this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
@@ -151,7 +174,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         controller.setGameMapObserver(this);
         controller.startGame();
 
-        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
+        map = controller.getGameManager().getGameMap().toIntArray();
 
         // Create canvas with the calculated dimensions
         canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -192,6 +215,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         stage.show();
     
         setupClickHandler();
+    }
+
+    public GamePlayController getController() {
+        return controller;
     }
 
     private void loadTiles() {
@@ -304,27 +331,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 
     private void handleSellButtonClick(int row, int col) {
-        int tileId = map[row][col];
-            int towerType;
-            switch (tileId) {
-                case 20: // Example: Tower type 0
-                    towerType = 0;
-                    break;
-                case 21: // Example: Tower type 1
-                    towerType = 1;
-                    break;
-                case 26: // Example: Tower type 2
-                    towerType = 2;
-                    break;
-                default:
-                    return;
-            }
+    
     
             // Call the controller's sellTower method with the tower type
-            boolean success = controller.sellTower(col, row, towerType);
-            if (success) {
-            } else {
-            }
+            controller.sellTower(col, row);
     
            removeButtonContainer();
     }
@@ -364,16 +374,17 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private void handleBuildButtonClick(int buttonId, int row, int col) {
         
         // Map button IDs to tower types (0=Magic/Star, 1=Artillery/Bomb, 2=Archer/Arrow)
-        int towerType;
+        TowerType towerType;
         switch(buttonId) {
             case 0: // Star button - creates Magic tower
-                towerType = 1; // MAGIC tower type
+                towerType = TowerType.MAGE; // MAGIC tower type
                 break;
-            case 1: // Bomb button - creates Artillery tower
-                towerType = 2; // ARTILLERY tower type
+            case 1: //  Arrow button - creates Archer tower
+                    towerType = TowerType.ARCHER; // ARROW tower type
                 break;
-            case 2: // Arrow button - creates Archer tower
-                towerType = 0; // ARROW tower type
+            case 2: //  Bomb button - creates Artillery  tower
+                
+                 towerType = TowerType.ARTILLERY; // ARTILLERY tower type
                 break;
             default:
                 return;
@@ -720,7 +731,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         int imgNum = ((int) (pastTime * 6)) % 6;
 
         // GraphicsContext gc = canvas.getGraphicsContext2D();
-        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
+        map = controller.getGameManager().getGameMap().toIntArray();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
@@ -789,28 +800,67 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         // End of projectile rendering
 
+        
+
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
 
-        // Update explosion animations (AnimationTimer handles the rendering)
+        
 
+        // Update explosion animations (AnimationTimer handles the rendering)
+        renderCollectables(gc);
 
         
     }
+
+    public void renderCollectables(GraphicsContext gc) {
+    DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
+    
+    for (ICollectable<?> collectable : collectables) {
+        if (collectable instanceof GoldBag) {
+            GoldBag goldBag = (GoldBag) collectable;
+            Point2D pos = goldBag.getCoordinates();
+            
+            // Render gold bag sprite/image
+            gc.setFill(Color.GREEN);
+            gc.fillOval(pos.getX() - 15, pos.getY() - 15, 30, 30);
+            
+            // Optional: Show remaining time or gold amount
+            gc.setFill(Color.BLACK);
+            gc.fillText(String.valueOf(goldBag.getItem()), 
+                       pos.getX() - 10, pos.getY() + 5);
+        }
+    }
+}
 
    
 
     @Override
     public void update(Object arg) {
+
+
+
         currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         
-        goldText.setText(String.valueOf(currentGold));
-        healthText.setText(String.valueOf(currentHealth));
+        
+         if (goldText != null) {
+            goldText.setText(String.valueOf(currentGold));
+            
+         }   
+        if (healthText != null) {
 
-        map = GameMap.toIntArray(controller.getGameManager().getGameMap());
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawMap(gc);
+            healthText.setText(String.valueOf(currentHealth));
+        }
+
+        map = controller.getGameManager().getGameMap().toIntArray();
+
+        if (gc == null) {
+             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+             drawMap(gc);
+        }
+       
+        
         double deltaTime = 0.0; // Placeholder for actual deltaTime
         updateView(deltaTime); // Pass a dummy deltaTime for now
     }
