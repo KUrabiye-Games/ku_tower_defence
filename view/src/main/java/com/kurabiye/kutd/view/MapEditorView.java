@@ -31,7 +31,7 @@ public class MapEditorView {
     private static final int BUTTON_SIZE = 48;
 
     private final Image[] tileImages = new Image[32]; //0-31 tile images
-     int[][] mapData;
+     Integer[][] mapData;
      int selectedTileType = 15; //default to buildable tile
 
      Canvas canvas;
@@ -64,8 +64,16 @@ public class MapEditorView {
         statusLabel.setStyle("-fx-background-color: #333333; -fx-padding: 5px;");
 
         //layout setup
-        Pane canvasContainer = new Pane(canvas);
+        /*Pane canvasContainer = new Pane(canvas);
         root.setCenter(canvasContainer);
+        root.setLeft(tileSelectionPanel);
+        root.setBottom(controlButtons);
+        root.setTop(statusLabel);*/
+        ScrollPane canvasScrollPane = new ScrollPane(canvas);
+        canvasScrollPane.setPrefSize(COLS * TILE_SIZE, ROWS * TILE_SIZE);
+        canvasScrollPane.setPannable(true);
+
+        root.setCenter(canvasScrollPane);
         root.setLeft(tileSelectionPanel);
         root.setBottom(controlButtons);
         root.setTop(statusLabel);
@@ -200,21 +208,28 @@ public class MapEditorView {
     }
 
      void initializeMapData() {
-        mapData = new int[ROWS][COLS];
+        mapData = new Integer[ROWS][COLS];
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                mapData[row][col] = 5; //default to grass
+                mapData[row][col] = null; //default to grass
             }
         }
     }
 
     private void drawMap() {
+        gc.clearRect(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                int tileId = mapData[row][col];
+                gc.drawImage(tileImages[5], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                
+                Integer topTile = mapData[row][col];
+                if (topTile != null && topTile != 5 && tileImages[topTile] != null) {
+                gc.drawImage(tileImages[topTile], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+                /*int tileId = mapData[row][col];
                 if (tileId >= 0 && tileId < tileImages.length && tileImages[tileId] != null) {
                     gc.drawImage(tileImages[tileId], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                }
+                }*/
             }
         }
     }
@@ -264,15 +279,21 @@ public class MapEditorView {
         if (x < 0 || x >= COLS * TILE_SIZE || y < 0 || y >= ROWS * TILE_SIZE) {
             return;
         }
-        
+
         int col = (int) (x / TILE_SIZE);
         int row = (int) (y / TILE_SIZE);
 
-        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+        if (selectedTileType == 5) {
+            //request to remove any top layer
+            mapData[row][col] = null;
+        } else {
+            //Replace top tile (only one can exist at a time)
             mapData[row][col] = selectedTileType;
-            drawMap();
         }
-    }
+
+    drawMap();
+}
+
 
     private void saveMap() {
         statusLabel.setText("Saving map... (TODO: Implement saving)");
