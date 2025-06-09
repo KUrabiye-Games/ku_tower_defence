@@ -7,102 +7,133 @@ import java.util.List;
 
 public class MapEditorController {
     private final GameMapRepository mapRepository;
-    private GameMap currentMap;
     private final TileFactory tileFactory;
+    private int[][] tileCodeMatrix;
+    private TilePoint2D startPoint;
+    private TilePoint2D endPoint;
+    private static final int DEFAULT_TILE = 5; // grass tile
 
     public MapEditorController() {
         this.mapRepository = GameMapRepository.getInstance();
         this.tileFactory = new TileFactory();
-        initializeNewMap();
+        initializeTileMatrix();
     }
 
-    private void initializeNewMap() {
-        Tile[][] tiles = new Tile[GameMap.MAP_HEIGHT][GameMap.MAP_WIDTH];
+    public void initializeTileMatrix() {
+        tileCodeMatrix = new int[GameMap.MAP_HEIGHT][GameMap.MAP_WIDTH];
         for (int i = 0; i < GameMap.MAP_HEIGHT; i++) {
             for (int j = 0; j < GameMap.MAP_WIDTH; j++) {
-                tiles[i][j] = tileFactory.create(5); // Default grass tile
+                tileCodeMatrix[i][j] = DEFAULT_TILE; // Initialize with grass tiles
             }
         }
-        currentMap = new GameMap();
-        currentMap.setTiles(tiles);
+        startPoint = null;
+        endPoint = null;
     }
 
-    public ValidationResult validateMap() {
-        try {
-            TilePoint2D startPoint = findSpecialTile(0); // Start tile
-            TilePoint2D endPoint = findSpecialTile(14); // End tile
-            
-            if (startPoint == null || endPoint == null) {
-                return new ValidationResult(false, "Map must have start (0) and end (14) tiles!");
-            }
-            
-            GameMapValidator.isValidGameMap(currentMap.getTiles(), startPoint, endPoint);
-            return new ValidationResult(true, "Map is valid!");
-        } catch (IllegalArgumentException e) {
-            return new ValidationResult(false, e.getMessage());
+    public void setStartPoint(int x, int y) {
+        if (isValidPosition(x, y)) {
+            startPoint = new TilePoint2D(x, y);
+        }
+    }
+
+    public void setEndPoint(int x, int y) {
+        if (isValidPosition(x, y)) {
+            endPoint = new TilePoint2D(x, y);
         }
     }
 
     public MapOperationResult saveMap(String mapName) {
-        ValidationResult validationResult = validateMap();
-        if (!validationResult.isValid()) {
-            return new MapOperationResult(false, validationResult.getMessage());
+        if (!isValidMapName(mapName)) {
+            return new MapOperationResult(false, "Invalid map name");
         }
-        
+
+        if (startPoint == null || endPoint == null) {
+            return new MapOperationResult(false, "Start and end points must be set");
+        }
+
         try {
-            currentMap.setName(mapName);
-            mapRepository.addGameMap(currentMap);
-            return new MapOperationResult(true, "Map saved successfully!");
-        } catch (Exception e) {
-            return new MapOperationResult(false, "Failed to save map: " + e.getMessage());
+            GameMap gameMap = createGameMapFromMatrix(mapName);
+            return mapRepository.addGameMap(gameMap);
+        } catch (IllegalArgumentException e) {
+            return new MapOperationResult(false, e.getMessage());
+        }
+    }
+
+    private GameMap createGameMapFromMatrix(String mapName) {
+        Tile[][] tiles = new Tile[GameMap.MAP_HEIGHT][GameMap.MAP_WIDTH];
+        for (int i = 0; i < GameMap.MAP_HEIGHT; i++) {
+            for (int j = 0; j < GameMap.MAP_WIDTH; j++) {
+                tiles[i][j] = tileFactory.create(tileCodeMatrix[i][j]);
+                tiles[i][j].setCoordinate(new TilePoint2D(j, i));
+            }
+        }
+
+        try {
+            GameMap gameMap = new GameMap(tiles, startPoint, endPoint);
+            gameMap.setName(mapName);
+            return gameMap;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid map configuration: " + e.getMessage());
         }
     }
 
     public GameMap loadMap(String mapName) {
-        return mapRepository.getGameMap(mapName);
+        GameMap loadedMap = mapRepository.getGameMap(mapName);
+        if (loadedMap != null) {
+            loadMapIntoMatrix(loadedMap);
+            return loadedMap;
+        }
+        return null;
+    }
+
+    private void loadMapIntoMatrix(GameMap map) {
+        Tile[][] mapTiles = map.getTiles();
+        startPoint = map.getStartTileCoordinates();
+        endPoint = map.getEndTileCoordinates();
+        
+        // Convert tiles back to tile codes
+        for (int i = 0; i < GameMap.MAP_HEIGHT; i++) {
+            for (int j = 0; j < GameMap.MAP_WIDTH; j++) {
+                tileCodeMatrix[i][j] = mapTiles[i][j].getTileCode();
+            }
+        }
+    }
+
+    public int[][] getTileCodeMatrix() {
+        return tileCodeMatrix;
+    }
+
+    public boolean placeTile(int x, int y, int tileCode) {
+        if (!isValidPosition(x, y)) {
+            return false;
+        }
+        tileCodeMatrix[y][x] = tileCode;
+        return true;
     }
 
     public List<String> getAvailableMapNames() {
         return mapRepository.getAvailableMapNames();
     }
 
-    public boolean placeTile(int x, int y, int tileCode) {
-        try {
-            Tile newTile = tileFactory.create(tileCode);
-            currentMap.setTile(x, y, newTile);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+    private boolean isValidPosition(int x, int y) {
+        return x >= 0 && x < GameMap.MAP_WIDTH && y >= 0 && y < GameMap.MAP_HEIGHT;
     }
 
-    private TilePoint2D findSpecialTile(int tileCode) {
-        for (int i = 0; i < GameMap.MAP_HEIGHT; i++) {
-            for (int j = 0; j < GameMap.MAP_WIDTH; j++) {
-                if (currentMap.getTile(j, i).getTileCode() == tileCode) {
-                    return new TilePoint2D(j, i);
-                }
-            }
-        }
-        return null;
+    private boolean isValidMapName(String mapName) {
+        return mapName != null && !mapName.trim().isEmpty() && !mapRepository.getAvailableMapNames().contains(mapName);
     }
 
-    public GameMap getCurrentMap() {
-        return currentMap;
+    public void clearMap() {
+        initializeTileMatrix();
+        startPoint = null;
+        endPoint = null;
+    }
+
+    public TilePoint2D getStartPoint() {
+        return startPoint;
+    }
+
+    public TilePoint2D getEndPoint() {
+        return endPoint;
     }
 }
-
-// Result classes to encapsulate operation results
-class ValidationResult {
-    private final boolean valid;
-    private final String message;
-
-    public ValidationResult(boolean valid, String message) {
-        this.valid = valid;
-        this.message = message;
-    }
-
-    public boolean isValid() { return valid; }
-    public String getMessage() { return message; }
-}
-
