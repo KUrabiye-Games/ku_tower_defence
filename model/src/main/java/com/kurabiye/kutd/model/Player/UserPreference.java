@@ -82,14 +82,13 @@ public class UserPreference implements Serializable {
         enemyHealth = new int[]{50, 75}; // Health for each enemy type
         // Damage dealt by each tower type to each enemy type
         // damageDealt[TowerType][EnemyType][Level]
-        damageDealt = new float[][][]{
-            {{5.0f, 7.0f},
-             {1.0f, 2.0f}}, // Damage for artillery type 0
-            {{7.0f, 9.0f},
-             {15.0f, 18.0f}}, // Damage for artillery type 1
-            {{1.5f, 2.5f},
-             {3.0f, 4.0f}}  // Damage for artillery type 2
-        };
+        damageDealt = new float[][][]
+            {
+                {{10.0f, 13.0f}, {5.0f, 7.0f}}, // Damage for artillery type 0
+                {{7.0f, 9.0f}, {10.0f, 10.0f}}, // Damage for artillery type 1
+                {{7f, 10f}, {10f, 13f}},
+            }  // Damage for artillery type 2
+        ;
         // Tower construction costs for each type and level
         // towerConstructionCost[TowerType][Level]
         towerConstructionCost = new int[][]{
@@ -261,9 +260,12 @@ public class UserPreference implements Serializable {
      */
     public float[][][] getDamageDealt() {
         // Deep copy to maintain immutability
-        float[][] copy = new float[damageDealt.length][];
+        float[][][] copy = new float[damageDealt.length][][];
         for (int i = 0; i < damageDealt.length; i++) {
-            copy[i] = damageDealt[i].clone();
+            copy[i] = new float[damageDealt[i].length][];
+            for (int j = 0; j < damageDealt[i].length; j++) {
+                copy[i][j] = damageDealt[i][j].clone();
+            }
         }
         return copy;
     }
@@ -347,15 +349,15 @@ public class UserPreference implements Serializable {
 
     // Getters for individual tower damages
     public float getArrowDamage() {
-        return damageDealt != null && damageDealt.length > 0 ? damageDealt[0][0] : 0.0f;
+        return damageDealt != null && damageDealt.length > 0 ? damageDealt[0][0][0] : 0.0f;
     }
 
     public float getArtilleryDamage() {
-        return damageDealt != null && damageDealt.length > 2 ? damageDealt[2][0] : 0.0f;
+        return damageDealt != null && damageDealt.length > 2 ? damageDealt[2][0][0] : 0.0f;
     }
 
     public float getMagicDamage() {
-        return damageDealt != null && damageDealt.length > 1 ? damageDealt[1][0] : 0.0f;
+        return damageDealt != null && damageDealt.length > 1 ? damageDealt[1][0][0] : 0.0f;
     }
     
     public int[] getEnemyMovementSpeed() {
@@ -606,27 +608,27 @@ public class UserPreference implements Serializable {
         public Builder setArrowDamage(float arrowDamage) {
             // Ensure the first tower type's damage is set to the specified amount
             if (userPreference.damageDealt == null || userPreference.damageDealt.length < 1) {
-                userPreference.damageDealt = new float[3][2]; // Initialize if not set
+                userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
             }
-            userPreference.damageDealt[0][0] = arrowDamage; // Set the first tower type's damage
+            userPreference.damageDealt[0][0][0] = arrowDamage; // Set the first tower type's damage
             return this;
         }
 
         public Builder setArtilleryDamage(float artilleryDamage) {
             // Ensure the third tower type's damage is set to the specified amount
             if (userPreference.damageDealt == null || userPreference.damageDealt.length < 3) {
-                userPreference.damageDealt = new float[3][2]; // Initialize if not set
+                userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
             }
-            userPreference.damageDealt[2][0] = artilleryDamage; // Set the third tower type's damage
+            userPreference.damageDealt[2][0][0] = artilleryDamage; // Set the third tower type's damage
             return this;
         }
 
         public Builder setMagicDamage(float magicDamage) {
             // Ensure the second tower type's damage is set to the specified amount
             if (userPreference.damageDealt == null || userPreference.damageDealt.length < 2) {
-                userPreference.damageDealt = new float[3][2]; // Initialize if not set
+                userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
             }
-            userPreference.damageDealt[1][0] = magicDamage; // Set the second tower type's damage
+            userPreference.damageDealt[1][0][0] = magicDamage; // Set the second tower type's damage
             return this;
         }
 
