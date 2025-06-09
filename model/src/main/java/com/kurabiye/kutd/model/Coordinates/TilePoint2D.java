@@ -1,5 +1,11 @@
 package com.kurabiye.kutd.model.Coordinates;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * This is the specific class that represents a tile coordinate in the game.
  * It extends our custom Point2D and adds tile-specific functionality.
@@ -14,8 +20,11 @@ package com.kurabiye.kutd.model.Coordinates;
  * @version: 1.0
  * @since: 2025-04-23
  */
-public class TilePoint2D extends Point2D {
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class TilePoint2D extends Point2D implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     public static final int NUMBER_OF_TILES_X = 16; // The number of tiles in the x direction
     public static final int NUMBER_OF_TILES_Y = 9; // The number of tiles in the y direction
 
@@ -34,8 +43,9 @@ public class TilePoint2D extends Point2D {
     private Point2D leftBottomCorner;
 
     private Point2D center; // the super value store this coordinate
- 
-    public TilePoint2D(int tileX, int tileY) {
+    
+    @JsonCreator
+    public TilePoint2D(@JsonProperty("x") int tileX, @JsonProperty("y") int tileY) {
         super(tileX * TILE_WIDTH, tileY * TILE_HEIGHT); // Convert the tile coordinates to pixel coordinates
 
         this.rightTopCorner = new Point2D((tileX + 1) * TILE_WIDTH, tileY * TILE_HEIGHT); // Calculate the right top corner
@@ -57,30 +67,37 @@ public class TilePoint2D extends Point2D {
         }
     }
 
+    @JsonProperty("x")
     public int getTileX() {
         return tileX; // Convert the pixel coordinates to tile coordinates
     }
 
+    @JsonProperty("y")
     public int getTileY() {
         return tileY; // Convert the pixel coordinates to tile coordinates
     }
 
+    @JsonProperty("rightTopCorner")
     public Point2D getRightTopCorner() {
         return rightTopCorner; // Get the right top corner of the tile
     }
 
+    @JsonProperty("rightBottomCorner")
     public Point2D getRightBottomCorner() {
         return rightBottomCorner; // Get the right bottom corner of the tile
     }
 
+    @JsonProperty("leftTopCorner")
     public Point2D getLeftTopCorner() {
         return leftTopCorner; // Get the left top corner of the tile
     }
 
+    @JsonProperty("leftBottomCorner")
     public Point2D getLeftBottomCorner() {
         return leftBottomCorner; // Get the left bottom corner of the tile
     }
 
+    @JsonProperty("center")
     public Point2D getCenter() {
         return center; // Get the center of the tile
     }
