@@ -74,7 +74,7 @@ public class UserPreference implements Serializable {
         wave2.add(new int[]{3,1}); // Example group with different enemy types
         waveList.add(wave2); // Add the second wave to the list
     
-        startingGold = 100;
+        startingGold = 1000;
         goldPerEnemy = new int[]{15, 20}; // Gold earned per enemy type
         startingHealth = 5;
         enemyHealth = new int[]{50, 75}; // Health for each enemy type
@@ -85,28 +85,28 @@ public class UserPreference implements Serializable {
              {1.0f, 2.0f}}, // Damage for artillery type 0
             {{7.0f, 9.0f},
              {15.0f, 18.0f}}, // Damage for artillery type 1
-            {{8.0f, 12.0f},
-             {7.0f, 9.0f}}  // Damage for artillery type 2
+            {{1.5f, 2.5f},
+             {3.0f, 4.0f}}  // Damage for artillery type 2
         };
         // Tower construction costs for each type and level
         // towerConstructionCost[TowerType][Level]
         towerConstructionCost = new int[][]{
-            {50, 50},
-            {75, 75},
-            {100, 100}
+            {50, 60},
+            {75, 85},
+            {100, 120}
         }; // Cost for each tower type [TowerType][Level]
         towerEffectiveRange = new float[][]
-        {{270.0f, 300.0f},
-        {300.0f, 320.0f},
-        {400.0f, 450.0f} // Effective range for each tower type [Type][Level]
-    }; // Range for each tower type
+        {{320.0f, 350.0f},
+        {240.0f, 270.0f},
+        {280.0f, 320.0f} // Effective range for each tower type [Type][Level]
+    }; // Range fr each tower type
 
         // Tower rate of fire for each type and level
         // towerRateOfFire[TowerType][Level]
         towerRateOfFire = new float[][]{
-            {0.5f, 0.4f},
-            {1f, 0.8f},
-            {5f, 4f}
+            {4f, 3.5f},
+            {1.2f, 1f},
+            {0.25f, 0.15f}
         }; // Attack speed for each tower type
 
         artilleryRange = 3.0f; // Special long range for artillery

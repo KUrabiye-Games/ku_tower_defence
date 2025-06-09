@@ -43,9 +43,12 @@ public class CollactableManager {
             // Remove expired collectables
             if (collectable instanceof GoldBag && ((GoldBag) collectable).isExpired()) {
                 collectables.removeLater(collectable);
+                // Debug 
+                System.out.println("Collectable expired and removed: " + collectable.getItem());
             }
         }
         collectables.removeCommit();
+        // 
     }
 
     /**
@@ -77,7 +80,7 @@ public class CollactableManager {
                 
                     // Remove the collected item
                     collectables.remove(goldBag);
-                            
+
                     return true; // Successfully collected
 
     }

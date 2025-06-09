@@ -61,7 +61,7 @@ public class SynergeticMovementManager {
                             enemies.removeLater(knight);
 
                             // Debugging message
-                            System.out.println("Synergetic movement applied to knight at " + knight.getCoordinate() + " with goblin at ");
+                            //System.out.println("Synergetic movement applied to knight at " + knight.getCoordinate() + " with goblin at ");
                                         
 
                     }else if (!foundGoblin && knight instanceof SynergeticMoveDecorator) {
@@ -72,7 +72,7 @@ public class SynergeticMovementManager {
 
 
                         // Debugging message
-                        System.out.println("Synergetic movement removed from knight at " + knight.getCoordinate() + " as no goblin is found.");
+                        //System.out.println("Synergetic movement removed from knight at " + knight.getCoordinate() + " as no goblin is found.");
 
                     }
                 }

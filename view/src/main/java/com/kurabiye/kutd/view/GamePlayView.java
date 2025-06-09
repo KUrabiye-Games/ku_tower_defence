@@ -783,7 +783,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     gc.translate(viewX, viewY);
         
                     // Rotate the canvas
-                    gc.rotate(angle + 180);
+                    gc.rotate(angle);
         
                     // Draw the image centered at (0, 0) after translation
                     gc.drawImage(projectileImage, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
@@ -808,7 +808,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
 
         // Update explosion animations (AnimationTimer handles the rendering)
+
+        //By Atlas
         renderCollectables(gc);
+        renderTowerRanges(gc);
 
         
     }
@@ -833,7 +836,28 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 }
 
-   
+
+
+public void renderTowerRanges(GraphicsContext gc) {
+    for (ITower tower : towers) {
+        // Get the tower's range and position
+        double range = tower.getRange();
+
+        Point2D position = tower.getTileCoordinate().getCenter();
+
+        // Calculate the top-left corner of the range oval
+        double topLeftX = position.getX() - range;
+        double topLeftY = position.getY() - (range * 0.6); // Reduce vertical height by 40%
+        // Draw a vertically squeezed oval for the range
+        gc.setStroke(Color.rgb(190, 120, 120, 0.5));
+        gc.setLineWidth(2);
+        gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Reduce vertical diameter
+
+
+
+    }
+
+}
 
     @Override
     public void update(Object arg) {

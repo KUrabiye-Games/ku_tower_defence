@@ -100,7 +100,7 @@ public class EnemyManager {
                 Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
                 enemies.add(enemy); // Add the enemy to the list of enemies
                 // Debug message to indicate that an enemy has been spawned
-                System.out.println("Enemy spawned: " + enemyIndex);
+                //System.out.println("Enemy spawned: " + enemyIndex);
                 return true; // Return true if an enemy was spawned
             }else if (enemyIndex == WaveManager.NO_NEW_ENEMY_CODE) {
                 return true; // Return false if there are no more enemies to spawn
