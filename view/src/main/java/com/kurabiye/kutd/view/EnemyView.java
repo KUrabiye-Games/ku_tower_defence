@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.SlowDownDecorator;
 import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 
@@ -25,6 +26,7 @@ public class EnemyView {
 
     // Add this field to the EnemyView class
     private Image zapIcon;
+    private Image slowIcon;
 
     // Different enemy images for different enemy types
     private Image[] enemyImages;
@@ -58,6 +60,13 @@ public class EnemyView {
             zapIcon = new Image(getClass().getResourceAsStream("/assets/effects/Zap.png"));
         } catch (Exception e) {
             zapIcon = null; // Fallback if image can't be loaded
+        }
+
+        // Load the slow icon
+        try {
+            slowIcon = new Image(getClass().getResourceAsStream("/assets/effects/Slow.png"));
+        } catch (Exception e) {
+            slowIcon = null; // Fallback if image can't be loaded
         }
     }
 
@@ -158,11 +167,21 @@ public class EnemyView {
                 zapIcon != null) {
                 
                 double iconSize = TILE_SIZE / 3;
-                double iconX = viewX - (iconSize / 2);
-                double iconY = viewY - 60; // Position above the enemy with some padding
+                double iconX = viewX - (iconSize / 2) + 30;
+                double iconY = viewY - 45; // Position above the enemy with some padding
                 
                 gc.drawImage(zapIcon, iconX, iconY, iconSize, iconSize);
             }
+
+            // Draw slow icon for slowed enemies 
+            if (enemy instanceof SlowDownDecorator && slowIcon != null) {
+
+                double iconSize = TILE_SIZE / 3;
+                double iconX = viewX - (iconSize / 2) - 30; // Position to the right of the healthbar
+                double iconY = viewY - 45;
+
+                gc.drawImage(slowIcon, iconX, iconY, iconSize, iconSize);
+            }   
         }
     }
     
