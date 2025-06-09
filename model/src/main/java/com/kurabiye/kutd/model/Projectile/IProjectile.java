@@ -1,7 +1,7 @@
 package com.kurabiye.kutd.model.Projectile;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+
 
 /**
  * Interface defining the core functionality of a Projectile in the tower defense game.
@@ -69,4 +69,12 @@ public interface IProjectile {
        */
         Point2D getTarget();
     
+
+    /**
+     * Get the level of the projectile
+     * 
+     * @return The level of the projectile
+     * */
+      public int getProjectileLevel();
+
 }

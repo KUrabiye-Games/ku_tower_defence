@@ -45,7 +45,7 @@ public class UserPreference implements Serializable {
 
     // The first index is the tower type, and the second index is the level of the tower
     // For example, towerEffectiveRange[0][1] is the effective range of tower type 0 at level 1
-     private float[][] damageDealt; // Damage dealt by each tower type to each enemy type
+     private float[][][] damageDealt; // Damage dealt by each tower type to each enemy type
      private float[][] towerEffectiveRange; // Effective range for each tower type
      private float[][] towerRateOfFire; // Rate of fire for each tower type
      private int[][] towerConstructionCost; // Cost to construct each tower type
@@ -76,16 +76,42 @@ public class UserPreference implements Serializable {
         wave2.add(new int[]{3,1}); // Example group with different enemy types
         waveList.add(wave2); // Add the second wave to the list
     
-        startingGold = 100;
+        startingGold = 1000;
         goldPerEnemy = new int[]{15, 20}; // Gold earned per enemy type
         startingHealth = 5;
         enemyHealth = new int[]{50, 75}; // Health for each enemy type
-        damageDealt = new float[][]{
-            //Enemy0 Enemy1
-            {5.0f, 1.0f}, // Damage for artillery type 0
-            {7.0f, 15.0f}, // Damage for artillery type 1
-            {8.0f, 7.0f}  // Damage for artillery type 2
+        // Damage dealt by each tower type to each enemy type
+        // damageDealt[TowerType][EnemyType][Level]
+        damageDealt = new float[][][]{
+            {{5.0f, 7.0f},
+             {1.0f, 2.0f}}, // Damage for artillery type 0
+            {{7.0f, 9.0f},
+             {15.0f, 18.0f}}, // Damage for artillery type 1
+            {{1.5f, 2.5f},
+             {3.0f, 4.0f}}  // Damage for artillery type 2
         };
+        // Tower construction costs for each type and level
+        // towerConstructionCost[TowerType][Level]
+        towerConstructionCost = new int[][]{
+            {50, 60},
+            {75, 85},
+            {100, 120}
+        }; // Cost for each tower type [TowerType][Level]
+        towerEffectiveRange = new float[][]
+        {{320.0f, 350.0f},
+        {240.0f, 270.0f},
+        {280.0f, 320.0f} // Effective range for each tower type [Type][Level]
+    }; // Range fr each tower type
+
+        // Tower rate of fire for each type and level
+        // towerRateOfFire[TowerType][Level]
+        towerRateOfFire = new float[][]{
+            {4f, 3.5f},
+            {1.2f, 1f},
+            {0.25f, 0.15f}
+        }; // Attack speed for each tower type
+
+        artilleryRange = 3.0f; // Special long range for artillery
         towerConstructionCost = new int[][]{{50, 75, 100},{50, 75, 100},{50, 75, 100}}; // Cost for each tower type
         towerEffectiveRange = new float[][]{{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f}}; // Range for each tower type
         towerRateOfFire = new float[][]{{0.5f, 1f, 5f},{0.5f, 1f, 5f}, {0.5f, 1f, 5f}}; // Attack speed for each tower type
@@ -192,25 +218,22 @@ public class UserPreference implements Serializable {
     }
     
     public ArrayList<ArrayList<int[]>> getWaveList() {
-        // Return a deep copy to maintain immutability
-        if (waveList == null) {
-            return null;
-        }
-        
-        ArrayList<ArrayList<int[]>> copyList = new ArrayList<>();
-        for (ArrayList<int[]> wave : waveList) {
-            ArrayList<int[]> copyWave = new ArrayList<>();
-            for (int[] group : wave) {
-                copyWave.add(group.clone());
-            }
-            copyList.add(copyWave);
-        }
-        return copyList;
+        return waveList;
     }
+
+    /**
+     * Gets the starting gold amount for the player.
+     * @return the starting gold amount
+     */
     
     public int getStartingGold() {
         return startingGold;
     }
+
+    /**
+     * Gets the gold earned per enemy type.
+     * @return the array of gold earned per enemy type
+     */
     
     public int[] getGoldPerEnemy() {
         return goldPerEnemy; 
@@ -219,12 +242,24 @@ public class UserPreference implements Serializable {
     public int getStartingHealth() {
         return startingHealth;
     }
+
+    /**
+     * Gets the health points for each type of enemy.
+     * * The first index is the enemy type.
+     * @return the array of enemy health points
+     */
     
     public int[] getEnemyHealth() {
         return enemyHealth; 
     }
-    
-    public float[][] getDamageDealt() {
+    /**
+     * Gets the damage dealt by each tower type to each enemy type.
+     * * The first index is the tower type, the second index is the enemy type,
+     * and the third index is the level of the tower.
+     * [TowerType][EnemyType][Level]
+     * @return
+     */
+    public float[][][] getDamageDealt() {
         // Deep copy to maintain immutability
         float[][] copy = new float[damageDealt.length][];
         for (int i = 0; i < damageDealt.length; i++) {
@@ -253,6 +288,14 @@ public class UserPreference implements Serializable {
     public float[][] getTowerEffectiveRange() {
         return towerEffectiveRange.clone(); // Return a copy to maintain immutability
     }
+
+
+    /**
+     * Gets the rate of fire for each tower type.
+     * The first index is the tower type, and the second index is the level of the tower.
+     * [TowerType][Level]
+     * @return the rate of fire for each tower type
+     */
     
     public float[][] getTowerRateOfFire() {
         return towerRateOfFire.clone(); // Return a copy to maintain immutability
@@ -401,7 +444,7 @@ public class UserPreference implements Serializable {
                 }
                 
                 if (userPreference.damageDealt != null) {
-                    this.userPreference.damageDealt = new float[userPreference.damageDealt.length][];
+                    this.userPreference.damageDealt = new float[userPreference.damageDealt.length][][];
                     for (int i = 0; i < userPreference.damageDealt.length; i++) {
                         this.userPreference.damageDealt[i] = userPreference.damageDealt[i].clone();
                     }
@@ -703,7 +746,7 @@ public class UserPreference implements Serializable {
             return this;
         }
 
-        public Builder setDamageDealt(float[][] damageDealt) {
+        public Builder setDamageDealt(float[][][] damageDealt) {
             userPreference.damageDealt = damageDealt;
             return this;
         }
