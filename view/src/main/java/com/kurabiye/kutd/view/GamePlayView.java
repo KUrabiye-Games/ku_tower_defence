@@ -72,7 +72,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private static final int CANVAS_WIDTH = TILE_SIZE * COLS;
     private static final int CANVAS_HEIGHT = TILE_SIZE * ROWS;
     
-    private static final int TILE_COUNT = 32;
+    private static final int TILE_COUNT = 35;
     private static final int GRASS_TILE_ID = 5;
     private static final int INTERACTIVE_TILE_ID = 15;
 

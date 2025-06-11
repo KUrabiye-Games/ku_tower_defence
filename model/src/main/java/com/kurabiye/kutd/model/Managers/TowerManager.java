@@ -159,15 +159,15 @@ public class TowerManager {
                     switch (tower.getTowerType()) {
                         case ARTILLERY:
                         // TODO: Replace with actual tile codes for each tower type
-                            tileCode = 20; // Example tile code for tower type 0
+                            tileCode = 33; // Example tile code for tower type 0
                             break;
                         case MAGE:
                         // TODO: Replace with actual tile codes for each tower type
-                            tileCode = 21; // Example tile code for tower type 1
+                            tileCode = 34; // Example tile code for tower type 1
                             break;
                         case ARCHER:
                         // TODO: Replace with actual tile codes for each tower type
-                            tileCode = 26; // Example tile code for tower type 2
+                            tileCode = 32; // Example tile code for tower type 2
                             break;
                         default:
                             return false; // Invalid tower type
