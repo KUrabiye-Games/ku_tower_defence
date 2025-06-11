@@ -67,8 +67,15 @@ public class GamePlayController {
         return gameManager.sellTower(x, y);
     }
 
+    public boolean upgradeTower(int x, int y) {
+        return gameManager.upgradeTower(x, y);
+    }
+
+
     private void terminateGameThread() {
         gameManager.killGameThread();
     }
 
+
+    
 }
