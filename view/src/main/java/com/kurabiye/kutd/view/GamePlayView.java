@@ -19,23 +19,26 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 
+
 import java.util.List;
+
 
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Collectable.GoldBag;
 import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
 
 import com.kurabiye.kutd.model.Projectile.IProjectile;
+
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
+
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -673,7 +676,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         playAgainButton.setOnAction(event -> {
             controller.endGame(); // Clean up the current game
             root.getChildren().remove(overlay); // Remove the popup
-            GamePlayController newController = new GamePlayController(); // Create a new controller
+            GameMap gameMap = controller.getGameManager().getGameMap(); // Get the current map
+            GamePlayController newController = new GamePlayController(gameMap); // Create a new controller
             this.start(stage, newController); // Restart the game view with the new controller
         });
 

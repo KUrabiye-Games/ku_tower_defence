@@ -15,10 +15,12 @@ public class GamePlayController {
         return gameManager;
     }
 
-    public GamePlayController() {
-
-        GameMap defaultGameMap = StaticMap.getPrebuiltMap();
-        gameManager = new GameManager(defaultGameMap);
+    public GamePlayController(GameMap gameMap) {
+        if (gameMap == null) {
+            gameMap = StaticMap.getPrebuiltMap(); // Fallback to default map
+        }
+        gameManager = new GameManager(gameMap);
+       
     }
 
     public void setGameUpdateListener(IGameUpdateListener listener) {
