@@ -186,8 +186,8 @@ public class EnemyView {
 
                 if (((EnemyDecorator)enemy).hasEffect(EffectTypes.SLOW_DOWN)) {
                 double iconSize = TILE_SIZE / 3;
-                double iconX = viewX - (iconSize / 2) - 30; // Position to the right of the healthbar
-                double iconY = viewY - 45;
+                double iconX = viewX - (iconSize / 2) - 35; // Position to the right of the healthbar
+                double iconY = viewY - 48;
 
                 gc.drawImage(slowIcon, iconX, iconY, iconSize, iconSize);
                 }
