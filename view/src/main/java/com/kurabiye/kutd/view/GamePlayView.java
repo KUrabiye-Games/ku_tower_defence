@@ -31,7 +31,7 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
-
+import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
 
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
