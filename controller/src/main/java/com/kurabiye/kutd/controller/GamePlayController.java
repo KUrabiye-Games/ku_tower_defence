@@ -9,18 +9,20 @@ import com.kurabiye.kutd.model.Tower.TowerType;
 
 public class GamePlayController {
 
-    private final GameManager gameManager;
+    private GameManager gameManager;
 
     public GameManager getGameManager() {
         return gameManager;
     }
 
     public GamePlayController(GameMap gameMap) {
-        if (gameMap == null) {
-            gameMap = StaticMap.getPrebuiltMap(); // Fallback to default map
+       if (gameMap == null) {
+            gameMap = StaticMap.getPrebuiltMap();
+        } else {
+            // Create a deep copy of the map
+            gameMap = gameMap.clone();
         }
         gameManager = new GameManager(gameMap);
-       
     }
 
     public void setGameUpdateListener(IGameUpdateListener listener) {

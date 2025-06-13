@@ -34,7 +34,7 @@ import com.kurabiye.kutd.util.ObserverPattern.Observer;
  */
 
  @JsonIgnoreProperties(ignoreUnknown = true)
-public class GameMap implements Observable, Serializable{
+public class GameMap implements Observable, Serializable, Cloneable{
     private static final long serialVersionUID = 1L;
     
 
@@ -288,6 +288,33 @@ public class GameMap implements Observable, Serializable{
         this.tiles = tiles; // Set the 2D array of tiles representing the map
         this.changed = true; // Set the changed flag to true to indicate that the map has changed
         inititializePaths(new TilePoint2D(0, 0), new TilePoint2D(MAP_WIDTH - 1, MAP_HEIGHT - 1)); // Reinitialize the paths with default start and end points
+    }
+
+    @Override
+    public GameMap clone() {
+        try {
+            GameMap clonedMap = (GameMap) super.clone();
+            
+            // Deep copy the tiles array
+            clonedMap.tiles = new Tile[tiles.length][];
+            for (int i = 0; i < tiles.length; i++) {
+                clonedMap.tiles[i] = new Tile[tiles[i].length];
+                for (int j = 0; j < tiles[i].length; j++) {
+                    clonedMap.tiles[i][j] = tiles[i][j];
+                }
+            }
+            
+            // Deep copy paths
+            clonedMap.tilePath = new ArrayList<>(tilePath);
+            clonedMap.pointPath = new ArrayList<>(pointPath);
+            
+            // Create new observer list
+            clonedMap.observers = new ArrayList<>();
+            
+            return clonedMap;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Failed to clone GameMap", e);
+        }
     }
 
     @JsonCreator
