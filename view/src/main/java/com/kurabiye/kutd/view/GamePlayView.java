@@ -17,8 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-
-
+import javafx.scene.text.TextAlignment;
 
 import java.util.List;
 
@@ -287,15 +286,29 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private void setupClickHandler() {
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            int col = (int) (event.getX() / TILE_SIZE);
-            int row = (int) (event.getY() / TILE_SIZE);
+        // First check for collectables
+        double clickX = event.getX();
+        double clickY = event.getY();
+        
+        // Convert click coordinates to model space
+        double modelWidth = 1920;  // The width used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth;
+        Point2D clickPoint = new Point2D(clickX / scaleFactor, clickY / scaleFactor);
+        
+        // Try to collect gold bag first
+        boolean collected = controller.getGameManager().handleCollectableClick(clickPoint);
+        
+        if (!collected) {
+            // If no collectable was clicked, handle tower/tile interactions
+            int col = (int) (clickX / TILE_SIZE);
+            int row = (int) (clickY / TILE_SIZE);
     
             if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
                 int tileId = map[row][col];
     
-                if (tileId == 20 || tileId == 21 || tileId == 26 || tileId == 32 || tileId == 33 || tileId == 34) { // Tower tile IDs
+                if (tileId == 20 || tileId == 21 || tileId == 26 || tileId == 32 || tileId == 33 || tileId == 34) {
                     showTowerButton(row, col);
-                } else if (tileId == INTERACTIVE_TILE_ID) { // Buildable tile
+                } else if (tileId == INTERACTIVE_TILE_ID) {
                     showBuildButtons(row, col);
                 } else {
                     removeButtonContainer();
@@ -303,6 +316,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             } else {
                 removeButtonContainer();
             }
+        } else {
+            // If we collected something, remove any UI elements
+            removeButtonContainer();
+        }
         });
     }
 
@@ -914,20 +931,29 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     public void renderCollectables(GraphicsContext gc) {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
+    
+        // Calculate scale factor
+        double modelWidth = 1920;  // The width used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth;
         
         for (ICollectable<?> collectable : collectables) {
             if (collectable instanceof GoldBag) {
                 GoldBag goldBag = (GoldBag) collectable;
                 Point2D pos = goldBag.getCoordinates();
                 
-                // Render gold bag sprite/image
-                gc.setFill(Color.GREEN);
-                gc.fillOval(pos.getX() - 15, pos.getY() - 15, 30, 30);
+                // Scale the position from model space to view space
+                double viewX = pos.getX() * scaleFactor;
+                double viewY = pos.getY() * scaleFactor;
                 
-                // Optional: Show remaining time or gold amount
+                // Render gold bag sprite/image
+                gc.setFill(Color.GOLD);  // Changed to gold color for better visibility
+                gc.fillOval(viewX - 15, viewY - 15, 30, 30);
+                
+                // Draw the amount
                 gc.setFill(Color.BLACK);
-                gc.fillText(String.valueOf(goldBag.getItem()), 
-                        pos.getX() - 10, pos.getY() + 5);
+                gc.setTextAlign(TextAlignment.CENTER);
+                gc.setTextBaseline(VPos.CENTER);
+                gc.fillText(String.valueOf(goldBag.getItem()), viewX, viewY);
             }
         }
     }
