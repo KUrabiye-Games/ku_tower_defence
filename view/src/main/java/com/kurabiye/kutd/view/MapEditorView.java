@@ -247,17 +247,16 @@ public class MapEditorView {
     private void drawMap() {
 
         gc.clearRect(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
-/* Atlas Conflict resolution test
+
         mapData = controller.getTileCodeMatrix();
-*/
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
                 gc.drawImage(tileImages[5], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 
                 int topTile = mapData[row][col];
                 if (topTile != NO_TILE_FLAG && topTile != 5 && tileImages[topTile] != null) {
-                gc.drawImage(tileImages[topTile], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            }
+                    gc.drawImage(tileImages[topTile], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
                 /*int tileId = mapData[row][col];
                 if (tileId >= 0 && tileId < tileImages.length && tileImages[tileId] != null) {
                     gc.drawImage(tileImages[tileId], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
