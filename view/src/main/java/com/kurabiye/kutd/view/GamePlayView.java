@@ -75,7 +75,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private static final int CANVAS_WIDTH = TILE_SIZE * COLS;
     private static final int CANVAS_HEIGHT = TILE_SIZE * ROWS;
     
-    private static final int TILE_COUNT = 32;
+    private static final int TILE_COUNT = 35;
     private static final int GRASS_TILE_ID = 5;
     private static final int INTERACTIVE_TILE_ID = 15;
 
@@ -287,8 +287,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
                 int tileId = map[row][col];
     
-                if (tileId >= 20 && tileId <= 26) { // Tower tile IDs
-                    showSellButton(row, col);
+                if (tileId == 20 || tileId == 21 || tileId == 26 || tileId == 32 || tileId == 33 || tileId == 34) { // Tower tile IDs
+                    showTowerButton(row, col);
                 } else if (tileId == INTERACTIVE_TILE_ID) { // Buildable tile
                     showBuildButtons(row, col);
                 } else {
@@ -307,6 +307,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
            
         }
     }
+    /*
     private void showSellButton(int row, int col) {
         removeButtonContainer();
     
@@ -332,6 +333,77 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         buttonContainer.getChildren().add(sellButton);
         root.getChildren().add(buttonContainer);
     }
+ 
+
+    private void showSellButton(int row, int col) {
+        removeButtonContainer();
+
+        buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        double tileLeftX = col * TILE_SIZE;
+        double tileTopY = row * TILE_SIZE;
+
+        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 90);
+        buttonContainer.setLayoutY(tileTopY - 40);
+
+        Button sellButton = new Button("Sell");
+        sellButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
+        sellButton.setPrefSize(80, 30);
+
+        Button upgradeButton = new Button("Upgrade");
+        upgradeButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
+        upgradeButton.setPrefSize(80, 30);
+
+        sellButton.setOnAction(e -> handleSellButtonClick(row, col));
+        upgradeButton.setOnAction(e -> handleUpgradeButtonClick(row, col));
+
+        buttonContainer.getChildren().addAll(sellButton, upgradeButton);
+        root.getChildren().add(buttonContainer);
+    }
+
+    */
+
+    private void showTowerButton(int row, int col) {
+        removeButtonContainer();
+
+        buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        double tileLeftX = col * TILE_SIZE;
+        double tileTopY = row * TILE_SIZE;
+
+        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 90);
+        buttonContainer.setLayoutY(tileTopY - 40);
+
+        Button sellButton = new Button("Sell");
+        sellButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
+        sellButton.setPrefSize(80, 30);
+        sellButton.setOnAction(e -> handleSellButtonClick(row, col));
+
+    
+        ITower clickedTower = null;
+        for (ITower tower : controller.getGameManager().getTowers()) {
+            if (tower.getTileCoordinate().getTileX() == col && tower.getTileCoordinate().getTileY() == row) {
+                clickedTower = tower;
+                break;
+            }
+        }
+
+        buttonContainer.getChildren().add(sellButton);
+
+        if (clickedTower != null && clickedTower.canUpgrade()) {
+            Button upgradeButton = new Button("Upgrade");
+            upgradeButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
+            upgradeButton.setPrefSize(80, 30);
+            upgradeButton.setOnAction(e -> handleUpgradeButtonClick(row, col));
+            buttonContainer.getChildren().add(upgradeButton);
+        }
+
+        root.getChildren().add(buttonContainer);
+    }
+
+
 
     private void handleSellButtonClick(int row, int col) {
     
@@ -341,6 +413,20 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     
            removeButtonContainer();
     }
+
+    private void handleUpgradeButtonClick(int row, int col) {
+       
+        boolean success = controller.upgradeTower(col, row);
+
+        if (success) {
+            removeButtonContainer();
+        } else {
+            removeButtonContainer();
+        }
+    }
+
+
+
 
     private void showBuildButtons(int row, int col) {
         removeButtonContainer();

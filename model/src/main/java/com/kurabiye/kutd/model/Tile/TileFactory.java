@@ -25,7 +25,7 @@ public class TileFactory implements CodeFactory<Tile> {
 
         // check if the code is within the range
 
-        if(code < 0 || code > 31) {
+        if(code < 0 || code > 34) {
             throw new IllegalArgumentException("Invalid tile code: " + code);
         }
 
@@ -92,7 +92,7 @@ public class TileFactory implements CodeFactory<Tile> {
             tile.setGroundTile(true);
         }
 
-        if(isIn(code, new int[]{20, 21, 26})){
+        if(isIn(code, new int[]{20, 21, 26, 32, 33, 34})){ //32,33 and 34 are upgraded
             tile.setTowerTile(true);
         }
 
