@@ -913,53 +913,54 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 
     public void renderCollectables(GraphicsContext gc) {
-    DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
-    
-    for (ICollectable<?> collectable : collectables) {
-        if (collectable instanceof GoldBag) {
-            GoldBag goldBag = (GoldBag) collectable;
-            Point2D pos = goldBag.getCoordinates();
-            
-            // Render gold bag sprite/image
-            gc.setFill(Color.GREEN);
-            gc.fillOval(pos.getX() - 15, pos.getY() - 15, 30, 30);
-            
-            // Optional: Show remaining time or gold amount
-            gc.setFill(Color.BLACK);
-            gc.fillText(String.valueOf(goldBag.getItem()), 
-                       pos.getX() - 10, pos.getY() + 5);
+        DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
+        
+        for (ICollectable<?> collectable : collectables) {
+            if (collectable instanceof GoldBag) {
+                GoldBag goldBag = (GoldBag) collectable;
+                Point2D pos = goldBag.getCoordinates();
+                
+                // Render gold bag sprite/image
+                gc.setFill(Color.GREEN);
+                gc.fillOval(pos.getX() - 15, pos.getY() - 15, 30, 30);
+                
+                // Optional: Show remaining time or gold amount
+                gc.setFill(Color.BLACK);
+                gc.fillText(String.valueOf(goldBag.getItem()), 
+                        pos.getX() - 10, pos.getY() + 5);
+            }
         }
     }
-}
 
 
 
-public void renderTowerRanges(GraphicsContext gc) {
-    for (ITower tower : towers) {
-        // Get the tower's range and position
-        double range = tower.getRange();
+    public void renderTowerRanges(GraphicsContext gc) {
+            // Calculate the scale factor just like we do for projectiles
+        double modelWidth = 1920;  // The width used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth;
 
-        Point2D position = tower.getTileCoordinate().getCenter();
+        for (ITower tower : towers) {
+            // Get the tower's range and position
+            double range = tower.getRange() * scaleFactor; // Scale the range
+            Point2D position = tower.getTileCoordinate().getCenter();
 
-        // Calculate the top-left corner of the range oval
-        double topLeftX = position.getX() - range;
-        double topLeftY = position.getY() - (range * 0.6); // Reduce vertical height by 40%
-        // Draw a vertically squeezed oval for the range
-        gc.setStroke(Color.rgb(190, 120, 120, 0.5));
-        gc.setLineWidth(2);
-        gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Reduce vertical diameter
+            // Scale the position coordinates
+            double viewX = position.getX() * scaleFactor;
+            double viewY = position.getY() * scaleFactor;
 
+            // Calculate the top-left corner of the range oval
+            double topLeftX = viewX - range;
+            double topLeftY = viewY - (range * 0.6); // Reduce vertical height by 40%
 
-
+            // Draw a vertically squeezed oval for the range
+            gc.setStroke(Color.rgb(190, 120, 120, 0.5));
+            gc.setLineWidth(2);
+            gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Use diameter (range * 2) for width
+        }
     }
-
-}
 
     @Override
     public void update(Object arg) {
-
-
-
         currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         
