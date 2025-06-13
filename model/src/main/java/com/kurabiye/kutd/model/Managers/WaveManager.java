@@ -3,7 +3,6 @@ package com.kurabiye.kutd.model.Managers;
 import java.util.Random;
 
 
-import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Wave.WaveInfo;
 
 /* WaveManager.java
@@ -60,17 +59,22 @@ public class WaveManager {
 
 
 
-    public WaveManager(UserPreference userPreferences) {
-        this.waveInfo = new WaveInfo(userPreferences); // Get the wave information from user preferences
+    public WaveManager() {
+        this.waveInfo = new WaveInfo(); // Get the wave information from user preferences
     }
 
-    /* This is the method that would keep track of the current wave and group index.
+
+
+    public static final int NO_NEW_ENEMY_CODE = -1; // Constant for no new enemy to spawn
+    public static final int NO_ENEMY_LEFT_CODE = -2; // Constant for no enemy left to spawn
+
+    /** This is the method that would keep track of the current wave and group index.
      * It will check if there is enough time passed to spawn a new wave or group.
      * Or enough time passed to spawn a new enemy.
      * 
      * 
      * @param deltaTime The time passed since the last update in milliseconds
-     * *@return The index of the enemy to spawn or -1 if no enemy is spawned -2 if there is no enemy left to spawn
+     * @return The index of the enemy to spawn or -1 if no enemy is spawned -2 if there is no enemy left to spawn
      * 
      */
     public int getEnemy(double deltaTime) {
@@ -84,7 +88,7 @@ public class WaveManager {
                     leftEnemiesInGroup = waveInfo.getTotalEnemyInGroup(0, 0); // Get the number of enemies in the current group
                     currentGroupDecomposition = waveInfo.getWaveGroupDecomposition(currentWaveIndex, currentGroupIndex);
                 }
-                return -1; // Placeholder for enemy spawning logic
+                return NO_NEW_ENEMY_CODE; // Placeholder for enemy spawning logic
                 
             case SPAWNING:
                 // check if there no is any enemy left to spawn in the current group
@@ -109,7 +113,7 @@ public class WaveManager {
                             waveState = EnemyAttackState.NO_ENEMY_LEFT; // Change the state to no enemy left
                         }
                     }
-                    return -1; // Placeholder for enemy spawning logic
+                    return NO_NEW_ENEMY_CODE; // Placeholder for enemy spawning logic
                 }
 
                 if (lastEnemySpawnTime < ENEMY_SPAWN_TIME) { // If this is the first time the enemy spawn time is started
@@ -122,7 +126,7 @@ public class WaveManager {
 
                     // Check if currentGroupDecomposition is null or empty
                     if (currentGroupDecomposition == null || currentGroupDecomposition.length == 0) {
-                        return -1; // Return -1 indicating no enemy to spawn
+                        return NO_NEW_ENEMY_CODE; // Return -1 indicating no enemy to spawn
                     }
                     
                     // Count available enemy types (those with values > 0)
@@ -132,7 +136,7 @@ public class WaveManager {
                     }
                     
                     if (availableTypes == 0) {
-                        return -1;
+                        return NO_NEW_ENEMY_CODE;
                     }
                     
                     int attempts = 0;
@@ -145,9 +149,9 @@ public class WaveManager {
                         attempts++;
                     }
                     
-                    return -1; // Fallback, should not reach here if the decomposition is valid
+                    return NO_NEW_ENEMY_CODE; // Fallback, should not reach here if the decomposition is valid
                 }
-                return -1;
+                return NO_NEW_ENEMY_CODE;
                 
             case GROUP_WAITING:
                 if (lastGroupWaitTime < waveInfo.getDefaultDelayBetweenGroups()) { // If this is the first time the group wait time is started
@@ -156,7 +160,7 @@ public class WaveManager {
                     lastGroupWaitTime = 0; // Reset the last group wait time
                     waveState = EnemyAttackState.SPAWNING; // Change the state to spawning
                 }
-                return -1; // Placeholder for enemy spawning logic
+                return NO_NEW_ENEMY_CODE; // Placeholder for enemy spawning logic
                 
             case WAVE_WAITING:
                 if (lastWaveWaitTime < waveInfo.getDefaultDelayBetweenWaves()) { // If this is the first time the wave wait time is started
@@ -165,13 +169,13 @@ public class WaveManager {
                     lastWaveWaitTime = 0; // Reset the last wave wait time
                     waveState = EnemyAttackState.SPAWNING; // Change the state to spawning
                 }
-                return -1; // Placeholder for enemy spawning logic
+                return NO_NEW_ENEMY_CODE; // Placeholder for enemy spawning logic
                 
             case NO_ENEMY_LEFT:
-                return -2; // Placeholder for enemy spawning logic
+                return NO_ENEMY_LEFT_CODE; // Placeholder for enemy spawning logic
                 
             default:
-                return -1;
+                return NO_NEW_ENEMY_CODE;
         }
     }
 

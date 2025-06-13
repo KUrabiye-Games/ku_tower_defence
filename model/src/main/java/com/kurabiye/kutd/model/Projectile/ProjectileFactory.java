@@ -32,7 +32,7 @@ public class ProjectileFactory {
     }
 
     // Create a projectile of a specific type with default values
-    public Projectile createProjectile(Projectile.ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate) {
+    public Projectile createProjectile(ProjectileType projectileType, Point2D startCoordinate, Point2D targetCoordinate, int projectileLevel) {
         // Create a new projectile with the specified type and default values from user preferences
         float projectileAreaDamage = 40f; // Default area damage for the projectile
         IProjectileMoveStrategy moveStrategy = null; // Initialize the move strategy
@@ -58,7 +58,8 @@ public class ProjectileFactory {
                 targetCoordinate, // Target coordinate of the projectile       
                 moveStrategy,
                 projectileAreaDamage,
-                explosionType); // Create a new projectile with the specified parameters
+                explosionType,
+                projectileLevel); // Create a new projectile with the specified parameters
                
 
 

@@ -6,15 +6,23 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Projectile.IProjectile;
+
 
 public abstract class EnemyDecorator implements IEnemy {
+
+
+    public static final double INFINITY_EFFECT_DURATION = Double.POSITIVE_INFINITY; // Constant for infinite effect duration
+
+    protected double remainigEffectTime = INFINITY_EFFECT_DURATION; // Default effect duration in seconds
 
     // This class is an abstract decorator for the IEnemy interface
     // It can be used to add additional functionality to the IEnemy interface
     // without modifying the original interface or its implementations
 
     protected IEnemy enemy;
+
+
 
     public EnemyDecorator(IEnemy enemy) {
         this.enemy = enemy; // Initialize the decorator with an IEnemy instance
@@ -26,8 +34,8 @@ public abstract class EnemyDecorator implements IEnemy {
     }
 
     @Override
-    public void getDamage(ProjectileType projectileType) {
-        enemy.getDamage(projectileType);
+    public void getDamage(IProjectile projectile) {
+        enemy.getDamage(projectile);
     }
 
     @Override
@@ -97,6 +105,21 @@ public abstract class EnemyDecorator implements IEnemy {
     @Override
     public Point2D getMoveDirection() {
         return enemy.getMoveDirection();
+    }
+
+
+    public abstract EffectTypes getEffectType() ; // Abstract method to get the effect type of the decorator
+
+    public double getRemainingEffectTime() {
+        return remainigEffectTime; // Get the remaining effect time of the decorator
+    }
+
+    public boolean isOver(){
+        return remainigEffectTime <= 0; // Check if the effect time is over
+    }
+
+    public void setRemainingEffectTime(double remainingEffectTime) {
+        this.remainigEffectTime = remainingEffectTime; // Set the remaining effect time of the decorator
     }
 
 

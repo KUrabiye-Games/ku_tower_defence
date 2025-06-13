@@ -38,6 +38,9 @@ public class GameMap implements Observable, Serializable{
     private static final long serialVersionUID = 1L;
     
 
+
+    // TO-DO: Add name for the map so that user can access 
+
     public static final Tile ERROR_TILE = new Tile(1);
 
 

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.model.Projectile.IProjectile;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
 
 
 /*
@@ -20,6 +22,9 @@ import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
 
 public class Enemy implements IEnemy {
 
+
+    UserPreference userPreferences = UserPreference.getInstance(); // User preferences for enemy attributes
+
     
     private EnemyType enemyType; // Type of the enemy
 
@@ -30,8 +35,6 @@ public class Enemy implements IEnemy {
     private float health; // Enemy's health
 
     private int speed; // Enemy's speed
-
-    private float[] damageDealtOfProjectiles;
 
     // This is a normalized vector
     // It is used to calculate the direction of the enemy's movement 
@@ -62,17 +65,16 @@ public class Enemy implements IEnemy {
          this.movePath = moveStrategy.createMovePath(path); // Create the move path using the strategy
      }
 
-    public Enemy(EnemyType enemyType, int health, int speed, int killReward, float[] damageDealtOfProjectiles) {
+    public Enemy(EnemyType enemyType) {
         this.enemyType = enemyType; // Set the type of the enemy
-        this.health = (float) health; // Set the health of the enemy
-        this.speed = speed; // Set the speed of the enemy
-        this.killReward = killReward; // Set the kill reward for the enemy
-        this.damageDealtOfProjectiles = damageDealtOfProjectiles; // Set the damage dealt by projectiles
+        this.health = userPreferences.getEnemyHealth()[enemyType.getValue()]; // Set the health of the enemy based on user preferences
+        this.speed =  userPreferences.getEnemyMovementSpeed()[enemyType.getValue()]; // Set the speed of the enemy
+        this.killReward = userPreferences.getGoldPerEnemy()[enemyType.getValue()]; // Set the kill reward for the enemy
     }
 
-    public synchronized void getDamage(ProjectileType projectileType) {
+    public synchronized void getDamage(IProjectile projectile) {
 
-        float damage = damageDealtOfProjectiles[projectileType.getValue()]; // Get the damage dealt by the projectile
+        float damage = userPreferences.getDamageDealt()[projectile.getProjectileType().getValue()][enemyType.getValue()][projectile.getProjectileLevel()]; // Get the damage dealt by the projectile
         health -= damage; // Reduce the health of the enemy by the damage dealt
 
         if(health <= 0) {
@@ -80,18 +82,17 @@ public class Enemy implements IEnemy {
             return; // If the enemy's health is less than or equal to 0, set the enemy state to DEAD
         }
 
-
-        /*
-         * Teleporting the enemey to the starting point of the path
-         * with the 3 perceent chance.
-         * 
-         * 
-         */
-
-        if(Math.random() < 0.03) { // 3% chance to teleport the enemy back to the start of the path
+        // If the projectile type is magic, there is a chance to teleport the enemy back to the start of the path
+        if (projectile.getProjectileType() == ProjectileType.MAGIC) {
+            
+            if(Math.random() < 0.03) { // 3% chance to teleport the enemy back to the start of the path
             pathPointIndex = 0; // Reset the path point index to 0
             coordinate = movePath.get(0); // Set the coordinate of the enemy to the first point in the path
-    }
+                this.enemyState = EnemyState.TELEPORTED; // Set the enemy state to ALIVE
+            }
+        }
+ 
+        
 }
 
     public int getKillReward() {
@@ -109,9 +110,18 @@ public class Enemy implements IEnemy {
             return; // If the enemy is not alive, do not move
         }
 
+        if (enemyState == EnemyState.TELEPORTED) {
+            enemyState = EnemyState.ALIVE; // If the enemy is teleported, set the enemy state to ALIVE
+            return; // Do not move the enemy if it is teleported
+            
+        }
+
+
         Point2D nextPoint = movePath.get(pathPointIndex); // Get the next point on the path
 
-        if(this.coordinate.distance(nextPoint) < speed * deltaTime) {
+        int currentSpeed = getSpeed(); // Get the speed of the enemy
+
+        if(this.coordinate.distance(nextPoint) < currentSpeed * deltaTime) {
             pathPointIndex++; // Increment the path point index
 
             // Check if pathPointIndex is within the range of movePath
@@ -128,7 +138,7 @@ public class Enemy implements IEnemy {
         // Normalize the distance vector
         double distance = distanceVector.magnitude(); // Calculate the magnitude of the distance vector
         if(distance > 0) {
-            distanceVector = distanceVector.multiply(speed * deltaTime / distance); // Scale the distance vector by speed and delta time
+            distanceVector = distanceVector.multiply(currentSpeed * deltaTime / distance); // Scale the distance vector by speed and delta time
         }
         coordinate = coordinate.add(distanceVector); // Update the coordinate of the enemy
 
@@ -184,6 +194,8 @@ public class Enemy implements IEnemy {
     public synchronized void setSpeed(int speed) {
         this.speed = speed; // Set the speed of the enemy
     }
+
+
 
 
 }
