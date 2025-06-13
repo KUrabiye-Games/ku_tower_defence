@@ -55,6 +55,7 @@ public class MapTest {
     }
 
 
+
     /**
      * Test with valid game map
      * This test checks if the map is valid when the starting and ending tiles are on the edges.

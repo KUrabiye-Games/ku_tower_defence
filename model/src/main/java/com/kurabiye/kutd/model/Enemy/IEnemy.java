@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
-import com.kurabiye.kutd.model.Projectile.Projectile.ProjectileType;
+import com.kurabiye.kutd.model.Projectile.IProjectile;
 
 /**
  * Interface defining the core functionality of an Enemy in the tower defense game.
@@ -32,7 +32,7 @@ public interface IEnemy {
      * 
      * @param projectileType The type of projectile that hit the enemy
      */
-    void getDamage(ProjectileType projectileType);
+    void getDamage(IProjectile projectile);
     
     /**
      * Gets the gold reward when the enemy is killed
@@ -120,12 +120,6 @@ public interface IEnemy {
     void setSpeed(int speed); // Set the speed of the enemy
 
 
-    /**
-     * Set the coordinate of the enemy to a new coordinate.
-     * Use the points of the path to set the coordinate.
-     * 
-     * @param trayPointIndex The index of the point in the path to set as the new coordinate
-     * @throws IndexOutOfBoundsException if the index is out of bounds of the path
-     */
+
 
 }

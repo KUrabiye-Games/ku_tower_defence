@@ -5,11 +5,14 @@ import javafx.scene.image.Image;
 
 
 import com.kurabiye.kutd.model.Coordinates.*;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.SlowDownDecorator;
+import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.model.Enemy.Enemy;
+
 
 import com.kurabiye.kutd.model.Player.UserPreference;
 
@@ -20,8 +23,12 @@ import com.kurabiye.kutd.model.Player.UserPreference;
 public class EnemyView {
     private final int TILE_SIZE;
     private final int COLS = 16; // Number of columns in the game map
-   // private final int ROWS = 9; // Number of rows in the game map
-    
+    // private final int ROWS = 9; // Number of rows in the game map
+
+    // Add this field to the EnemyView class
+    private Image zapIcon;
+    private Image slowIcon;
+
     // Different enemy images for different enemy types
     private Image[] enemyImages;
     
@@ -47,6 +54,20 @@ public class EnemyView {
                     enemyImages[type.getValue() * 6 + i] = createFallbackImage(type);
                 }
             }
+        }
+
+        // Load the zap icon
+        try {
+            zapIcon = new Image(getClass().getResourceAsStream("/assets/effects/Zap.png"));
+        } catch (Exception e) {
+            zapIcon = null; // Fallback if image can't be loaded
+        }
+
+        // Load the slow icon
+        try {
+            slowIcon = new Image(getClass().getResourceAsStream("/assets/effects/Slow.png"));
+        } catch (Exception e) {
+            slowIcon = null; // Fallback if image can't be loaded
         }
     }
 
@@ -82,7 +103,7 @@ public class EnemyView {
      * @param gc GraphicsContext to draw on
      * @param enemies List of enemies to render
      */
-    public void renderEnemies(GraphicsContext gc, ArrayList<IEnemy> enemies, int enemyImage) {
+    public void renderEnemies(GraphicsContext gc, List<IEnemy> enemies, int enemyImage) {
         for (IEnemy enemy : enemies) {
             renderEnemy(gc, enemy, enemyImage);
         }
@@ -138,10 +159,30 @@ public class EnemyView {
                 gc.drawImage(enemyImages[enemyType.getValue() * 6 + enemyImage], centeredX, centeredY, TILE_SIZE, TILE_SIZE);
             }
 
-           
-            
             // Draw health bar above the enemy
             renderHealthBar(gc, enemy, viewX - TILE_SIZE/2, viewY - TILE_SIZE/2);
+
+            // Draw zap icon for synergetic knights
+            if (enemy instanceof SynergeticMoveDecorator && 
+                enemy.getEnemyType() == EnemyType.KNIGHT && 
+                zapIcon != null) {
+                
+                double iconSize = TILE_SIZE / 3;
+                double iconX = viewX - (iconSize / 2) + 30;
+                double iconY = viewY - 45; // Position above the enemy with some padding
+                
+                gc.drawImage(zapIcon, iconX, iconY, iconSize, iconSize);
+            }
+
+            // Draw slow icon for slowed enemies 
+            if (enemy instanceof SlowDownDecorator && slowIcon != null) {
+
+                double iconSize = TILE_SIZE / 3;
+                double iconX = viewX - (iconSize / 2) - 30; // Position to the right of the healthbar
+                double iconY = viewY - 45;
+
+                gc.drawImage(slowIcon, iconX, iconY, iconSize, iconSize);
+            }   
         }
     }
     

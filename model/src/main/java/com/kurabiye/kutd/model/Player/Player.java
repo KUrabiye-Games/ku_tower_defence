@@ -5,52 +5,49 @@ import java.util.ArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observable;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 
-/* This class represents a player in the game.
+/** This class represents a player in the game.
  * It gets the user preferences from the UserPreferences class and sets the player name, score, level, health, and gold.
  * 
+ * It uses the facade pattern to manage the player's economy, including earning and spending gold, buying and selling towers, and losing health.
  * 
- * 
- * 
+ * @author Atlas Berk Polat
+ * @version 2.0
+ * @since 2025-05-13
  */
 
 public class Player implements Observable{
 
-    public enum PlayerState {
-        ALIVE,
-        DEAD
-    }
+  
     private PlayerState playerState = PlayerState.ALIVE; // Player's alive status
 
-    
-    private int currentScore; // Player's score
-    private int currentGold; // Player's gold
-    private int currentHealth; // Player's health
+    private GameEconomy gameEconomy = new GameEconomy(); // Game economy object to manage gold
 
-    private UserPreference userPreferences; // User preferences object
-
-    public Player(UserPreference userPreferences) {
-        this.userPreferences = userPreferences; // Initialize user preferences
-        this.currentGold = this.userPreferences.getStartingGold(); // Set player's gold from user preferences
-        this.currentHealth = this.userPreferences.getStartingHealth(); // Set player's health from user preferences
-        this.currentScore = 0; // Initialize player's score to 0
+    public Player() {
     }
 
-    public synchronized boolean buyTower(int cost) {
-        if (currentGold >= cost) { // Check if player has enough gold
-            currentGold -= cost; // Deduct cost from player's gold
-            // Notify observers of gold change
-            notifyObservers(currentGold);
-            return true; // Purchase successful
-        }
-        return false; // Purchase failed due to insufficient gold
+    public boolean buyTower(int cost) {
+       return gameEconomy.spendGold(cost); // Spend money to buy a tower
     }
-    public synchronized void earnGold(int amount) {
-        currentGold += amount; // Add gold to player's total
+
+    /**
+     * @requires amount > 0
+     * This method is used to earn gold for the player.
+     * It adds the specified amount to the player's current gold.
+     * @param amount
+     */
+    public void earnGold(int amount) {
+        gameEconomy.earnGold(amount); // Earn money for the player
         notifyObservers(this);
     }
 
-    public synchronized void sellTower(int cost) {
-        currentGold += cost; // Add cost to player's total gold
+    /**
+     * This method is used to sell a tower.
+     * @requires cost > 0
+     * @param cost
+     */
+
+    public void sellTower(int cost) {
+        gameEconomy.earnGold(cost); // Earn money from selling a tower
         notifyObservers(this);
     }
     /*
@@ -58,32 +55,24 @@ public class Player implements Observable{
      * @return true if the player is still alive, false if the player is dead.
      * This method is synchronized to ensure thread safety when modifying the player's health.
      */
-    public synchronized void loseHealth() {
-        currentHealth --; // Deduct damage from player's health
-        if (currentHealth <= 0) {
+    public  void loseHealth(int damage) {
+        if (!gameEconomy.loseHealth(damage)) {
             playerState = PlayerState.DEAD; // Set player state to dead
         }
         notifyObservers(this); // Notify observers of health change
     }
 
-    public synchronized int getCurrentScore() {
-        return currentScore; // Get player's score
+    
+    public int getCurrentGold() {
+        return gameEconomy.getCurrentGold(); // Get player's gold
     }
     
-    public synchronized int getCurrentGold() {
-        return currentGold; // Get player's gold
+    public int getCurrentHealth() {
+        return gameEconomy.getCurrentHealth(); // Get player's health
     }
     
-    public synchronized int getCurrentHealth() {
-        return currentHealth; // Get player's health
-    }
-    
-    public synchronized void earnScore(int amount) {
-        currentScore += amount; // Add score to player's total
-        notifyObservers(this); // Notify observers of score change
-    }
 
-    public synchronized PlayerState getPlayerState() {
+    public PlayerState getPlayerState() {
         return playerState; // Get player's state
     }
 

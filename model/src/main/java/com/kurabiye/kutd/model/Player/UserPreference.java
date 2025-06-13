@@ -30,6 +30,7 @@ public class UserPreference implements Serializable {
     private ArrayList<ArrayList<int[]>> waveList; // Number of groups per wave
     private int delayBetweenWaves; // Delay between waves in milliseconds
     private int delayBetweenGroups; // Delay between groups in milliseconds
+    private int delayBetweenEnemies; // Delay between enemies in milliseconds (default is 0)
     private int startingGold; // Starting amount of gold for the player
     private int[] goldPerEnemy; // Amount of gold earned when defeating an enemy
     private int startingHealth; // Starting hit points of the player
@@ -44,7 +45,7 @@ public class UserPreference implements Serializable {
 
     // The first index is the tower type, and the second index is the level of the tower
     // For example, towerEffectiveRange[0][1] is the effective range of tower type 0 at level 1
-     private float[][] damageDealt; // Damage dealt by each tower type to each enemy type
+     private float[][][] damageDealt; // Damage dealt by each tower type to each enemy type
      private float[][] towerEffectiveRange; // Effective range for each tower type
      private float[][] towerRateOfFire; // Rate of fire for each tower type
      private int[][] towerConstructionCost; // Cost to construct each tower type
@@ -63,31 +64,57 @@ public class UserPreference implements Serializable {
        
         delayBetweenWaves = 8; // 5 seconds
         delayBetweenGroups = 4; // 3 seconds
+        delayBetweenEnemies = 1000; // 1 second between enemies
 
         waveList = new ArrayList<>(); // Initialize with an empty list
         ArrayList<int[]> wave1 = new ArrayList<>();
-        wave1.add(new int[]{2,0}); // Example wave with different enemy types
-        wave1.add(new int[]{3,0}); // Example group with different enemy types
+        wave1.add(new int[]{2,1}); // Example wave with different enemy types
+        wave1.add(new int[]{3,2}); // Example group with different enemy types
         waveList.add(wave1); // Add the first wave to the list
         ArrayList<int[]> wave2 = new ArrayList<>();
         wave2.add(new int[]{2,1}); // Example wave with different enemy types
         wave2.add(new int[]{3,1}); // Example group with different enemy types
         waveList.add(wave2); // Add the second wave to the list
     
-        startingGold = 100;
+        startingGold = 1000;
         goldPerEnemy = new int[]{15, 20}; // Gold earned per enemy type
         startingHealth = 5;
         enemyHealth = new int[]{50, 75}; // Health for each enemy type
-        damageDealt = new float[][]{
-            //Enemy0 Enemy1
-            {5.0f, 1.0f}, // Damage for artillery type 0
-            {7.0f, 15.0f}, // Damage for artillery type 1
-            {8.0f, 7.0f}  // Damage for artillery type 2
-        };
-        towerConstructionCost = new int[][]{{50, 75, 100},{50, 75, 100}}; // Cost for each tower type
-        towerEffectiveRange = new float[][]{{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f}}; // Range for each tower type
-        towerRateOfFire = new float[][]{{0.5f, 1f, 5f},{0.5f, 1f, 5f}}; // Attack speed for each tower type
+        // Damage dealt by each tower type to each enemy type
+        // damageDealt[TowerType][EnemyType][Level]
+        damageDealt = new float[][][]
+            {
+                {{10.0f, 13.0f}, {5.0f, 7.0f}}, // Damage for artillery type 0
+                {{7.0f, 9.0f}, {10.0f, 10.0f}}, // Damage for artillery type 1
+                {{7f, 10f}, {10f, 13f}},
+            }  // Damage for artillery type 2
+        ;
+        // Tower construction costs for each type and level
+        // towerConstructionCost[TowerType][Level]
+        towerConstructionCost = new int[][]{
+            {50, 60},
+            {75, 85},
+            {100, 120}
+        }; // Cost for each tower type [TowerType][Level]
+        towerEffectiveRange = new float[][]
+        {{320.0f, 350.0f},
+        {240.0f, 270.0f},
+        {280.0f, 320.0f} // Effective range for each tower type [Type][Level]
+    }; // Range fr each tower type
+
+        // Tower rate of fire for each type and level
+        // towerRateOfFire[TowerType][Level]
+        towerRateOfFire = new float[][]{
+            {4f, 3.5f},
+            {1.2f, 1f},
+            {0.25f, 0.15f}
+        }; // Attack speed for each tower type
+
         artilleryRange = 3.0f; // Special long range for artillery
+        towerConstructionCost = new int[][]{{50, 75, 100},{50, 75, 100},{50, 75, 100}}; // Cost for each tower type
+        towerEffectiveRange = new float[][]{{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f}}; // Range for each tower type
+        towerRateOfFire = new float[][]{{0.5f, 1f, 5f},{0.5f, 1f, 5f}, {0.5f, 1f, 5f}}; // Attack speed for each tower type
+        artilleryRange = 300.0f; // Special long range for artillery
         enemyMovementSpeed = new int[]{60, 35}; // Movement speed for each enemy type
         towerSellReturn = new float[]{0.5f, 0.6f, 0.7f}; // Percentage returned when selling
     }
@@ -143,10 +170,24 @@ public class UserPreference implements Serializable {
         return soundVolume;
     }
     
-   
+    public int getTotalWaves() {
+        return waveList != null ? waveList.size() : 0; // Return the number of waves
+    }    
     
-    
-    
+    public int getGroupsPerWave() {
+        if (waveList == null || waveList.isEmpty()) {
+            return 0; // No waves defined
+        }
+        return waveList.get(0).size(); // Return the number of groups in the first wave
+    }
+
+    public int getEnemiesPerGroup() {
+        if (waveList == null || waveList.isEmpty() || waveList.get(0).isEmpty()) {
+            return 0; // No groups defined
+        }
+        return waveList.get(0).get(0).length; // Return the number of enemies in the first group
+    }
+
     public int getDelayBetweenWaves() {
         return delayBetweenWaves;
     }
@@ -154,27 +195,44 @@ public class UserPreference implements Serializable {
     public int getDelayBetweenGroups() {
         return delayBetweenGroups;
     }
+
+    public int getDelayBetweenEnemies() {
+        // Assuming delay between enemies is the same as delay between groups
+        return delayBetweenEnemies; 
+    }
+
+    // Number of individual enemies for a group or wave
+    public int getGoblinsPerGroup() {
+        if (waveList == null || waveList.isEmpty() || waveList.get(0).isEmpty()) {
+            return 0; // No groups defined
+        }
+        return waveList.get(0).get(0)[0]; // Return the number of goblins in the first group
+    }
+
+    public int getKnightsPerGroup() {
+        if (waveList == null || waveList.isEmpty() || waveList.get(0).isEmpty()) {
+            return 0; // No groups defined
+        }
+        return waveList.get(0).get(0)[1]; // Return the number of knights in the first group
+    }
     
     public ArrayList<ArrayList<int[]>> getWaveList() {
-        // Return a deep copy to maintain immutability
-        if (waveList == null) {
-            return null;
-        }
-        
-        ArrayList<ArrayList<int[]>> copyList = new ArrayList<>();
-        for (ArrayList<int[]> wave : waveList) {
-            ArrayList<int[]> copyWave = new ArrayList<>();
-            for (int[] group : wave) {
-                copyWave.add(group.clone());
-            }
-            copyList.add(copyWave);
-        }
-        return copyList;
+        return waveList;
     }
+
+    /**
+     * Gets the starting gold amount for the player.
+     * @return the starting gold amount
+     */
     
     public int getStartingGold() {
         return startingGold;
     }
+
+    /**
+     * Gets the gold earned per enemy type.
+     * @return the array of gold earned per enemy type
+     */
     
     public int[] getGoldPerEnemy() {
         return goldPerEnemy; 
@@ -183,40 +241,158 @@ public class UserPreference implements Serializable {
     public int getStartingHealth() {
         return startingHealth;
     }
+
+    /**
+     * Gets the health points for each type of enemy.
+     * * The first index is the enemy type.
+     * @return the array of enemy health points
+     */
     
     public int[] getEnemyHealth() {
         return enemyHealth; 
     }
-    
-    public float[][] getDamageDealt() {
+    /**
+     * Gets the damage dealt by each tower type to each enemy type.
+     * * The first index is the tower type, the second index is the enemy type,
+     * and the third index is the level of the tower.
+     * [TowerType][EnemyType][Level]
+     * @return
+     */
+    public float[][][] getDamageDealt() {
         // Deep copy to maintain immutability
-        float[][] copy = new float[damageDealt.length][];
+        float[][][] copy = new float[damageDealt.length][][];
         for (int i = 0; i < damageDealt.length; i++) {
-            copy[i] = damageDealt[i].clone();
+            copy[i] = new float[damageDealt[i].length][];
+            for (int j = 0; j < damageDealt[i].length; j++) {
+                copy[i][j] = damageDealt[i][j].clone();
+            }
         }
         return copy;
     }
     
+    // Getters for tower-related properties
     public int[][] getTowerConstructionCost() {
         return towerConstructionCost.clone(); // Return a copy to maintain immutability
+    }
+
+    public int getArcherTowerCost() {
+        return towerConstructionCost != null && towerConstructionCost.length > 0 ? towerConstructionCost[0][0] : 0;
+    }
+
+    public int getArtilleryTowerCost() {
+        return towerConstructionCost != null && towerConstructionCost.length > 2 ? towerConstructionCost[2][0] : 0;
+    }
+
+    public int getMagicTowerCost() {
+        return towerConstructionCost != null && towerConstructionCost.length > 1 ? towerConstructionCost[1][0] : 0;
     }
     
     public float[][] getTowerEffectiveRange() {
         return towerEffectiveRange.clone(); // Return a copy to maintain immutability
     }
+
+
+    /**
+     * Gets the rate of fire for each tower type.
+     * The first index is the tower type, and the second index is the level of the tower.
+     * [TowerType][Level]
+     * @return the rate of fire for each tower type
+     */
     
     public float[][] getTowerRateOfFire() {
         return towerRateOfFire.clone(); // Return a copy to maintain immutability
     }
+
+    // Getters for specific tower fire rates
+    public float getArcherFireRate() {
+        return towerRateOfFire != null && towerRateOfFire.length > 0 ? towerRateOfFire[0][0] : 0.0f;
+    }
     
+    public float getArtilleryFireRate() {
+        return towerRateOfFire != null && towerRateOfFire.length > 2 ? towerRateOfFire[2][0] : 0.0f;
+    }
+    
+    public float getMagicFireRate() {
+        return towerRateOfFire != null && towerRateOfFire.length > 1 ? towerRateOfFire[1][0] : 0.0f;
+    }
+
+    // Artillery AOE
+    public float getArtilleryAoeRange() {
+        return towerEffectiveRange != null && towerEffectiveRange.length > 2 ? towerEffectiveRange[2][0] : 0.0f;
+    }
+
+    // Getters for tower construction costs
+    public int getArcherCost() {
+        return towerConstructionCost != null && towerConstructionCost.length > 0 ? towerConstructionCost[0][0] : 0;
+    }
+    
+    public int getArtilleryCost() {
+        return towerConstructionCost != null && towerConstructionCost.length > 2 ? towerConstructionCost[2][0] : 0;
+    }
+    
+    public int getMagicCost() {
+        return towerConstructionCost != null && towerConstructionCost.length > 1 ? towerConstructionCost[1][0] : 0;
+    }
+    
+    // Getters for specific tower ranges
     public float getArtilleryRange() {
         return artilleryRange;
+    }
+
+    public float getArcherRange() {
+        return towerEffectiveRange != null && towerEffectiveRange.length > 0 ? towerEffectiveRange[0][0] : 0.0f;
+    }
+
+    public float getMagicRange() {
+        return towerEffectiveRange != null && towerEffectiveRange.length > 1 ? towerEffectiveRange[1][0] : 0.0f;
+    }
+
+    // Getters for individual tower damages
+    public float getArrowDamage() {
+        return damageDealt != null && damageDealt.length > 0 ? damageDealt[0][0][0] : 0.0f;
+    }
+
+    public float getArtilleryDamage() {
+        return damageDealt != null && damageDealt.length > 2 ? damageDealt[2][0][0] : 0.0f;
+    }
+
+    public float getMagicDamage() {
+        return damageDealt != null && damageDealt.length > 1 ? damageDealt[1][0][0] : 0.0f;
     }
     
     public int[] getEnemyMovementSpeed() {
         return enemyMovementSpeed.clone(); // Return a copy to maintain immutability
     }
+
+    // Individual enemy movement speeds 
+    public int getGoblinSpeed() {
+        return enemyMovementSpeed != null && enemyMovementSpeed.length > 0 ? enemyMovementSpeed[0] : 0;
+    }
     
+    public int getKnightSpeed() {
+        return enemyMovementSpeed != null && enemyMovementSpeed.length > 1 ? enemyMovementSpeed[1] : 0;
+    }
+    
+    // Individual enemy health getters
+    public int getGoblinHealth() {
+        return enemyHealth != null && enemyHealth.length > 0 ? enemyHealth[0] : 0;
+    }
+
+    public int getKnightHealth() {
+        return enemyHealth != null && enemyHealth.length > 1 ? enemyHealth[1] : 0;
+    }
+
+    // Individual gold per enemy getters
+    public int getGoblinGoldReward() {
+        return goldPerEnemy != null && goldPerEnemy.length > 0 ? goldPerEnemy[0] : 0;
+    }
+
+    public int getKnightGoldReward() {
+        return goldPerEnemy != null && goldPerEnemy.length > 1 ? goldPerEnemy[1] : 0;
+    }
+
+
+
     public float[] getTowerSellReturn() {
         return towerSellReturn.clone(); // Return a copy to maintain immutability
     }
@@ -270,7 +446,7 @@ public class UserPreference implements Serializable {
                 }
                 
                 if (userPreference.damageDealt != null) {
-                    this.userPreference.damageDealt = new float[userPreference.damageDealt.length][];
+                    this.userPreference.damageDealt = new float[userPreference.damageDealt.length][][];
                     for (int i = 0; i < userPreference.damageDealt.length; i++) {
                         this.userPreference.damageDealt[i] = userPreference.damageDealt[i].clone();
                     }
@@ -317,7 +493,28 @@ public class UserPreference implements Serializable {
             return this;
         }
 
-       
+        public Builder setTotalWaves(int totalWaves) {
+            // Ensure waveList has the correct size
+            if (userPreference.waveList == null) {
+                userPreference.waveList = new ArrayList<>();
+            }
+            while (userPreference.waveList.size() < totalWaves) {
+                userPreference.waveList.add(new ArrayList<>()); // Add empty waves
+            }
+            return this;
+        }
+
+        public Builder setGroupsPerWave(int groupsPerWave) {
+            // Ensure each wave has the correct number of groups
+            for (ArrayList<int[]> wave : userPreference.waveList) {
+                while (wave.size() < groupsPerWave) {
+                    wave.add(new int[]{0, 0}); // Add empty groups
+                }
+            }
+            return this;
+        }
+
+
 
         public Builder setDelayBetweenWaves(int delayBetweenWaves) {
             userPreference.delayBetweenWaves = delayBetweenWaves;
@@ -329,6 +526,207 @@ public class UserPreference implements Serializable {
             return this;
         }
 
+        public Builder setEnemiesPerGroup(int enemiesPerGroup) {
+            // Ensure each group has the correct number of enemies
+            for (ArrayList<int[]> wave : userPreference.waveList) {
+                for (int[] group : wave) {
+                    if (group.length < enemiesPerGroup) {
+                        int[] newGroup = new int[enemiesPerGroup];
+                        System.arraycopy(group, 0, newGroup, 0, group.length);
+                        wave.set(wave.indexOf(group), newGroup); // Replace with new group
+                    }
+                }
+            }
+            return this;
+        }
+
+        public Builder setDelayBetweenEnemies(int delayBetweenEnemies) {
+            userPreference.delayBetweenEnemies = delayBetweenEnemies;
+            return this;
+        }
+
+        public Builder setGoblinsPerGroup(int goblinsPerGroup) {
+            // Ensure the first enemy type in each group is set to the specified number of goblins
+            for (ArrayList<int[]> wave : userPreference.waveList) {
+                for (int[] group : wave) {
+                    if (group.length > 0) {
+                        group[0] = goblinsPerGroup; // Set the first enemy type to goblins
+                    }
+                }
+            }
+            return this;
+        }
+
+        public Builder setKnightsPerGroup(int knightsPerGroup) {
+            // Ensure the second enemy type in each group is set to the specified number of knights
+            for (ArrayList<int[]> wave : userPreference.waveList) {
+                for (int[] group : wave) {
+                    if (group.length > 1) {
+                        group[1] = knightsPerGroup; // Set the second enemy type to knights
+                    }
+                }
+            }
+            return this;
+        }
+
+        public Builder setGoblinGoldReward(int goblinGoldReward) {
+            // Ensure the first gold reward is set to the specified amount
+            if (userPreference.goldPerEnemy == null || userPreference.goldPerEnemy.length < 1) {
+                userPreference.goldPerEnemy = new int[2]; // Initialize if not set
+            }
+            userPreference.goldPerEnemy[0] = goblinGoldReward; // Set the first enemy type's gold reward
+            return this;
+        }
+
+        public Builder setKnightGoldReward(int knightGoldReward) {
+            // Ensure the second gold reward is set to the specified amount
+            if (userPreference.goldPerEnemy == null || userPreference.goldPerEnemy.length < 2) {
+                userPreference.goldPerEnemy = new int[2]; // Initialize if not set
+            }
+            userPreference.goldPerEnemy[1] = knightGoldReward; // Set the second enemy type's gold reward
+            return this;
+        }
+
+        public Builder setGoblinHealth(int goblinHealth) {
+            // Ensure the first enemy type's health is set to the specified amount
+            if (userPreference.enemyHealth == null || userPreference.enemyHealth.length < 1) {
+                userPreference.enemyHealth = new int[2]; // Initialize if not set
+            }
+            userPreference.enemyHealth[0] = goblinHealth; // Set the first enemy type's health
+            return this;
+        }
+
+        public Builder setKnightHealth(int knightHealth) {
+            // Ensure the second enemy type's health is set to the specified amount
+            if (userPreference.enemyHealth == null || userPreference.enemyHealth.length < 2) {
+                userPreference.enemyHealth = new int[2]; // Initialize if not set
+            }
+            userPreference.enemyHealth[1] = knightHealth; // Set the second enemy type's health
+            return this;
+        }
+
+        public Builder setArrowDamage(float arrowDamage) {
+            // Ensure the first tower type's damage is set to the specified amount
+            if (userPreference.damageDealt == null || userPreference.damageDealt.length < 1) {
+                userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
+            }
+            userPreference.damageDealt[0][0][0] = arrowDamage; // Set the first tower type's damage
+            return this;
+        }
+
+        public Builder setArtilleryDamage(float artilleryDamage) {
+            // Ensure the third tower type's damage is set to the specified amount
+            if (userPreference.damageDealt == null || userPreference.damageDealt.length < 3) {
+                userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
+            }
+            userPreference.damageDealt[2][0][0] = artilleryDamage; // Set the third tower type's damage
+            return this;
+        }
+
+        public Builder setMagicDamage(float magicDamage) {
+            // Ensure the second tower type's damage is set to the specified amount
+            if (userPreference.damageDealt == null || userPreference.damageDealt.length < 2) {
+                userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
+            }
+            userPreference.damageDealt[1][0][0] = magicDamage; // Set the second tower type's damage
+            return this;
+        }
+
+        public Builder setArcherTowerCost(int archerTowerCost) {
+            // Ensure the first tower type's cost is set to the specified amount
+            if (userPreference.towerConstructionCost == null || userPreference.towerConstructionCost.length < 1) {
+                userPreference.towerConstructionCost = new int[3][3]; // Initialize if not set
+            }
+            userPreference.towerConstructionCost[0][0] = archerTowerCost; // Set the first tower type's cost
+            return this;
+        }
+
+        public Builder setArtilleryTowerCost(int artilleryTowerCost) {
+            // Ensure the third tower type's cost is set to the specified amount
+            if (userPreference.towerConstructionCost == null || userPreference.towerConstructionCost.length < 3) {
+                userPreference.towerConstructionCost = new int[3][3]; // Initialize if not set
+            }
+            userPreference.towerConstructionCost[2][0] = artilleryTowerCost; // Set the third tower type's cost
+            return this;
+        }
+
+        public Builder setMagicTowerCost(int magicTowerCost) {
+            // Ensure the second tower type's cost is set to the specified amount
+            if (userPreference.towerConstructionCost == null || userPreference.towerConstructionCost.length < 2) {
+                userPreference.towerConstructionCost = new int[3][3]; // Initialize if not set
+            }
+            userPreference.towerConstructionCost[1][0] = magicTowerCost; // Set the second tower type's cost
+            return this;
+        }
+
+        public Builder setArcherRange(float archerRange) {
+            // Ensure the first tower type's effective range is set to the specified amount
+            if (userPreference.towerEffectiveRange == null || userPreference.towerEffectiveRange.length < 1) {
+                userPreference.towerEffectiveRange = new float[3][3]; // Initialize if not set
+            }
+            userPreference.towerEffectiveRange[0][0] = archerRange; // Set the first tower type's effective range
+            return this;
+        }
+
+        public Builder setMagicRange(float magicRange) {
+            // Ensure the second tower type's effective range is set to the specified amount
+            if (userPreference.towerEffectiveRange == null || userPreference.towerEffectiveRange.length < 2) {
+                userPreference.towerEffectiveRange = new float[3][3]; // Initialize if not set
+            }
+            userPreference.towerEffectiveRange[1][0] = magicRange; // Set the second tower type's effective range
+            return this;
+        }
+
+        public Builder setArcherFireRate(float archerFireRate) {
+            // Ensure the first tower type's rate of fire is set to the specified amount
+            if (userPreference.towerRateOfFire == null || userPreference.towerRateOfFire.length < 1) {
+                userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
+            }
+            userPreference.towerRateOfFire[0][0] = archerFireRate; // Set the first tower type's rate of fire
+            return this;
+        }
+
+        public Builder setArtilleryFireRate(float artilleryFireRate) {
+            // Ensure the third tower type's rate of fire is set to the specified amount
+            if (userPreference.towerRateOfFire == null || userPreference.towerRateOfFire.length < 3) {
+                userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
+            }
+            userPreference.towerRateOfFire[2][0] = artilleryFireRate; // Set the third tower type's rate of fire
+            return this;
+        }
+
+        public Builder setMagicFireRate(float magicFireRate) {
+            // Ensure the second tower type's rate of fire is set to the specified amount
+            if (userPreference.towerRateOfFire == null || userPreference.towerRateOfFire.length < 2) {
+                userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
+            }
+            userPreference.towerRateOfFire[1][0] = magicFireRate; // Set the second tower type's rate of fire
+            return this;
+        }
+
+        public Builder setArtilleryAoeRange(float artilleryAoeRange) {
+            // Ensure the artillery tower's AOE range is set to the specified amount
+            userPreference.artilleryRange = artilleryAoeRange; // Set the artillery tower's AOE range
+            return this;
+        }
+
+        public Builder setGoblinSpeed(int goblinSpeed) {
+            // Ensure the first enemy type's speed is set to the specified amount
+            if (userPreference.enemyMovementSpeed == null || userPreference.enemyMovementSpeed.length < 1) {
+                userPreference.enemyMovementSpeed = new int[2]; // Initialize if not set
+            }
+            userPreference.enemyMovementSpeed[0] = goblinSpeed; // Set the first enemy type's speed
+            return this;
+        }
+
+        public Builder setKnightSpeed(int knightSpeed) {
+            // Ensure the second enemy type's speed is set to the specified amount
+            if (userPreference.enemyMovementSpeed == null || userPreference.enemyMovementSpeed.length < 2) {
+                userPreference.enemyMovementSpeed = new int[2]; // Initialize if not set
+            }
+            userPreference.enemyMovementSpeed[1] = knightSpeed; // Set the second enemy type's speed
+            return this;
+        }
         
         public Builder setStartingGold(int startingGold) {
             userPreference.startingGold = startingGold;
@@ -350,7 +748,7 @@ public class UserPreference implements Serializable {
             return this;
         }
 
-        public Builder setDamageDealt(float[][] damageDealt) {
+        public Builder setDamageDealt(float[][][] damageDealt) {
             userPreference.damageDealt = damageDealt;
             return this;
         }
