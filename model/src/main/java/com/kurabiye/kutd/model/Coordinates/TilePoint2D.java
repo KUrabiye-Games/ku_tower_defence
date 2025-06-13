@@ -1,6 +1,5 @@
 package com.kurabiye.kutd.model.Coordinates;
 
-import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -23,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TilePoint2D extends Point2D implements Serializable {
+public class TilePoint2D extends Point2D {
     private static final long serialVersionUID = 1L;
     
 

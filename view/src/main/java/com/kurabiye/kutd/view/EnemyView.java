@@ -9,6 +9,8 @@ import java.util.List;
 
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.EffectTypes;
+import com.kurabiye.kutd.model.Enemy.Decorators.EnemyDecorator;
 import com.kurabiye.kutd.model.Enemy.Decorators.SlowDownDecorator;
 import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.model.Enemy.Enemy;
@@ -163,25 +165,32 @@ public class EnemyView {
             renderHealthBar(gc, enemy, viewX - TILE_SIZE/2, viewY - TILE_SIZE/2);
 
             // Draw zap icon for synergetic knights
-            if (enemy instanceof SynergeticMoveDecorator && 
+            if (enemy instanceof EnemyDecorator && 
                 enemy.getEnemyType() == EnemyType.KNIGHT && 
                 zapIcon != null) {
+
+                    if (((EnemyDecorator)enemy).hasEffect(EffectTypes.SYNERGYTIC_MOVEMENT)) {
                 
                 double iconSize = TILE_SIZE / 3;
                 double iconX = viewX - (iconSize / 2) + 30;
                 double iconY = viewY - 45; // Position above the enemy with some padding
                 
                 gc.drawImage(zapIcon, iconX, iconY, iconSize, iconSize);
+
+
+                    }
             }
 
             // Draw slow icon for slowed enemies 
-            if (enemy instanceof SlowDownDecorator && slowIcon != null) {
+            if (enemy instanceof EnemyDecorator && slowIcon != null) {
 
+                if (((EnemyDecorator)enemy).hasEffect(EffectTypes.SLOW_DOWN)) {
                 double iconSize = TILE_SIZE / 3;
                 double iconX = viewX - (iconSize / 2) - 30; // Position to the right of the healthbar
                 double iconY = viewY - 45;
 
                 gc.drawImage(slowIcon, iconX, iconY, iconSize, iconSize);
+                }
             }   
         }
     }

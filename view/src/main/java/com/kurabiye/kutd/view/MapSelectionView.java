@@ -10,6 +10,8 @@ import javafx.stage.Stage;
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.controller.MapSelectionController;
 import com.kurabiye.kutd.model.Map.GameMap;
+import com.kurabiye.kutd.model.Map.StaticMap;
+
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -24,6 +26,22 @@ public class MapSelectionView {
     }
 
     public void start(Stage stage, MapSelectionController controller) {
+
+
+        /*Demo Test Purposes */
+
+        GamePlayController gamePlayControllerr = new GamePlayController(StaticMap.getPrebuiltMap());
+        GamePlayView gamePlayVieww = new GamePlayView();
+        gamePlayVieww.start(stage, gamePlayControllerr);
+        return; // Remove this line in production
+
+        // TODO: Remove this demo code when integrating with the actual controller
+        /*End of Demo Test Purposes */
+
+
+        ///////
+        /// 
+        /*
         this.controller = controller;
 
         // Create main container
@@ -86,6 +104,8 @@ public class MapSelectionView {
         stage.setTitle("Map Selection");
         stage.setScene(scene);
         stage.show();
+
+          */
     }
 
     private Button createButton(String text) {
@@ -113,6 +133,8 @@ public class MapSelectionView {
         ));
         
         return button;
+
+      
     }
 
     public GameMap getSelectedMap() {

@@ -34,13 +34,17 @@ import com.kurabiye.kutd.model.Tile.TileFactory;
  */
 public class MapEditorView {
 
+
+    // Jasmine: You could use a constant as a flag instead of Integer
+    private static final int NO_TILE_FLAG = 1024; // Width of the map in pixels
+
      static final int TILE_SIZE = 64;
      static final int ROWS = 9;
      static final int COLS = 16;
     private static final int BUTTON_SIZE = 48;
 
     private final Image[] tileImages = new Image[32]; //0-31 tile images
-     Integer[][] mapData;
+     int[][] mapData;
      int selectedTileType = 15; //default to buildable tile
 
      Canvas canvas;
@@ -226,10 +230,10 @@ public class MapEditorView {
     }
 
      void initializeMapData() {
-        mapData = new Integer[ROWS][COLS];
+        mapData = new int[ROWS][COLS];
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                mapData[row][col] = null; //default to grass
+                mapData[row][col] = NO_TILE_FLAG; //default to grass
             }
         }
     }
@@ -244,8 +248,8 @@ public class MapEditorView {
             for (int col = 0; col < COLS; col++) {
                 gc.drawImage(tileImages[5], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 
-                Integer topTile = mapData[row][col];
-                if (topTile != null && topTile != 5 && tileImages[topTile] != null) {
+                int topTile = mapData[row][col];
+                if (topTile != NO_TILE_FLAG && topTile != 5 && tileImages[topTile] != null) {
                 gc.drawImage(tileImages[topTile], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             }
                 /*int tileId = mapData[row][col];
@@ -338,7 +342,7 @@ public class MapEditorView {
 
         if (selectedTileType == 5) {
             //request to remove any top layer
-            mapData[row][col] = null;
+            mapData[row][col] = NO_TILE_FLAG;
         } else {
             //Replace top tile (only one can exist at a time)
             mapData[row][col] = selectedTileType;
@@ -380,6 +384,7 @@ public class MapEditorView {
         dialog.setContentText("Map name:");
 
         Optional<String> result = dialog.showAndWait();
+        
         result.ifPresent(mapName -> {
             if (mapName.trim().isEmpty()) {
                 statusLabel.setText("Map name cannot be empty.");
@@ -391,8 +396,8 @@ public class MapEditorView {
          if (controller.getStartPoint() == null || controller.getEndPoint() == null) {
             showError("Please set both start and end points before saving");
             return;
-        }
-
+    }});
+        /* 
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Save Map");
         dialog.setHeaderText("Enter a name for your map:");
@@ -406,7 +411,7 @@ public class MapEditorView {
                 showError(result.getMessage());
 
             }
-        });
+        });*/
     }
 
     private void loadMap() {
