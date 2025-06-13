@@ -1,9 +1,15 @@
 package com.kurabiye.kutd.model.Map;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Tile.Tile;
@@ -27,7 +33,10 @@ import com.kurabiye.kutd.util.ObserverPattern.Observer;
  * @since 2025-06-01
  */
 
-public class GameMap implements Observable{
+ @JsonIgnoreProperties(ignoreUnknown = true)
+public class GameMap implements Observable, Serializable{
+    private static final long serialVersionUID = 1L;
+    
 
 
     // TO-DO: Add name for the map so that user can access 
@@ -53,13 +62,18 @@ public class GameMap implements Observable{
      * tiles[y-axis][x-axis]
      */ 
     private Tile[][] tiles; // 2D array representing the tiles on the map it will
+    private TilePoint2D startTileCoordinates; // Coordinates of the starting tile
+    private TilePoint2D endTileCoordinates; // Coordinates of the ending tile
 
-    private List<Point2D> pointPath; // List of path tiles on the map
+    private transient List<Point2D> pointPath; // List of path tiles on the map
 
-    private List<Tile> tilePath;
+    private transient List<Tile> tilePath;
+
+    private String name; // Name of the game map
 
 
     public GameMap() {
+        super();
         tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
     }
 
@@ -80,6 +94,7 @@ public class GameMap implements Observable{
 
     public GameMap(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
 
+        super();
 
         try {
             GameMapValidator.isValidGameMap(tiles, startTileCoordinates, endTileCoordinates); // Validate the game map
@@ -88,11 +103,22 @@ public class GameMap implements Observable{
         }
 
         this.tiles = tiles; // Initialize the tiles array with the provided tiles
-
-
+        this.startTileCoordinates = startTileCoordinates; // Set the starting tile coordinates
+        this.endTileCoordinates = endTileCoordinates; // Set the ending tile coordinates
        
         inititializePaths(startTileCoordinates, endTileCoordinates); // Initialize the paths from the starting tile to the ending tile
 
+    }
+
+    // Add readObject method to handle deserialization
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // Initialize transient fields
+        observers = new ArrayList<>();
+        changed = true;
+        if (startTileCoordinates != null && endTileCoordinates != null) {
+            inititializePaths(startTileCoordinates, endTileCoordinates);
+        }
     }
 
 
@@ -167,9 +193,9 @@ public class GameMap implements Observable{
 
 
 
-    private int[][] cachedIntArrayMap; // Cached result for lazy evaluation
+    private transient int[][] cachedIntArrayMap; // Cached result for lazy evaluation
 
-    private boolean changed = true; // Flag to indicate if the map has changed
+    private transient boolean changed = true; // Flag to indicate if the map has changed
 
     /** Convert the Game Map to a 2D array of integers using the tile codes.
      * This method uses lazy evaluation to compute the array only once.
@@ -198,7 +224,7 @@ public class GameMap implements Observable{
      * Boilerplate code for the Observable interface
      */
 
-    private List<Observer> observers = new ArrayList<>(); // List of observers
+    private transient List<Observer> observers = new ArrayList<>(); // List of observers
 
     @Override
     public void addObserver(Observer observer) {
@@ -249,6 +275,53 @@ public class GameMap implements Observable{
         }
 
         return true;
+    }
+
+    public void setName(String name) {
+        this.name = name; // Set the name of the game map
+    }
+
+    public void setTiles(Tile[][] tiles) {
+        this.tiles = tiles; // Set the 2D array of tiles representing the map
+        this.changed = true; // Set the changed flag to true to indicate that the map has changed
+        inititializePaths(new TilePoint2D(0, 0), new TilePoint2D(MAP_WIDTH - 1, MAP_HEIGHT - 1)); // Reinitialize the paths with default start and end points
+    }
+
+    @JsonCreator
+    public GameMap(
+        @JsonProperty("tiles") Tile[][] tiles,
+        @JsonProperty("startTileCoordinates") TilePoint2D startTileCoordinates,
+        @JsonProperty("endTileCoordinates") TilePoint2D endTileCoordinates,
+        @JsonProperty("name") String name) {
+        
+        this();  // Call no-args constructor to initialize transient fields
+        this.tiles = tiles;
+        this.startTileCoordinates = startTileCoordinates;
+        this.endTileCoordinates = endTileCoordinates;
+        this.name = name;
+        if (startTileCoordinates != null && endTileCoordinates != null) {
+            inititializePaths(startTileCoordinates, endTileCoordinates);
+        }
+    }
+
+    @JsonProperty("tiles")
+    public Tile[][] getTiles() {
+        return tiles;
+    }
+
+    @JsonProperty("startTileCoordinates")
+    public TilePoint2D getStartTileCoordinates() {
+        return startTileCoordinates;
+    }
+
+    @JsonProperty("endTileCoordinates")
+    public TilePoint2D getEndTileCoordinates() {
+        return endTileCoordinates;
+    }
+
+    @JsonProperty("name")
+    public String getName() {
+        return name;
     }
     
 

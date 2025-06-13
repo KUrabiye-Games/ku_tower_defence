@@ -20,8 +20,12 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
     private int goblinSpeed = UserPreference.getInstance().getEnemyMovementSpeed()[0]; // Speed of the goblin
     private int knightSpeed = UserPreference.getInstance().getEnemyMovementSpeed()[1]; // Speed of the knight
 
+    private int targetSpeed = (int)((goblinSpeed + knightSpeed) / 2); // Target speed for the synergetic movement
+
     public SynergeticMoveDecorator(IEnemy enemy) {
         super(enemy); // Initialize the decorator with an IEnemy instance
+
+
 
     }
 
@@ -37,8 +41,13 @@ public class SynergeticMoveDecorator extends EnemyDecorator {
     }
 
     @Override
-    public int getSpeed() {
-        return (int)((goblinSpeed + knightSpeed) / 2); // Return the speed of the enemy after applying synergetic movement
+    public void move(double deltaTime) {
+        // Debugging: Print the speeds of goblin and knight
+        this.setSpeed(targetSpeed); // Set the speed to the sum of goblin and knight speeds
+
+        super.move(deltaTime); // Call the original move method from the decorated enemy
+
+        this.setSpeed(knightSpeed);
     }
 
 }

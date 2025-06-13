@@ -27,15 +27,12 @@ public class SlowDownDecorator extends EnemyDecorator {
     public void move(double deltaTime) {
         // Implement synergetic movement logic here
         // For example, modify the enemy's move direction based on some conditions
+        enemy.setSpeed((int)(super.getSpeed() * 0.8)); // Reduce the speed by 20% for synergetic movement
         enemy.move(deltaTime); // Call the original move method from the decorated enemy
         remainigEffectTime -= deltaTime; // Decrease the remaining effect time
+        enemy.setSpeed(super.getSpeed()); // Reset the speed to the original speed after moving
 
     }
-
-    public boolean isEffectActive() {
-        return remainigEffectTime > 0; // Check if the effect is still active
-    }
-
     @Override
     public IEnemy removeDecoration(){
         // This method can be used to remove the decoration and return the original enem
@@ -45,14 +42,6 @@ public class SlowDownDecorator extends EnemyDecorator {
     @Override
     public EffectTypes getEffectType() {
         return EffectTypes.SLOW_DOWN; // Return the effect type for this decorator
-    }
-
-    @Override
-    public int getSpeed() {
-        if (remainigEffectTime > 0) {
-            return (int)(super.getSpeed() * 0.8); // Return the original speed if the effect is not active
-        }
-        return super.getSpeed(); // Return the original speed if the effect is not active
     }
 
 }

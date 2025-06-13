@@ -19,23 +19,26 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 
+
 import java.util.List;
+
 
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.model.Collectable.GoldBag;
 import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
 
 import com.kurabiye.kutd.model.Projectile.IProjectile;
+
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
+
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -331,27 +334,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 
     private void handleSellButtonClick(int row, int col) {
-        int tileId = map[row][col];
-            int towerType;
-            switch (tileId) {
-                case 20: // Example: Tower type 0
-                    towerType = 0;
-                    break;
-                case 21: // Example: Tower type 1
-                    towerType = 1;
-                    break;
-                case 26: // Example: Tower type 2
-                    towerType = 2;
-                    break;
-                default:
-                    return;
-            }
+    
     
             // Call the controller's sellTower method with the tower type
-            boolean success = controller.sellTower(col, row);
-            if (success) {
-            } else {
-            }
+            controller.sellTower(col, row);
     
            removeButtonContainer();
     }
@@ -690,7 +676,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         playAgainButton.setOnAction(event -> {
             controller.endGame(); // Clean up the current game
             root.getChildren().remove(overlay); // Remove the popup
-            GamePlayController newController = new GamePlayController(); // Create a new controller
+            GameMap gameMap = controller.getGameManager().getGameMap(); // Get the current map
+            GamePlayController newController = new GamePlayController(gameMap); // Create a new controller
             this.start(stage, newController); // Restart the game view with the new controller
         });
 
@@ -800,7 +787,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     gc.translate(viewX, viewY);
         
                     // Rotate the canvas
-                    gc.rotate(angle + 180);
+                    gc.rotate(angle);
         
                     // Draw the image centered at (0, 0) after translation
                     gc.drawImage(projectileImage, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
@@ -825,7 +812,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
 
         // Update explosion animations (AnimationTimer handles the rendering)
+
+        //By Atlas
         renderCollectables(gc);
+        renderTowerRanges(gc);
 
         
     }
@@ -850,7 +840,28 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 }
 
-   
+
+
+public void renderTowerRanges(GraphicsContext gc) {
+    for (ITower tower : towers) {
+        // Get the tower's range and position
+        double range = tower.getRange();
+
+        Point2D position = tower.getTileCoordinate().getCenter();
+
+        // Calculate the top-left corner of the range oval
+        double topLeftX = position.getX() - range;
+        double topLeftY = position.getY() - (range * 0.6); // Reduce vertical height by 40%
+        // Draw a vertically squeezed oval for the range
+        gc.setStroke(Color.rgb(190, 120, 120, 0.5));
+        gc.setLineWidth(2);
+        gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Reduce vertical diameter
+
+
+
+    }
+
+}
 
     @Override
     public void update(Object arg) {

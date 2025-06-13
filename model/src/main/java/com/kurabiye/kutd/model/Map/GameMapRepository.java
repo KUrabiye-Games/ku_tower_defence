@@ -1,62 +1,120 @@
 package com.kurabiye.kutd.model.Map;
 
-import java.io.Serializable;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/* * GameMapRepository.java
- * This class is responsible for managing the game map data, including loading and saving map data,
- * and providing access to the map data for other components of the game.
- * 
- * 
- * @author: Atlas Berk Polat
- * @version: 1.0
- * @since: 2025-04-28
- */
+import org.slf4j.LoggerFactory;
 
-public final class GameMapRepository implements Serializable{
-
-        private static final long serialVersionUID = 1L; // Unique ID for serialization
-
-        private static GameMapRepository instance; // Singleton instance of GameMapRepository
-
-        private List<GameMap> gameMaps; // List of game maps
-
-        private GameMapRepository() {
-            // Private constructor to prevent instantiation
-        }
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 
-        public static GameMapRepository getInstance() {
-            if (instance == null) {
-                instance = new GameMapRepository(); // Create a new instance if it doesn't exist
-            }
-            return instance; // Return the singleton instance
-        }
+public final class GameMapRepository {
+    private static final String MAPS_DIR = System.getProperty("user.home") + "/.kutd/maps/";
+    private static final ObjectMapper mapper = new ObjectMapper()
+        .enable(SerializationFeature.INDENT_OUTPUT)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(GameMapRepository.class);
+    private static volatile GameMapRepository instance;
+    private final Map<String, GameMap> gameMaps;
 
+    private GameMapRepository() {
+        this.gameMaps = new HashMap<>();
+        loadRepository();
+    }
 
-        public List<GameMap> getGameMaps() {
-            return gameMaps; // Return the list of game maps
-        }
-
-        public void addGameMap(GameMap gameMap) {
-            gameMaps.add(gameMap); // Add a new game map to the list
-        }
-
-        public void removeGameMap(GameMap gameMap) {
-            gameMaps.remove(gameMap); // Remove a game map from the list
-        }
-
-        public void removeGameMap(int index) {
-            if (index >= 0 && index < gameMaps.size()) {
-                gameMaps.remove(index);
-            } else {
-                throw new IndexOutOfBoundsException("Invalid map index: " + index);
+    public static GameMapRepository getInstance() {
+        if (instance == null) {
+            synchronized (GameMapRepository.class) {
+                if (instance == null) {
+                    instance = new GameMapRepository();
+                }
             }
         }
+        return instance;
+    }
 
-        private Object readResolve() {
-            // Ensure that the singleton instance is returned during deserialization
-            return getInstance();
+    public MapOperationResult addGameMap(GameMap map) {
+        if (map.getName() == null || map.getName().isEmpty()) {
+            return new MapOperationResult(false, "Map name cannot be empty");
         }
 
+        try {
+            // Save to temporary file first
+            String tempFileName = MAPS_DIR + map.getName() + ".json.tmp";
+            String finalFileName = MAPS_DIR + map.getName() + ".json";
+            
+            // Ensure directory exists
+            Files.createDirectories(Paths.get(MAPS_DIR));
+            
+            // Write to temp file
+            mapper.writeValue(new File(tempFileName), map);
+            
+            // Atomic move
+            Files.move(Paths.get(tempFileName), Paths.get(finalFileName), 
+                      StandardCopyOption.ATOMIC_MOVE, 
+                      StandardCopyOption.REPLACE_EXISTING);
+            
+            // Update memory cache
+            gameMaps.put(map.getName(), map);
+            return new MapOperationResult(true, "Map saved successfully");
+            
+        } catch (IOException e) {
+            logger.error("Failed to save map: " + map.getName(), e);
+            return new MapOperationResult(false, "Failed to save map: " + e.getMessage());
+        }
+    }
+
+    private void loadRepository() {
+        try {
+            Files.createDirectories(Paths.get(MAPS_DIR));
+            
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(MAPS_DIR), "*.json")) {
+                for (Path mapFile : stream) {
+                    try {
+                        GameMap map = mapper.readValue(mapFile.toFile(), GameMap.class);
+                        if (map.getName() != null) {
+                            gameMaps.put(map.getName(), map);
+                        }
+                    } catch (IOException e) {
+                        logger.error("Failed to load map: " + mapFile.getFileName(), e);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Failed to load map repository", e);
+            gameMaps.clear();
+        }
+    }
+
+    public GameMap getGameMap(String name) {
+        return gameMaps.get(name);
+    }
+
+    public List<String> getAvailableMapNames() {
+        return new ArrayList<>(gameMaps.keySet());
+    }
+
+    public boolean deleteMap(String mapName) {
+        try {
+            Path mapPath = Paths.get(MAPS_DIR + mapName + ".json");
+            Files.deleteIfExists(mapPath);
+            gameMaps.remove(mapName);
+            return true;
+        } catch (IOException e) {
+            logger.error("Failed to delete map: " + mapName, e);
+            return false;
+        }
+    }
 }

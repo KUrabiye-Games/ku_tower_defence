@@ -47,8 +47,8 @@ public class Tower implements ITower{
 
     // Level up
 
-    private int towerLevel = 1; // Level of the tower, default is 1
-    private int maxLevel = 2; // Maximum level of the tower, can be changed later
+    private int towerLevel = 0; // Level of the tower, default is 1
+    private int maxLevel = 1; // Maximum level of the tower, can be changed later
 
     private TowerType towerType; // Type of the tower, can be used for different tower types
 
@@ -56,7 +56,7 @@ public class Tower implements ITower{
     public Tower(TowerType towerType) {
         this.range = userPreferences.getTowerEffectiveRange()[towerType.getValue()][0]; // Set the range of the tower
         this.attackSpeed = userPreferences.getTowerRateOfFire()[towerType.getValue()][0]; // Set the attack speed of the tower
-
+        this.towerType = towerType; // Set the type of the tower
     }
 
     public void setTileCoordinate(TilePoint2D tileCoordinate) {
@@ -107,7 +107,7 @@ public class Tower implements ITower{
 
         // Filter the enemies based on the range of the tower
         ArrayList<IEnemy> filteredEnemies = enemies.stream()
-                .filter(enemy -> enemy.getCoordinate().distance(tileCoordinate.getCenter()) <= range)
+                .filter(enemy -> isInRange(enemy))
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
         // If no enemies in range, return null
@@ -148,6 +148,20 @@ public class Tower implements ITower{
         }
     }
 
+
+    private boolean isInRange(IEnemy enemy) {
+        // Check if the enemy is within the range of the tower
+        // calculate the distance but I want the range to be an oval rather than a circle
+
+        double xDiff = enemy.getCoordinate().getX() - tileCoordinate.getCenter().getX(); // Calculate the difference in x-coordinates
+        double yDiff = enemy.getCoordinate().getY() - tileCoordinate.getCenter().getY(); // Calculate the difference in y-coordinates
+
+        double distance = Math.sqrt((xDiff * xDiff) + ( (1/0.6f) * (1/0.6) * (yDiff * yDiff))); // Calculate the distance using Pythagorean theorem
+
+
+        return distance < range; // Return true if the enemy is in range, false otherwise
+    }
+
     /**
      * Gets the tile coordinate of the tower.
      * 
@@ -165,7 +179,7 @@ public class Tower implements ITower{
     public synchronized int getSellReturn() {
         // calculate the total money spend to build and upgrade the tower
         int totalCost = 0;
-        for (int i = 1; i <= towerLevel; i++) {
+        for (int i = 0; i <= towerLevel; i++) {
             totalCost += userPreferences.getTowerConstructionCost()[towerType.getValue()][i]; // Add the construction cost for each level
         }
 
@@ -211,5 +225,12 @@ public class Tower implements ITower{
     public TowerType getTowerType() {
         return towerType; // Get the type of the tower
     }
+
+
+    @Override
+    public float getRange() {
+        return range; // Get the range of the tower
+    }
+
 
 }

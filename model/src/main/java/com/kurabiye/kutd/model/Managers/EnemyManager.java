@@ -8,6 +8,7 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.EnemyFactory;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
 /**
@@ -57,6 +58,16 @@ public class EnemyManager {
         // Iterate through the list of enemies and update their positions
 
         for (IEnemy enemy : enemies) {
+
+            // check if the enemy is the instance of SynergeticMoveDecorator
+            if (enemy instanceof SynergeticMoveDecorator) {
+                // Debug message to indicate that a synergetic move decorator is being processed
+                //System.out.println("Processing SynergeticMoveDecorator for enemy: " + enemy.getEnemyType());
+                // Print the enemy speed for debugging
+                //System.out.println("Synergetic Speed: " + enemy.getSpeed());
+            }
+
+
             enemy.move(deltaTime); // Update the enemy's position based on the delta time
             if (enemy.hasArrived()) {
                 enemies.removeLater(enemy); // Remove the enemy from the list if it has arrived at its destination
@@ -89,7 +100,7 @@ public class EnemyManager {
                 Enemy enemy = enemyFactory.createEnemy(enemyIndex); // Create a new enemy using the factory
                 enemies.add(enemy); // Add the enemy to the list of enemies
                 // Debug message to indicate that an enemy has been spawned
-                System.out.println("Enemy spawned: " + enemyIndex);
+                //System.out.println("Enemy spawned: " + enemyIndex);
                 return true; // Return true if an enemy was spawned
             }else if (enemyIndex == WaveManager.NO_NEW_ENEMY_CODE) {
                 return true; // Return false if there are no more enemies to spawn

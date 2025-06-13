@@ -2,6 +2,8 @@ package com.kurabiye.kutd.view;
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.controller.MainMenuController;
+import com.kurabiye.kutd.controller.MapEditorController;
+import com.kurabiye.kutd.controller.MapSelectionController;
 import com.kurabiye.kutd.controller.SettingsController;
 
 import javafx.geometry.Pos;
@@ -70,15 +72,16 @@ public class MainMenuView {
         playButton.setOnAction(e -> {
             // TODO: Start the game
 
-            GamePlayController gamePlayController = controller.onPlayButtonPressed();
-            GamePlayView mapView = new GamePlayView();
-            mapView.start(stage, gamePlayController);
+            MapSelectionController mapSelectionController = controller.onPlayButtonPressed();
+            MapSelectionView mapSelectionView = new MapSelectionView();
+            mapSelectionView.start(stage, mapSelectionController);
         });
 
         mapEditorButton.setOnAction(e -> {
             // TODO: Open Map Editor
+            MapEditorController mapEditorcontroller = controller.onMapEditorButtonPressed();
             MapEditorView mapEditor = new MapEditorView();
-            mapEditor.start(stage);
+            mapEditor.start(stage, mapEditorcontroller);
         });
 
         settingsButton.setOnAction(e -> {

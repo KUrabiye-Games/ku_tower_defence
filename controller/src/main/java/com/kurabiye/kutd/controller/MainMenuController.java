@@ -1,19 +1,21 @@
 package com.kurabiye.kutd.controller;
 
+import com.kurabiye.kutd.model.Map.GameMapRepository;
+
 public class MainMenuController {
     private final SettingsController settingsController;
+    private final GameMapRepository mapRepository;
 
     public MainMenuController() {
-        
         this.settingsController = new SettingsController();
-
+        this.mapRepository = GameMapRepository.getInstance();
     }
 
     // Called when the "Play Game" button is pressed
-    public GamePlayController onPlayButtonPressed() {
+    public MapSelectionController onPlayButtonPressed() {
        
-        GamePlayController gamePlayController = new GamePlayController();
-        return gamePlayController;
+        MapSelectionController mapSelectionController = new MapSelectionController();
+        return mapSelectionController;
     }
 
 
@@ -22,6 +24,12 @@ public class MainMenuController {
         
         SettingsController settingsController = new SettingsController();
         return settingsController;
+    }
+
+    public MapEditorController onMapEditorButtonPressed() {
+        
+        MapEditorController mapEditorController = new MapEditorController();
+        return mapEditorController;
     }
 
     // Called when the "Quit" button is clicked

@@ -126,11 +126,13 @@ public class GameManager implements Runnable{
  
         // Debugging: Print the initial game state
         // System.out.println("Game started with state: " + gameState);
+
         while (running && gameState != GameState.GAME_LOST && gameState != GameState.GAME_WON) {
+            
+        gameTimer.update();
 
-            gameTimer.update(); // Update the game timer
 
-            while (running && gameState != GameState.PAUSED) {
+            while (running && gameState != GameState.PAUSED ) {
                 
             // Check if thread has been requested to stop
             if (!running) {
@@ -197,8 +199,12 @@ public class GameManager implements Runnable{
 
 
             // Check for synergetic movement behavior
-
             effectManager.applyEffects(deltaTime);// Apply synergetic movement effects to enemies
+
+
+            // update collectables
+            collectableManager.updateCollectables(deltaTime); // Update collectables based on the elapsed time
+
             
 
             // Check if the game is over
@@ -221,7 +227,17 @@ public class GameManager implements Runnable{
             }
 
          }
+
+         // Wait to resume the game if it is paused
+            try {
+                Thread.sleep((long)((100)/ gameTimer.getTimeCoefficient())); // Approximately 60 FPS
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
         }
+        
     }
 
     

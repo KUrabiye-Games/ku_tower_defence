@@ -5,7 +5,7 @@ import com.kurabiye.kutd.model.Coordinates.Point2D;
 public class ArtilleryProjectileMoveStrategy implements IProjectileMoveStrategy {
 
     private static final float GRAVITY = 0; // Gravity constant
-    private float ARTILLERY_SPEED = 50; // Speed of the artillery projectile
+    private float ARTILLERY_SPEED = 150; // Speed of the artillery projectile
     
 /*
     @Override

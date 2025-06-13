@@ -1,5 +1,10 @@
 package com.kurabiye.kutd.model.Tile;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 
 /* Tile.java
@@ -12,8 +17,9 @@ import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
  * @since 2025-04-23
  */
 
-public class Tile {
-        
+ @JsonIgnoreProperties(ignoreUnknown = true)
+public class Tile implements Serializable {
+        private static final long serialVersionUID = 1L;
 
 
         /* Tile code is very important for the view layer.
@@ -43,7 +49,8 @@ public class Tile {
          *      6 5 4 
          */
 
-        public Tile(int tileCode) {
+        @JsonCreator
+        public Tile( @JsonProperty("tileCode") int tileCode) {
             this.tileCode = tileCode; // Set the tile code
 
 
@@ -56,7 +63,7 @@ public class Tile {
         private boolean isGroundTile = false; // Ground status of the tile
         private boolean isDecorationTile = false; // Decoration status of the tile
 
-
+        @JsonProperty("tileCode")
         public int getTileCode() {
             return tileCode; // Get the code of the tile
         }

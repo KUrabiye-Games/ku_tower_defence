@@ -122,4 +122,12 @@ public interface ITower {
      * @return The maximum level of the tower
      */
     int getMaxLevel();
+
+
+    /**
+     * get the range of the tower
+     * 
+     * @return The range of the tower
+     */
+    float getRange();
 }
