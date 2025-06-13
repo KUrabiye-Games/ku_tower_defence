@@ -4,7 +4,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -24,8 +26,6 @@ import com.kurabiye.kutd.controller.MapEditorController;
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Map.MapOperationResult;
-import com.kurabiye.kutd.model.Tile.Tile;
-import com.kurabiye.kutd.model.Tile.TileFactory;
 
 /**
  *  MapEditorView
@@ -38,12 +38,18 @@ public class MapEditorView {
     private static final int BUTTON_SIZE = 48;
 
     private final Image[] tileImages = new Image[32]; //0-31 tile images
+     
+        
      int[][] mapData;
+     private String currentMapName = null; //name of the currently loaded map
      int selectedTileType = 15; //default to buildable tile
 
      Canvas canvas;
      GraphicsContext gc;
      Label statusLabel;
+
+     private Button deleteButton;
+
 
      private boolean settingStartPoint = false;
      private boolean settingEndPoint = false;
@@ -258,9 +264,16 @@ public class MapEditorView {
 
         Button saveButton = createTextButton("Save Map", this::saveMap);
         Button loadButton = createTextButton("Load Map", this::loadMap);
-        Button validateButton = createTextButton("Validate Map", this::validateMap);
+        this.deleteButton = new Button("Delete Map");
+        Button clearButton = createTextButton("Clear Map", this::clearMap);
         Button returnButton = createTextButton("Main Menu", () -> returnToMenu(stage));
         
+        deleteButton.setDisable(true);
+        deleteButton.setOnAction(e -> deleteCurrentMap());
+        deleteButton.setStyle("-fx-base: #ff4444; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        clearButton.setStyle("-fx-base: #ffa500; -fx-text-fill: white; -fx-font-weight: bold;");
+
         Button setStartButton = new Button("Set Start Point");
         setStartButton.setOnAction(e -> {
             settingStartPoint = true;
@@ -275,7 +288,7 @@ public class MapEditorView {
             statusLabel.setText("Click to set end point");
         });
 
-        buttonBox.getChildren().addAll(saveButton, loadButton, validateButton, returnButton, setStartButton, setEndButton);
+        buttonBox.getChildren().addAll(saveButton, loadButton, deleteButton, clearButton, returnButton, setStartButton, setEndButton);
         return buttonBox;
     }
 
@@ -329,9 +342,6 @@ public class MapEditorView {
         drawMap();
     }
 
-    private void validateMap() {
-        statusLabel.setText("Validating map... (TODO: Implement validation)");
-    }
 
     private void returnToMenu(Stage stage) {
         new MainMenuView().start(stage);
@@ -339,24 +349,37 @@ public class MapEditorView {
 
 
     private void saveMap() {
-         if (controller.getStartPoint() == null || controller.getEndPoint() == null) {
+        if (controller.getStartPoint() == null || controller.getEndPoint() == null) {
             showError("Please set both start and end points before saving");
             return;
         }
 
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Save Map");
-        dialog.setHeaderText("Enter a name for your map:");
-        dialog.setContentText("Map name:");
-
-        dialog.showAndWait().ifPresent(mapName -> {
-            MapOperationResult result = controller.saveMap(mapName);
+        if (controller.getCurrentMapName() != null) {
+            // Saving existing map
+            MapOperationResult result = controller.saveMap(currentMapName);
             if (result.isSuccess()) {
                 showSuccess(result.getMessage());
             } else {
                 showError(result.getMessage());
             }
-        });
+        } else {
+            // New map - ask for name
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Save Map");
+            dialog.setHeaderText("Enter a name for your map:");
+            dialog.setContentText("Map name:");
+
+            dialog.showAndWait().ifPresent(mapName -> {
+                MapOperationResult result = controller.saveMap(mapName);
+                if (result.isSuccess()) {
+                    currentMapName = mapName;
+                    deleteButton.setDisable(false);
+                    showSuccess(result.getMessage());
+                } else {
+                    showError(result.getMessage());
+                }
+            });
+        }
     }
 
     private void loadMap() {
@@ -372,14 +395,55 @@ public class MapEditorView {
         dialog.setContentText("Map:");
 
         dialog.showAndWait().ifPresent(mapName -> {
+            clearMap();
             GameMap loadedMap = controller.loadMap(mapName);
             if (loadedMap != null) {
                 drawMap();
+                currentMapName = mapName;
+                deleteButton.setDisable(false);
                 showSuccess("Map loaded successfully");
             } else {
                 showError("Failed to load map");
+                clearMap();
             }
         });
+    }
+
+    private void deleteCurrentMap() {
+         if (currentMapName == null || currentMapName.isEmpty()) {
+            showError("No map loaded to delete");
+            return;
+        }
+
+         // Confirm deletion
+        if (currentMapName == null) {
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Map");
+        alert.setHeaderText("Delete " + currentMapName + "?");
+        alert.setContentText("This action cannot be undone.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                if (controller.deleteMap(currentMapName)) {
+                    showSuccess("Map deleted successfully");
+                    clearMap();
+                    currentMapName = null;
+                } else {
+                    showError("Failed to delete map");
+                }
+            }
+        });
+    }
+
+    private void clearMap() {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        controller.clearMap();
+        currentMapName = null;
+        deleteButton.setDisable(true);
+        drawMap();
     }
 
     public void showError(String message) {

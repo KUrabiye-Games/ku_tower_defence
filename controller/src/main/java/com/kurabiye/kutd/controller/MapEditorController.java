@@ -6,6 +6,7 @@ import com.kurabiye.kutd.model.Tile.*;
 import java.util.List;
 
 public class MapEditorController {
+    private String currentMapName;
     private final GameMapRepository mapRepository;
     private final TileFactory tileFactory;
     private int[][] tileCodeMatrix;
@@ -16,6 +17,7 @@ public class MapEditorController {
     public MapEditorController() {
         this.mapRepository = GameMapRepository.getInstance();
         this.tileFactory = new TileFactory();
+        this.currentMapName = null;
         initializeTileMatrix();
     }
 
@@ -53,7 +55,21 @@ public class MapEditorController {
 
         try {
             GameMap gameMap = createGameMapFromMatrix(mapName);
-            return mapRepository.addGameMap(gameMap);
+            
+            // Check if we're editing an existing map
+            if (currentMapName != null && currentMapName.equals(mapName)) {
+                // Update existing map
+                return mapRepository.addGameMap(gameMap);
+            } else {
+                // Check if a map with this name already exists
+                if (mapRepository.getGameMap(mapName) != null) {
+                    return new MapOperationResult(false, 
+                        "A map with this name already exists. Choose a different name.");
+                }
+                // Save as new map
+                currentMapName = mapName;
+                return mapRepository.addGameMap(gameMap);
+            }
         } catch (IllegalArgumentException e) {
             return new MapOperationResult(false, e.getMessage());
         }
@@ -69,8 +85,7 @@ public class MapEditorController {
         }
 
         try {
-            GameMap gameMap = new GameMap(tiles, startPoint, endPoint);
-            gameMap.setName(mapName);
+            GameMap gameMap = new GameMap(tiles, startPoint, endPoint, mapName);
             return gameMap;
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid map configuration: " + e.getMessage());
@@ -81,6 +96,7 @@ public class MapEditorController {
         GameMap loadedMap = mapRepository.getGameMap(mapName);
         if (loadedMap != null) {
             loadMapIntoMatrix(loadedMap);
+            currentMapName = mapName; // Set current map name for editing
             return loadedMap;
         }
         return null;
@@ -120,13 +136,17 @@ public class MapEditorController {
     }
 
     private boolean isValidMapName(String mapName) {
-        return mapName != null && !mapName.trim().isEmpty() && !mapRepository.getAvailableMapNames().contains(mapName);
+        return mapName != null && !mapName.trim().isEmpty();
     }
 
     public void clearMap() {
         initializeTileMatrix();
         startPoint = null;
         endPoint = null;
+        currentMapName = null;
+    }
+    public boolean deleteMap(String mapName) {
+        return mapRepository.deleteMap(mapName);
     }
 
     public TilePoint2D getStartPoint() {
@@ -135,5 +155,9 @@ public class MapEditorController {
 
     public TilePoint2D getEndPoint() {
         return endPoint;
+    }
+
+    public String getCurrentMapName() {
+        return currentMapName;
     }
 }
