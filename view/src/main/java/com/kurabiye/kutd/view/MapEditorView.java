@@ -361,10 +361,10 @@ public class MapEditorView {
             mapData[row][col] = selectedTileType;
         }
 
-    drawMap();
-}
+        drawMap();
 
-/* Atlas: Conflict resulotion
+
+
         if (settingStartPoint) {
             controller.setStartPoint(col, row);
             settingStartPoint = false;
