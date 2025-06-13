@@ -17,6 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.control.TextInputDialog;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class MapEditorView {
     private static final int BUTTON_SIZE = 48;
 
     private final Image[] tileImages = new Image[32]; //0-31 tile images
-     int[][] mapData;
+     Integer[][] mapData;
      int selectedTileType = 15; //default to buildable tile
 
      Canvas canvas;
@@ -80,8 +82,16 @@ public class MapEditorView {
         statusLabel.setStyle("-fx-background-color: #333333; -fx-padding: 5px;");
 
         //layout setup
-        Pane canvasContainer = new Pane(canvas);
+        /*Pane canvasContainer = new Pane(canvas);
         root.setCenter(canvasContainer);
+        root.setLeft(tileSelectionPanel);
+        root.setBottom(controlButtons);
+        root.setTop(statusLabel);*/
+        ScrollPane canvasScrollPane = new ScrollPane(canvas);
+        canvasScrollPane.setPrefSize(COLS * TILE_SIZE, ROWS * TILE_SIZE);
+        canvasScrollPane.setPannable(true);
+
+        root.setCenter(canvasScrollPane);
         root.setLeft(tileSelectionPanel);
         root.setBottom(controlButtons);
         root.setTop(statusLabel);
@@ -216,22 +226,32 @@ public class MapEditorView {
     }
 
      void initializeMapData() {
-        mapData = new int[ROWS][COLS];
+        mapData = new Integer[ROWS][COLS];
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                mapData[row][col] = 5; //default to grass
+                mapData[row][col] = null; //default to grass
             }
         }
     }
 
     private void drawMap() {
+
+        gc.clearRect(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
+/* Atlas Conflict resolution test
         mapData = controller.getTileCodeMatrix();
+*/
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                int tileId = mapData[row][col];
+                gc.drawImage(tileImages[5], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                
+                Integer topTile = mapData[row][col];
+                if (topTile != null && topTile != 5 && tileImages[topTile] != null) {
+                gc.drawImage(tileImages[topTile], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+                /*int tileId = mapData[row][col];
                 if (tileId >= 0 && tileId < tileImages.length && tileImages[tileId] != null) {
                     gc.drawImage(tileImages[tileId], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                }
+                }*/
             }
         }
 
@@ -311,10 +331,23 @@ public class MapEditorView {
         if (x < 0 || x >= COLS * TILE_SIZE || y < 0 || y >= ROWS * TILE_SIZE) {
             return;
         }
-        
+
         int col = (int) (x / TILE_SIZE);
         int row = (int) (y / TILE_SIZE);
 
+
+        if (selectedTileType == 5) {
+            //request to remove any top layer
+            mapData[row][col] = null;
+        } else {
+            //Replace top tile (only one can exist at a time)
+            mapData[row][col] = selectedTileType;
+        }
+
+    drawMap();
+}
+
+/* Atlas: Conflict resulotion
         if (settingStartPoint) {
             controller.setStartPoint(col, row);
             settingStartPoint = false;
@@ -328,7 +361,7 @@ public class MapEditorView {
         }
         drawMap();
     }
-
+*/
     private void validateMap() {
         statusLabel.setText("Validating map... (TODO: Implement validation)");
     }
@@ -338,7 +371,23 @@ public class MapEditorView {
     }
 
 
+
     private void saveMap() {
+
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Save Map");
+        dialog.setHeaderText("Enter a name for the map:");
+        dialog.setContentText("Map name:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(mapName -> {
+            if (mapName.trim().isEmpty()) {
+                statusLabel.setText("Map name cannot be empty.");
+            } else {
+                // TODO: hook into persistence system here
+                statusLabel.setText("Map saved as: " + mapName);
+            }
+          
          if (controller.getStartPoint() == null || controller.getEndPoint() == null) {
             showError("Please set both start and end points before saving");
             return;
@@ -355,6 +404,7 @@ public class MapEditorView {
                 showSuccess(result.getMessage());
             } else {
                 showError(result.getMessage());
+
             }
         });
     }
