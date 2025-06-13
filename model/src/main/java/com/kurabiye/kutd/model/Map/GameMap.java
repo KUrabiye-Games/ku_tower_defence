@@ -58,19 +58,24 @@ public class GameMap implements Observable, Serializable{
      *  The map is divided into a grid of tiles, and each tile has a width and height.
      * tiles[y-axis][x-axis]
      */ 
+    @JsonProperty("tiles")
     private Tile[][] tiles; // 2D array representing the tiles on the map it will
+
+    @JsonProperty("startTileCoordinates")
     private TilePoint2D startTileCoordinates; // Coordinates of the starting tile
+    @JsonProperty("endTileCoordinates")
     private TilePoint2D endTileCoordinates; // Coordinates of the ending tile
 
-    private transient List<Point2D> pointPath; // List of path tiles on the map
+    @JsonProperty("pointPath")
+    private List<Point2D> pointPath; // List of path tiles on the map
 
-    private transient List<Tile> tilePath;
+    @JsonProperty("tilePath")
+    private List<Tile> tilePath;
 
     private String name; // Name of the game map
 
 
     public GameMap() {
-        super();
         tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
     }
 
@@ -89,9 +94,7 @@ public class GameMap implements Observable, Serializable{
      * @param endTileCoordinates
      */
 
-    public GameMap(Tile[][] tiles, TilePoint2D startTileCoordinates, TilePoint2D endTileCoordinates) {
-
-        super();
+    public GameMap(@JsonProperty("tiles") Tile[][] tiles, @JsonProperty("startTileCoordinates") TilePoint2D startTileCoordinates, @JsonProperty("endTileCoordinates") TilePoint2D endTileCoordinates) {
 
         try {
             GameMapValidator.isValidGameMap(tiles, startTileCoordinates, endTileCoordinates); // Validate the game map
@@ -290,8 +293,15 @@ public class GameMap implements Observable, Serializable{
         @JsonProperty("startTileCoordinates") TilePoint2D startTileCoordinates,
         @JsonProperty("endTileCoordinates") TilePoint2D endTileCoordinates,
         @JsonProperty("name") String name) {
+
+        this();
+
+        try {
+            GameMapValidator.isValidGameMap(tiles, startTileCoordinates, endTileCoordinates); // Validate the game map
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("GameMap validation failed: " + e.getMessage(), e); // Wrap and rethrow with additional context
+        }
         
-        this();  // Call no-args constructor to initialize transient fields
         this.tiles = tiles;
         this.startTileCoordinates = startTileCoordinates;
         this.endTileCoordinates = endTileCoordinates;
