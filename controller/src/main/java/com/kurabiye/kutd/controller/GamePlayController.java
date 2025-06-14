@@ -10,7 +10,6 @@ import com.kurabiye.kutd.model.Tower.TowerType;
 public class GamePlayController {
 
     private GameManager gameManager;
-    private GameMap gameMap;
 
     public GameManager getGameManager() {
         return gameManager;
@@ -19,9 +18,7 @@ public class GamePlayController {
     public GamePlayController(GameMap gameMap) {
        if (gameMap == null) {
             gameMap = StaticMap.getPrebuiltMap();
-            this.gameMap = gameMap; // Use a clone to avoid modifying the original static map
         } else {
-            this.gameMap = gameMap;
             gameMap = gameMap.clone();
         }
         gameManager = new GameManager(gameMap);
@@ -76,11 +73,6 @@ public class GamePlayController {
     public boolean upgradeTower(int x, int y) {
         return gameManager.upgradeTower(x, y);
     }
-
-    public GameMap getGameMap() {
-        return gameMap;
-    }
-
 
     private void terminateGameThread() {
         gameManager.killGameThread();
