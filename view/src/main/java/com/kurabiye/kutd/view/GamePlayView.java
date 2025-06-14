@@ -785,7 +785,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         playAgainButton.setOnAction(event -> {
             controller.endGame(); // Clean up the current game
             root.getChildren().remove(overlay); // Remove the popup
-            GameMap gameMap = controller.getGameManager().getGameMap(); // Get the current map
+            GameMap gameMap = controller.getGameMap(); // Get the current map
             GamePlayController newController = new GamePlayController(gameMap); // Create a new controller
             this.start(stage, newController); // Restart the game view with the new controller
         });
