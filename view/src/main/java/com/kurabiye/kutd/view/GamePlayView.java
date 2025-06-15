@@ -37,6 +37,9 @@ import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
 
+import com.kurabiye.kutd.view.Animation.AnimationManager;
+
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -85,6 +88,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image pauseImage;      // Pause button image
     private Image accelerateImage; // Speed up image
     private Image settingsImage;   // Settings image
+    private Image goldBagImage = new Image(getClass().getResourceAsStream("/assets/collectables/gold_bag.png"));
+    
+
     private Button playPauseButton;
     private boolean isGamePlaying = true;
     private boolean isGameAccelerated = false;
@@ -96,6 +102,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private HBox buttonContainer;
 
     private GamePlayController controller;
+    private AnimationManager animationManager = new AnimationManager();
+    private Image goldBagSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/G_Spawn.png"));
+
 
     private EnemyView enemyView;
     // private TowerView towerView;
@@ -898,29 +907,33 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         //By Atlas
         renderCollectables(gc);
         renderTowerRanges(gc);
+        animationManager.update(deltaTime);
+
 
         
     }
 
     public void renderCollectables(GraphicsContext gc) {
-    DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
-    
-    for (ICollectable<?> collectable : collectables) {
-        if (collectable instanceof GoldBag) {
-            GoldBag goldBag = (GoldBag) collectable;
-            Point2D pos = goldBag.getCoordinates();
-            
-            // Render gold bag sprite/image
-            gc.setFill(Color.GREEN);
-            gc.fillOval(pos.getX() - 15, pos.getY() - 15, 30, 30);
-            
-            // Optional: Show remaining time or gold amount
-            gc.setFill(Color.BLACK);
-            gc.fillText(String.valueOf(goldBag.getItem()), 
-                       pos.getX() - 10, pos.getY() + 5);
+        DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
+
+        for (ICollectable<?> collectable : collectables) {
+            if (collectable instanceof GoldBag) {
+                GoldBag goldBag = (GoldBag) collectable;
+                Point2D pos = goldBag.getCoordinates();
+
+                
+                if (!goldBag.isAnimated()) {
+                    animationManager.createAnimation(gc, goldBagSpriteSheet, pos, 0.2, goldBag.getLifespan(), 80, 80);
+                    goldBag.setAnimated(true); 
+                }
+
+                // Gold text
+                gc.setFill(Color.BLACK);
+                gc.fillText(String.valueOf(goldBag.getItem()),
+                            pos.getX() - 10, pos.getY() + 5);
+            }
         }
     }
-}
 
 
 
