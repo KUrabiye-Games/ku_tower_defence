@@ -15,6 +15,7 @@ import com.kurabiye.kutd.model.Enemy.Enemy;
 
 
 import com.kurabiye.kutd.model.Player.UserPreference;
+import com.kurabiye.kutd.view.Animation.AnimationManager;
 
 /**
  * EnemyView class for rendering enemies on the game canvas.
@@ -116,9 +117,13 @@ public class EnemyView {
      */
     private void renderEnemy(GraphicsContext gc, IEnemy enemy, int enemyImage) {
         // Skip rendering dead enemies or those that have arrived at destination
-        if (enemy.isDead() || enemy.hasArrived()) {
-            return;
-        }
+        
+        if (enemy.hasArrived()) return;
+        if (enemy.isDead()){
+            System.out.println("death");
+
+        } 
+
         
         // Get the enemy's current position
         Point2D position = enemy.getCoordinate();
@@ -194,6 +199,8 @@ public class EnemyView {
      * @param y Y coordinate of the enemy
      */
     private void renderHealthBar(GraphicsContext gc, IEnemy enemy, double x, double y) {
+
+
         // We need to find maximum health for the enemy type from user preferences
         // For now, let's use the current health as relative value
         float currentHealth = enemy.getHealth();
