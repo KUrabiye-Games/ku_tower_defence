@@ -17,6 +17,8 @@ public class GoldBag implements ICollectable<Integer> {
 
     private boolean isAnimated = false;
 
+    private int animationId = -1;
+
     /** 
      * Constructor for the GoldBag class.
      * @throws IllegalArgumentException if the gold amount is negative.
@@ -69,6 +71,14 @@ public class GoldBag implements ICollectable<Integer> {
 
     public double getLifespan() {
         return LIFESPAN;
+    }
+
+    public int getAnimationId() {
+        return animationId;
+    }
+
+    public void setAnimationId(int animationId) {
+        this.animationId = animationId;
     }
 
 
