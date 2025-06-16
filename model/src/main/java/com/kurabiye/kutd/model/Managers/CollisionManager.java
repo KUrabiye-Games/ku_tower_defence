@@ -140,8 +140,7 @@ public class CollisionManager {
                 }
             }
 
-
-        enemies.commitAll();
+        
         return totalGoldEarned; // Return the total gold earned by the player from enemy kills
     }
 
@@ -181,17 +180,12 @@ public class CollisionManager {
                 }
             }
 
-        enemies.removeCommit();
         return totalGoldEarned; // Return the total gold earned by the player from enemy kills
 
     }
 
-    // Add new methods for committing removals
-    public void commitRemovals() {
-        projectiles.removeCommit();
-    }
-
     public void commitAll() {
+        enemies.commitAll();
         projectiles.commitAll();
     }
     
