@@ -35,11 +35,14 @@ import com.kurabiye.kutd.model.Managers.GameState;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
 
+import com.kurabiye.kutd.model.Projectile.ProjectileState;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
+
+
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
-
 import com.kurabiye.kutd.view.Animation.AnimationManager;
 
 import javafx.animation.KeyFrame;
@@ -111,6 +114,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private GamePlayController controller;
     private AnimationManager animationManager = new AnimationManager(TILE_SIZE, COLS);
     private Image goldBagSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/G_Spawn.png"));
+    private Image explosionSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/Explosions.png"));
+
+
 
 
     private EnemyView enemyView;
@@ -892,6 +898,92 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
+       
+
+        for (IProjectile projectile : projectiles) {
+            // Get the projectile's current position
+            Point2D position = projectile.getCoordinate();
+        
+            // Transform model coordinates to view coordinates using the same scaling as for enemies
+            double modelWidth = 1920;  // The width used in the model
+            double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
+        
+            // Scale positions from model space to view space
+            double viewX = position.getX() * scaleFactor;
+            double viewY = position.getY() * scaleFactor;
+        
+            // Determine the projectile type and select the corresponding image
+            Image projectileImage = null;
+            double imageSize = 20; // Default size for projectiles
+            boolean shouldRotate = false;
+        
+            switch (projectile.getProjectileType()) {
+                case ARROW:
+                    projectileImage = projectileImages[0];
+                    imageSize = 30; // Larger size for arrows
+                    shouldRotate = true; // Arrows need to be rotated
+                    break;
+                case MAGIC:
+                    projectileImage = projectileImages[1];
+                    imageSize = 35; // Larger size for magic projectiles
+                    break;
+                case ARTILLERY:
+                    projectileImage = projectileImages[2];
+                    imageSize = 15; // Smaller size for bombs
+                    break;
+            }
+        
+            // Draw the projectile image if it exists
+            if (projectileImage != null) {
+                if (shouldRotate) {
+                    // Calculate the rotation angle based on the speed vector
+                    double angle = Math.toDegrees(Math.atan2(projectile.getSpeedVector().getY(), projectile.getSpeedVector().getX()));
+        
+                    // Save the current state of the GraphicsContext
+                    gc.save();
+        
+                    // Translate to the center of the projectile
+                    gc.translate(viewX, viewY);
+        
+                    // Rotate the canvas
+                    gc.rotate(angle);
+        
+                    // Draw the image centered at (0, 0) after translation
+                    gc.drawImage(projectileImage, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
+        
+                    // Restore the GraphicsContext to its original state
+                    gc.restore();
+                } else {
+                    // Draw the image without rotation
+                    gc.drawImage(projectileImage, viewX - imageSize / 2, viewY - imageSize / 2, imageSize, imageSize);
+                }
+            }
+
+            
+            if (projectile.getProjectileType() == ProjectileType.ARTILLERY &&
+                projectile.getProjectileState() == ProjectileState.STOPPED &&
+                !projectile.hasExplosionAnimated()) {
+
+                
+                    
+                
+
+
+                animationManager.createAnimation(
+                    gc,
+                    explosionSpriteSheet, // patlama sprite'ınızın Image'ı
+                    position,  // koordinatlar
+                    0.2,  // frame süresi (örneğin)
+                    1.4,  // toplam animasyon süresi
+                    64,   // genişlik
+                    64    // yükseklik
+                );
+
+                projectile.setExplosionAnimated(true);
+            }
+
+        }
+
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
         projectileView.renderProjectiles(gc, projectiles);
@@ -901,15 +993,19 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         renderCollectables(gc);
         renderTowerRanges(gc);
         animationManager.update(deltaTime);
-        
+
+
+        controller.getGameManager().getCollisionManager().commitRemovals();
     }
 
 
 
     public void renderCollectables(GraphicsContext gc) {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
-         
-        double scaleFactor = TILE_SIZE * COLS / 1920.0; 
+
+        // Calculate scale factor
+        double modelWidth = 1920;  // The width used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth;
 
         for (ICollectable<?> collectable : collectables) {
             if (collectable instanceof GoldBag) {
