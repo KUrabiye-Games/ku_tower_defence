@@ -68,8 +68,8 @@ public class SynergeticMovementManager {
             
 
         // Commit
-        enemies.removeCommit();
-        enemies.addCommit();
+        //enemies.removeCommit();
+        //enemies.addCommit();
 
     }
 
