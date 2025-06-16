@@ -86,6 +86,11 @@ public class TowerFactory implements EnumFactory<Tower, TowerType> { // Implemen
 
         Tower tower = new Tower(type); // Create a new Tower object with the specified type
 
+         // Update the range based on the latest UserPreference values
+        tower.setRange(UserPreference.getInstance().getTowerEffectiveRange()[type.getValue()][0]);
+
+        // Update the attack speed based on the latest UserPreference values
+        tower.setAttackSpeed(UserPreference.getInstance().getTowerRateOfFire()[type.getValue()][0]);
 
         // Set the attack strategy based on the tower type
 

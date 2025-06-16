@@ -133,19 +133,10 @@ public class UserPreference implements Serializable {
         {280.0f, 320.0f} // Effective range for each tower type [Type][Level]
     }; // Range fr each tower type
 
-        // Tower rate of fire for each type and level
-        // towerRateOfFire[TowerType][Level]
-        towerRateOfFire = new float[][]{
-            {4f, 3.5f},
-            {1.2f, 1f},
-            {0.25f, 0.15f}
-        }; // Attack speed for each tower type
-
-        artilleryRange = 3.0f; // Special long range for artillery
-        towerConstructionCost = new int[][]{{50, 75, 100},{50, 75, 100},{50, 75, 100}}; // Cost for each tower type
-        towerEffectiveRange = new float[][]{{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f},{300.0f, 300.0f, 200.0f}}; // Range for each tower type
+        artilleryRange = 200.0f; // Artillery tower AOE range
+        towerConstructionCost = new int[][]{{50, 75},{50, 75},{50, 75}}; // Cost for each tower type
+        towerEffectiveRange = new float[][]{{300.0f, 300.0f},{300.0f, 300.0f},{300.0f, 300.0f}}; // Range for each tower type
         towerRateOfFire = new float[][]{{0.5f, 1f, 5f},{0.5f, 1f, 5f}, {0.5f, 1f, 5f}}; // Attack speed for each tower type
-        artilleryRange = 300.0f; // Special long range for artillery
         enemyMovementSpeed = new int[]{60, 35}; // Movement speed for each enemy type
         towerSellReturn = new float[]{0.5f, 0.6f, 0.7f}; // Percentage returned when selling
     }
@@ -330,7 +321,6 @@ public class UserPreference implements Serializable {
      * [TowerType][Level]
      * @return the rate of fire for each tower type
      */
-    
     public float[][] getTowerRateOfFire() {
         return towerRateOfFire.clone(); // Return a copy to maintain immutability
     }
@@ -350,7 +340,7 @@ public class UserPreference implements Serializable {
 
     // Artillery AOE
     public float getArtilleryAoeRange() {
-        return towerEffectiveRange != null && towerEffectiveRange.length > 2 ? towerEffectiveRange[2][0] : 0.0f;
+        return artilleryRange;
     }
 
     // Getters for tower construction costs
@@ -368,11 +358,11 @@ public class UserPreference implements Serializable {
     
     // Getters for specific tower ranges
     public float getArtilleryRange() {
-        return artilleryRange;
+        return towerEffectiveRange != null && towerEffectiveRange.length > 0 ? towerEffectiveRange[0][0] : 0.0f;
     }
 
     public float getArcherRange() {
-        return towerEffectiveRange != null && towerEffectiveRange.length > 0 ? towerEffectiveRange[0][0] : 0.0f;
+        return towerEffectiveRange != null && towerEffectiveRange.length > 0 ? towerEffectiveRange[2][0] : 0.0f;
     }
 
     public float getMagicRange() {
@@ -669,7 +659,7 @@ public class UserPreference implements Serializable {
             if (userPreference.towerConstructionCost == null || userPreference.towerConstructionCost.length < 1) {
                 userPreference.towerConstructionCost = new int[3][3]; // Initialize if not set
             }
-            userPreference.towerConstructionCost[0][0] = archerTowerCost; // Set the first tower type's cost
+            userPreference.towerConstructionCost[2][0] = archerTowerCost; // Set the first tower type's cost
             return this;
         }
 
@@ -678,7 +668,7 @@ public class UserPreference implements Serializable {
             if (userPreference.towerConstructionCost == null || userPreference.towerConstructionCost.length < 3) {
                 userPreference.towerConstructionCost = new int[3][3]; // Initialize if not set
             }
-            userPreference.towerConstructionCost[2][0] = artilleryTowerCost; // Set the third tower type's cost
+            userPreference.towerConstructionCost[0][0] = artilleryTowerCost; // Set the third tower type's cost
             return this;
         }
 
@@ -696,7 +686,7 @@ public class UserPreference implements Serializable {
             if (userPreference.towerEffectiveRange == null || userPreference.towerEffectiveRange.length < 1) {
                 userPreference.towerEffectiveRange = new float[3][3]; // Initialize if not set
             }
-            userPreference.towerEffectiveRange[0][0] = archerRange; // Set the first tower type's effective range
+            userPreference.towerEffectiveRange[2][0] = archerRange; // Set the first tower type's effective range
             return this;
         }
 
@@ -714,7 +704,7 @@ public class UserPreference implements Serializable {
             if (userPreference.towerRateOfFire == null || userPreference.towerRateOfFire.length < 1) {
                 userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
             }
-            userPreference.towerRateOfFire[0][0] = archerFireRate; // Set the first tower type's rate of fire
+            userPreference.towerRateOfFire[2][0] = archerFireRate; // Set the first tower type's rate of fire
             return this;
         }
 
@@ -723,7 +713,7 @@ public class UserPreference implements Serializable {
             if (userPreference.towerRateOfFire == null || userPreference.towerRateOfFire.length < 3) {
                 userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
             }
-            userPreference.towerRateOfFire[2][0] = artilleryFireRate; // Set the third tower type's rate of fire
+            userPreference.towerRateOfFire[0][0] = artilleryFireRate; // Set the third tower type's rate of fire
             return this;
         }
 
@@ -737,7 +727,6 @@ public class UserPreference implements Serializable {
         }
 
         public Builder setArtilleryAoeRange(float artilleryAoeRange) {
-            // Ensure the artillery tower's AOE range is set to the specified amount
             userPreference.artilleryRange = artilleryAoeRange; // Set the artillery tower's AOE range
             return this;
         }
@@ -817,8 +806,8 @@ public class UserPreference implements Serializable {
             return this;
         }
         
-        public Builder setArtilleryRange(float artilleryRange) {
-            userPreference.artilleryRange = artilleryRange;
+        public Builder setArtilleryRange(float artilleryR) {
+            userPreference.towerEffectiveRange[0][0] = artilleryR; // Set the artillery tower's range
             return this;
         }
         

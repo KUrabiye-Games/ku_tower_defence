@@ -80,6 +80,13 @@ public class Tower implements ITower{
         return attackStrategy; // Get the attack strategy
     }
 
+    public void setRange(float range) {
+        this.range = range; // Update the range of the tower
+    }
+
+    public void setAttackSpeed(float attackSpeed) {
+        this.attackSpeed = attackSpeed; // Update the attack speed of the tower
+    }
 
 
     /**
