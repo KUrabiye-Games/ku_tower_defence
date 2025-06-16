@@ -34,10 +34,16 @@ import com.kurabiye.kutd.model.Managers.GameState;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
 
+import com.kurabiye.kutd.model.Projectile.ProjectileState;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
+
+
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
+import com.kurabiye.kutd.view.Animation.AnimationManager;
+
 
 
 import javafx.application.Platform;
@@ -88,6 +94,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image pauseImage;      // Pause button image
     private Image accelerateImage; // Speed up image
     private Image settingsImage;   // Settings image
+    private Image goldBagImage = new Image(getClass().getResourceAsStream("/assets/collectables/gold_bag.png"));
+    
+
     private Button playPauseButton;
     private boolean isGamePlaying = true;
     private boolean isGameAccelerated = false;
@@ -99,6 +108,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private HBox buttonContainer;
 
     private GamePlayController controller;
+    private AnimationManager animationManager = new AnimationManager();
+    private Image goldBagSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/G_Spawn.png"));
+    private Image explosionSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/Explosions.png"));
+
+
+
 
     private EnemyView enemyView;
     // private TowerView towerView;
@@ -911,52 +926,69 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     gc.drawImage(projectileImage, viewX - imageSize / 2, viewY - imageSize / 2, imageSize, imageSize);
                 }
             }
-        }
-        
-        
-        // End of projectile rendering
 
-        
+
+            if (projectile.getProjectileType() == ProjectileType.ARTILLERY &&
+                projectile.getProjectileState() == ProjectileState.STOPPED &&
+                !projectile.hasExplosionAnimated()) {
+
+                // Patlama animasyonunu başlat
+                Point2D pos = projectile.getCoordinate();
+
+
+                animationManager.createAnimation(
+                    gc,
+                    explosionSpriteSheet, // patlama sprite'ınızın Image'ı
+                    new Point2D(viewX, viewY),
+                    0.2,  // frame süresi (örneğin)
+                    1.4,  // toplam animasyon süresi
+                    64,   // genişlik
+                    64    // yükseklik
+                );
+
+                projectile.setExplosionAnimated(true);
+            }
+
+        }
 
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
-
-        
 
         // Update explosion animations (AnimationTimer handles the rendering)
 
         //By Atlas
         renderCollectables(gc);
         renderTowerRanges(gc);
+        animationManager.update(deltaTime);
+
 
         
     }
 
     public void renderCollectables(GraphicsContext gc) {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
-    
+
         // Calculate scale factor
         double modelWidth = 1920;  // The width used in the model
         double scaleFactor = TILE_SIZE * COLS / modelWidth;
-        
+
         for (ICollectable<?> collectable : collectables) {
             if (collectable instanceof GoldBag) {
                 GoldBag goldBag = (GoldBag) collectable;
                 Point2D pos = goldBag.getCoordinates();
+
+
                 
-                // Scale the position from model space to view space
-                double viewX = pos.getX() * scaleFactor;
-                double viewY = pos.getY() * scaleFactor;
-                
-                // Render gold bag sprite/image
-                gc.setFill(Color.GOLD);  // Changed to gold color for better visibility
-                gc.fillOval(viewX - 15, viewY - 15, 30, 30);
-                
-                // Draw the amount
+                if (!goldBag.isAnimated()) {
+                    animationManager.createAnimation(gc, goldBagSpriteSheet, pos, 0.2, goldBag.getLifespan(), 80, 80);
+                    goldBag.setAnimated(true); 
+                }
+
+                // Gold text
                 gc.setFill(Color.BLACK);
-                gc.setTextAlign(TextAlignment.CENTER);
-                gc.setTextBaseline(VPos.CENTER);
-                gc.fillText(String.valueOf(goldBag.getItem()), viewX, viewY);
+                gc.fillText(String.valueOf(goldBag.getItem()),
+                            pos.getX() - 10, pos.getY() + 5);
+
             }
         }
     }
