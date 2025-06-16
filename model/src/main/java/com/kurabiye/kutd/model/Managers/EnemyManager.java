@@ -68,8 +68,21 @@ public class EnemyManager {
                 enemy.move(deltaTime); // Update the enemy's position based on the delta time
             }
 
+/*
 
-            
+            enemy.move(deltaTime); // Update the enemy's position based on the delta time
+
+            if (enemy.isDead()) {
+
+                System.out.println("Enemy Manager içerisinde Death");
+                // If animated then delete
+                if (enemy instanceof Enemy && ((Enemy) enemy).isDeathAnimationPlayed()) {
+                    enemies.removeLater(enemy);
+                }
+                continue; // wait for animation
+            }
+
+*/
             if (enemy.hasArrived()) {
                 enemies.removeLater(enemy); // Remove the enemy from the list if it has arrived at its destination
                 arrivedEnemiesCount++; // Increment the count of arrived enemies
@@ -77,7 +90,7 @@ public class EnemyManager {
         }
 
         // Remove enemies that have arrived at their destination
-        enemies.removeCommit();
+        //enemies.removeCommit();
 
         return arrivedEnemiesCount; // Return the count of enemies that have arrived at their destinatio
     

@@ -1,15 +1,19 @@
 package com.kurabiye.kutd.view.Animation;
 
 import javafx.scene.canvas.GraphicsContext;
+
+
 import javafx.scene.image.Image;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.kurabiye.kutd.model.Coordinates.Point2D;
 
-public class AnimationManager {
 
+public class AnimationManager {
+   
     private final List<AnimationInstance> animations = new ArrayList<>();
     private int nextId = 0;
     private final double modelWidth = 1920;  // Add model width constant
@@ -78,7 +82,7 @@ public class AnimationManager {
 
 
     public void update(double deltaTime) {
-        Iterator<AnimationInstance> iter = animations.iterator();
+       Iterator<AnimationInstance> iter = animations.iterator();
         while (iter.hasNext()) {
             AnimationInstance anim = iter.next();
             anim.sprite.update(deltaTime, anim.sprite.getX(), anim.sprite.getY());

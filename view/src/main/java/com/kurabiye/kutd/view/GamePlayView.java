@@ -18,10 +18,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+
+
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import javafx.scene.text.TextAlignment;
 
 import java.util.List;
-
+import java.util.Set;
 
 
 import com.kurabiye.kutd.controller.GamePlayController;
@@ -41,6 +46,8 @@ import com.kurabiye.kutd.model.Projectile.ProjectileType;
 
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
+import com.kurabiye.kutd.view.Animation.AnimationManager;
+import com.kurabiye.kutd.view.Animation.Sprite;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
 import com.kurabiye.kutd.view.Animation.AnimationManager;
@@ -143,7 +150,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Text goldText;
     private Text healthText;
 
+    
     private int[][] map;
+
     
     /**
     * Initializes and starts the game view with the provided stage and controller.
@@ -959,15 +968,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 }
             }
 
-            
+        
+
+
             if (projectile.getProjectileType() == ProjectileType.ARTILLERY &&
                 projectile.getProjectileState() == ProjectileState.STOPPED &&
                 !projectile.hasExplosionAnimated()) {
-
-                
-                    
-                
-
 
                 animationManager.createAnimation(
                     gc,
@@ -984,6 +990,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         }
 
+        for (IEnemy enemy : enemies) {
+            if (enemy.isDead()) {
+                System.out.println("heyyyy");
+                Image deathStrip = new Image(getClass().getResourceAsStream("/assets/animations/death_strip.png"));
+                animationManager.createAnimation(gc, deathStrip, enemy.getCoordinate(), 0.1, 1.4, 64, 64);
+            }
+
+        }
+
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
         projectileView.renderProjectiles(gc, projectiles);
@@ -995,9 +1010,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         animationManager.update(deltaTime);
 
 
-        controller.getGameManager().getCollisionManager().commitRemovals();
+        controller.getGameManager().getCollisionManager().commitAll();
+    
     }
-
 
 
     public void renderCollectables(GraphicsContext gc) {
