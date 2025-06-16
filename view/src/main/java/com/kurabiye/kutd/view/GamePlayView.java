@@ -896,8 +896,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     position,  // koordinatlar
                     0.2,  // frame süresi (örneğin)
                     1.4,  // toplam animasyon süresi
-                    64,   // genişlik
-                    64    // yükseklik
+                    256,   // genişlik
+                    256    // yükseklik
                 );
 
                 projectile.setExplosionAnimated(true);
