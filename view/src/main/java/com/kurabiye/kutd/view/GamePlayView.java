@@ -12,6 +12,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -540,10 +541,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 towerType = TowerType.MAGE; // MAGIC tower type
                 break;
             case 1: //  Arrow button - creates Archer tower
-                    towerType = TowerType.ARCHER; // ARROW tower type
+                towerType = TowerType.ARCHER; // ARROW tower type
                 break;
             case 2: //  Bomb button - creates Artillery  tower
-                
                  towerType = TowerType.ARTILLERY; // ARTILLERY tower type
                 break;
             default:
