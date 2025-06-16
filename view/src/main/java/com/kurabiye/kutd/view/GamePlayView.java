@@ -98,6 +98,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private GraphicsContext gc;
     private HBox buttonContainer;
 
+    private ITower selectedTower = null;
+
     private GamePlayController controller;
 
     private EnemyView enemyView;
@@ -328,7 +330,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         if (buttonContainer != null) {
             root.getChildren().remove(buttonContainer);
             buttonContainer = null;
-           
+            selectedTower = null; // Clear the selected tower when buttons are removed
         }
     }
     /*
@@ -413,6 +415,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 break;
             }
         }
+
+        selectedTower = clickedTower;
 
         buttonContainer.getChildren().add(sellButton);
 
@@ -964,28 +968,31 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
 
     public void renderTowerRanges(GraphicsContext gc) {
-            // Calculate the scale factor just like we do for projectiles
+        // Only render range if a tower is selected
+        if (selectedTower == null) {
+            return;
+        }
+    
+        // Calculate the scale factor just like we do for projectiles
         double modelWidth = 1920;  // The width used in the model
         double scaleFactor = TILE_SIZE * COLS / modelWidth;
-
-        for (ITower tower : towers) {
-            // Get the tower's range and position
-            double range = tower.getRange() * scaleFactor; // Scale the range
-            Point2D position = tower.getTileCoordinate().getCenter();
-
-            // Scale the position coordinates
-            double viewX = position.getX() * scaleFactor;
-            double viewY = position.getY() * scaleFactor;
-
-            // Calculate the top-left corner of the range oval
-            double topLeftX = viewX - range;
-            double topLeftY = viewY - (range * 0.6); // Reduce vertical height by 40%
-
-            // Draw a vertically squeezed oval for the range
-            gc.setStroke(Color.rgb(190, 120, 120, 0.5));
-            gc.setLineWidth(2);
-            gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Use diameter (range * 2) for width
-        }
+    
+        // Only render the selected tower's range, not all towers
+        double range = selectedTower.getRange() * scaleFactor; // Scale the range
+        Point2D position = selectedTower.getTileCoordinate().getCenter();
+    
+        // Scale the position coordinates
+        double viewX = position.getX() * scaleFactor;
+        double viewY = position.getY() * scaleFactor;
+    
+        // Calculate the top-left corner of the range oval
+        double topLeftX = viewX - range;
+        double topLeftY = viewY - (range * 0.6); // Reduce vertical height by 40%
+    
+        // Draw a vertically squeezed oval for the range
+        gc.setStroke(Color.rgb(190, 120, 120, 0.5));
+        gc.setLineWidth(2);
+        gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Use diameter (range * 2) for width
     }
 
     @Override
