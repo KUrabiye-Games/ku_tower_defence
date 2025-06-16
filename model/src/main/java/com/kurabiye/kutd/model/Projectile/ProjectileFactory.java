@@ -46,7 +46,7 @@ public class ProjectileFactory {
                 break;
             case ARTILLERY:
                 moveStrategy = new ArtilleryProjectileMoveStrategy(); // Set the move strategy for artillery projectiles
-                projectileAreaDamage = artilleryRange * projectileAreaDamage; // Set the area damage for artillery projectiles
+                projectileAreaDamage = UserPreference.getInstance().getArtilleryAoeRange(); // Get the area damage for artillery projectiles from user preferences
                 explosionType = DamageType.AREA; // Set the explosion type for artillery projectiles
                 break;
             default:
