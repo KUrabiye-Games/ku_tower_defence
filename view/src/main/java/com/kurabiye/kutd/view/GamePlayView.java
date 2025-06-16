@@ -32,6 +32,8 @@ import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
 
 import com.kurabiye.kutd.model.Projectile.IProjectile;
+import com.kurabiye.kutd.model.Projectile.ProjectileState;
+import com.kurabiye.kutd.model.Projectile.ProjectileType;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
@@ -104,6 +106,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private GamePlayController controller;
     private AnimationManager animationManager = new AnimationManager();
     private Image goldBagSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/G_Spawn.png"));
+    private Image explosionSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/Explosions.png"));
+
+
 
 
     private EnemyView enemyView;
@@ -890,17 +895,33 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     gc.drawImage(projectileImage, viewX - imageSize / 2, viewY - imageSize / 2, imageSize, imageSize);
                 }
             }
-        }
-        
-        
-        // End of projectile rendering
 
-        
+
+            if (projectile.getProjectileType() == ProjectileType.ARTILLERY &&
+                projectile.getProjectileState() == ProjectileState.STOPPED &&
+                !projectile.hasExplosionAnimated()) {
+
+                // Patlama animasyonunu başlat
+                Point2D pos = projectile.getCoordinate();
+
+
+                animationManager.createAnimation(
+                    gc,
+                    explosionSpriteSheet, // patlama sprite'ınızın Image'ı
+                    new Point2D(viewX, viewY),
+                    0.2,  // frame süresi (örneğin)
+                    1.4,  // toplam animasyon süresi
+                    64,   // genişlik
+                    64    // yükseklik
+                );
+
+                projectile.setExplosionAnimated(true);
+            }
+
+        }
 
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
-
-        
 
         // Update explosion animations (AnimationTimer handles the rendering)
 

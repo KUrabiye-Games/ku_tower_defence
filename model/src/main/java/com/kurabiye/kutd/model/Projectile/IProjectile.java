@@ -77,4 +77,8 @@ public interface IProjectile {
      * */
       public int getProjectileLevel();
 
+      boolean hasExplosionAnimated();
+      void setExplosionAnimated(boolean value);
+
+
 }
