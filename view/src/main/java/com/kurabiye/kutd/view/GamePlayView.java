@@ -892,7 +892,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 animationManager.createAnimation(
                     gc,
                     explosionSpriteSheet, // patlama sprite'ınızın Image'ı
-                    new Point2D(viewX, viewY),
+                    pos,  // koordinatlar
                     0.2,  // frame süresi (örneğin)
                     1.4,  // toplam animasyon süresi
                     64,   // genişlik
