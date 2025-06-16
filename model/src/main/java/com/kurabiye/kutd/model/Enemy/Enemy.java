@@ -103,6 +103,7 @@ public class Enemy implements IEnemy {
 
         
         if(enemyState == EnemyState.DEAD || enemyState == EnemyState.ARRIVED) {
+            
             return; // If the enemy is not alive, do not move
         }
 
