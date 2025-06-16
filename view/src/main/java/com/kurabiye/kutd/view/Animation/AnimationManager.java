@@ -12,10 +12,18 @@ public class AnimationManager {
 
     private final List<AnimationInstance> animations = new ArrayList<>();
     private int nextId = 0;
-
+    private final double modelWidth = 1920;  // Add model width constant
+    private double scaleFactor;        // Add scale factor
+    
     /**
      * Eski kullanım için: ID döndürmez
      */
+
+    public AnimationManager(double tileSize, int cols) {
+        // Calculate scale factor based on tile size and columns
+        this.scaleFactor = (tileSize * cols) / modelWidth;
+    }
+
     public void createAnimation(GraphicsContext gc, Image spriteSheet, Point2D position,
                                 double frameDuration, double totalDuration, int width, int height) {
         createAnimationReturningId(gc, spriteSheet, position, frameDuration, totalDuration, width, height);
@@ -26,8 +34,16 @@ public class AnimationManager {
      */
     public int createAnimationReturningId(GraphicsContext gc, Image spriteSheet, Point2D position,
                                           double frameDuration, double totalDuration, int width, int height) {
+        // Scale the position coordinates
+        int scaledX = (int)(position.getX() * scaleFactor);
+        int scaledY = (int)(position.getY() * scaleFactor);
+        
+        // Scale width and height if needed
+        int scaledWidth = (int)(width * scaleFactor);
+        int scaledHeight = (int)(height * scaleFactor);
+
         Sprite sprite = new Sprite(gc, spriteSheet, frameDuration, totalDuration,
-                                   (int) position.getX(), (int) position.getY(), width, height);
+                                   scaledX, scaledY, scaledWidth, scaledHeight);
         AnimationInstance instance = new AnimationInstance(nextId++, sprite, totalDuration);
         animations.add(instance);
         return instance.id;

@@ -106,7 +106,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private HBox buttonContainer;
 
     private GamePlayController controller;
-    private AnimationManager animationManager = new AnimationManager();
+    private AnimationManager animationManager = new AnimationManager(TILE_SIZE, COLS);
     private Image goldBagSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/G_Spawn.png"));
 
 
