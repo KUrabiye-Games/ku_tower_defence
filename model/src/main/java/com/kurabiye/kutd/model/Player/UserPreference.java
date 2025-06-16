@@ -327,11 +327,11 @@ public class UserPreference implements Serializable {
 
     // Getters for specific tower fire rates
     public float getArcherFireRate() {
-        return towerRateOfFire != null && towerRateOfFire.length > 0 ? towerRateOfFire[0][0] : 0.0f;
+        return towerRateOfFire != null && towerRateOfFire.length > 0 ? towerRateOfFire[2][0] : 0.0f;
     }
     
     public float getArtilleryFireRate() {
-        return towerRateOfFire != null && towerRateOfFire.length > 2 ? towerRateOfFire[2][0] : 0.0f;
+        return towerRateOfFire != null && towerRateOfFire.length > 2 ? towerRateOfFire[0][0] : 0.0f;
     }
     
     public float getMagicFireRate() {

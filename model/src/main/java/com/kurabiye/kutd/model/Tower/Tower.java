@@ -241,6 +241,4 @@ public class Tower implements ITower{
     public float getRange() {
         return range; // Get the range of the tower
     }
-
-
 }
