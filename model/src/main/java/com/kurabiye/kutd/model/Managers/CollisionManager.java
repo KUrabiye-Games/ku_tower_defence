@@ -141,13 +141,7 @@ public class CollisionManager {
             }
 
 
-            
-        // Remove dead enemies from the list
         enemies.commitAll();
-        // Remove dead projectiles from the list
-        projectiles.commitAll();
-
-
         return totalGoldEarned; // Return the total gold earned by the player from enemy kills
     }
 
@@ -164,10 +158,12 @@ public class CollisionManager {
         for (IProjectile projectile : projectiles) {
                 if (projectile.getDamageType() == DamageType.AREA) {
                     // check if the projectile is close enough to the its target
+                 
                     double distance = projectile.getCoordinate().distance(projectile.getTarget());
 
                     if (distance < deltaTime * projectile.getSpeedVector().magnitude()) {
                         // Apply area damage to all enemies within the explosion radius
+                        projectile.setProjectileState(ProjectileState.STOPPED);
                         for (IEnemy enemy : enemies) {
                             double distanceToEnemy = projectile.getCoordinate().distance(enemy.getCoordinate());
                             if (distanceToEnemy < projectile.getProjectileAreaDamage()) {
@@ -185,12 +181,18 @@ public class CollisionManager {
                 }
             }
 
-        // Remove dead enemies from the list
         enemies.removeCommit();
-        // Remove dead projectiles from the list
-        projectiles.removeCommit();
         return totalGoldEarned; // Return the total gold earned by the player from enemy kills
 
+    }
+
+    // Add new methods for committing removals
+    public void commitRemovals() {
+        projectiles.removeCommit();
+    }
+
+    public void commitAll() {
+        projectiles.commitAll();
     }
     
 

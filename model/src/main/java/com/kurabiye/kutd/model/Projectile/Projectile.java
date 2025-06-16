@@ -57,6 +57,9 @@ public class Projectile implements IProjectile {
 
     private int projectileLevel = 1; // Level of the projectile
 
+    private boolean explosionAnimated = false;
+
+
 
 
 
@@ -172,4 +175,17 @@ public class Projectile implements IProjectile {
         return projectileLevel; // Get the projectile's level
     }
 
+    @Override
+    public boolean hasExplosionAnimated() {
+        return explosionAnimated;
+    }
+
+    @Override
+    public void setExplosionAnimated(boolean animated) {
+        this.explosionAnimated = animated;
+    }
+
+    public void setProjectileState(ProjectileState projectileState) {
+        this.projectileState = projectileState; // Set the projectile's alive status
+    }
 }
