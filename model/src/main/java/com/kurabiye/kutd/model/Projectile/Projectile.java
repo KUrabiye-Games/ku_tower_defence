@@ -185,5 +185,7 @@ public class Projectile implements IProjectile {
         this.explosionAnimated = animated;
     }
 
-
+    public void setProjectileState(ProjectileState projectileState) {
+        this.projectileState = projectileState; // Set the projectile's alive status
+    }
 }

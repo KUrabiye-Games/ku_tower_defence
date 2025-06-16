@@ -79,6 +79,7 @@ public interface IProjectile {
 
       boolean hasExplosionAnimated();
       void setExplosionAnimated(boolean value);
+      void setProjectileState(ProjectileState projectileState);
 
 
 }

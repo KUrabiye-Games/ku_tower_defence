@@ -880,19 +880,20 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 }
             }
 
-
+            
             if (projectile.getProjectileType() == ProjectileType.ARTILLERY &&
                 projectile.getProjectileState() == ProjectileState.STOPPED &&
                 !projectile.hasExplosionAnimated()) {
 
-                // Patlama animasyonunu başlat
-                Point2D pos = projectile.getCoordinate();
+                
+                    
+                
 
 
                 animationManager.createAnimation(
                     gc,
                     explosionSpriteSheet, // patlama sprite'ınızın Image'ı
-                    pos,  // koordinatlar
+                    position,  // koordinatlar
                     0.2,  // frame süresi (örneğin)
                     1.4,  // toplam animasyon süresi
                     64,   // genişlik
@@ -913,7 +914,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         renderCollectables(gc);
         renderTowerRanges(gc);
         animationManager.update(deltaTime);
-        
+
+
+        controller.getGameManager().getCollisionManager().commitRemovals();
     }
 
 

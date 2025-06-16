@@ -439,5 +439,8 @@ public class GameManager implements Runnable{
         return collectableManager.getCollectables();
     }
 
+    public CollisionManager getCollisionManager() {
+        return collisionManager; // Return the collectable manager
+    }
     
 }
