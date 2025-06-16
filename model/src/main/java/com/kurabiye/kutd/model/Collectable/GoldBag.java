@@ -15,6 +15,10 @@ public class GoldBag implements ICollectable<Integer> {
 
     private double remainingTime = LIFESPAN; // Remaining time for the gold bag to be collected, if needed
 
+    private boolean isAnimated = false;
+
+    private int animationId = -1;
+
     /** 
      * Constructor for the GoldBag class.
      * @throws IllegalArgumentException if the gold amount is negative.
@@ -56,5 +60,26 @@ public class GoldBag implements ICollectable<Integer> {
     public boolean isExpired() {
         return remainingTime <= 0; // Check if the gold bag has expired
     }
+
+    public boolean isAnimated() {
+    return isAnimated;
+}
+
+    public void setAnimated(boolean animated) {
+        isAnimated = animated;
+    }
+
+    public double getLifespan() {
+        return LIFESPAN;
+    }
+
+    public int getAnimationId() {
+        return animationId;
+    }
+
+    public void setAnimationId(int animationId) {
+        this.animationId = animationId;
+    }
+
 
 }

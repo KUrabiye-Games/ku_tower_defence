@@ -39,6 +39,9 @@ import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
 
+import com.kurabiye.kutd.view.Animation.AnimationManager;
+
+
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -46,6 +49,7 @@ import javafx.geometry.Pos;
 
 import javafx.geometry.VPos;
 import javafx.scene.input.MouseEvent;
+
 
 public class GamePlayView implements IGameUpdateListener, Observer {
     
@@ -88,6 +92,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image pauseImage;      // Pause button image
     private Image accelerateImage; // Speed up image
     private Image settingsImage;   // Settings image
+    private Image goldBagImage = new Image(getClass().getResourceAsStream("/assets/collectables/gold_bag.png"));
+    
+
     private Button playPauseButton;
     private boolean isGamePlaying = true;
     private boolean isGameAccelerated = false;
@@ -101,9 +108,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private ITower selectedTower = null;
 
     private GamePlayController controller;
+    private AnimationManager animationManager = new AnimationManager(TILE_SIZE, COLS);
+    private Image goldBagSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/G_Spawn.png"));
+
 
     private EnemyView enemyView;
     // private TowerView towerView;
+    private ProjectileView projectileView;
+
 
     private Image[] projectileImages = new Image[3]; // Array to store projectile images
 
@@ -169,6 +181,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         this.controller = controller;
         this.enemyView = new EnemyView(TILE_SIZE);  // Pass just the tile size
         // this.towerView = new TowerView(TILE_SIZE);  // Pass just the tile size
+
+        this.projectileView = new ProjectileView(projectileImages, TILE_SIZE, COLS);
 
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
@@ -300,6 +314,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         // Try to collect gold bag first
         boolean collected = controller.getGameManager().handleCollectableClick(clickPoint);
+
+        if(collected){
+            animationManager.handleClick(clickPoint);
+        }
         
         if (!collected) {
             // If no collectable was clicked, handle tower/tile interactions
@@ -333,62 +351,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             selectedTower = null; // Clear the selected tower when buttons are removed
         }
     }
-    /*
-    private void showSellButton(int row, int col) {
-        removeButtonContainer();
-    
-        buttonContainer = new HBox(10);
-        buttonContainer.setAlignment(Pos.CENTER);
-    
-        // Calculate position based on clicked tile
-        double tileLeftX = col * TILE_SIZE;
-        double tileTopY = row * TILE_SIZE;
-    
-        // Position container centered above the clicked tile
-        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 50); // Center minus half of button width
-        buttonContainer.setLayoutY(tileTopY - 40); // Position above the tile
-    
-        Button sellButton = new Button("Sell");
-        sellButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
-        sellButton.setPrefSize(80, 30);
-    
-        sellButton.setOnAction(e -> {
-            handleSellButtonClick(row, col);
-        });
-    
-        buttonContainer.getChildren().add(sellButton);
-        root.getChildren().add(buttonContainer);
-    }
- 
-
-    private void showSellButton(int row, int col) {
-        removeButtonContainer();
-
-        buttonContainer = new HBox(10);
-        buttonContainer.setAlignment(Pos.CENTER);
-
-        double tileLeftX = col * TILE_SIZE;
-        double tileTopY = row * TILE_SIZE;
-
-        buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 90);
-        buttonContainer.setLayoutY(tileTopY - 40);
-
-        Button sellButton = new Button("Sell");
-        sellButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
-        sellButton.setPrefSize(80, 30);
-
-        Button upgradeButton = new Button("Upgrade");
-        upgradeButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
-        upgradeButton.setPrefSize(80, 30);
-
-        sellButton.setOnAction(e -> handleSellButtonClick(row, col));
-        upgradeButton.setOnAction(e -> handleUpgradeButtonClick(row, col));
-
-        buttonContainer.getChildren().addAll(sellButton, upgradeButton);
-        root.getChildren().add(buttonContainer);
-    }
-
-    */
 
     private void showTowerButton(int row, int col) {
         removeButtonContainer();
@@ -855,115 +817,50 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
-       
-
-        for (IProjectile projectile : projectiles) {
-            // Get the projectile's current position
-            Point2D position = projectile.getCoordinate();
-        
-            // Transform model coordinates to view coordinates using the same scaling as for enemies
-            double modelWidth = 1920;  // The width used in the model
-            double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
-        
-            // Scale positions from model space to view space
-            double viewX = position.getX() * scaleFactor;
-            double viewY = position.getY() * scaleFactor;
-        
-            // Determine the projectile type and select the corresponding image
-            Image projectileImage = null;
-            double imageSize = 20; // Default size for projectiles
-            boolean shouldRotate = false;
-        
-            switch (projectile.getProjectileType()) {
-                case ARROW:
-                    projectileImage = projectileImages[0];
-                    imageSize = 30; // Larger size for arrows
-                    shouldRotate = true; // Arrows need to be rotated
-                    break;
-                case MAGIC:
-                    projectileImage = projectileImages[1];
-                    imageSize = 35; // Larger size for magic projectiles
-                    break;
-                case ARTILLERY:
-                    projectileImage = projectileImages[2];
-                    imageSize = 15; // Smaller size for bombs
-                    break;
-            }
-        
-            // Draw the projectile image if it exists
-            if (projectileImage != null) {
-                if (shouldRotate) {
-                    // Calculate the rotation angle based on the speed vector
-                    double angle = Math.toDegrees(Math.atan2(projectile.getSpeedVector().getY(), projectile.getSpeedVector().getX()));
-        
-                    // Save the current state of the GraphicsContext
-                    gc.save();
-        
-                    // Translate to the center of the projectile
-                    gc.translate(viewX, viewY);
-        
-                    // Rotate the canvas
-                    gc.rotate(angle);
-        
-                    // Draw the image centered at (0, 0) after translation
-                    gc.drawImage(projectileImage, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
-        
-                    // Restore the GraphicsContext to its original state
-                    gc.restore();
-                } else {
-                    // Draw the image without rotation
-                    gc.drawImage(projectileImage, viewX - imageSize / 2, viewY - imageSize / 2, imageSize, imageSize);
-                }
-            }
-        }
-        
-        
-        // End of projectile rendering
-
-        
-
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
+        projectileView.renderProjectiles(gc, projectiles);
 
-        
-
-        // Update explosion animations (AnimationTimer handles the rendering)
 
         //By Atlas
         renderCollectables(gc);
         renderTowerRanges(gc);
-
+        animationManager.update(deltaTime);
         
     }
 
+
+
     public void renderCollectables(GraphicsContext gc) {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
-    
-        // Calculate scale factor
-        double modelWidth = 1920;  // The width used in the model
-        double scaleFactor = TILE_SIZE * COLS / modelWidth;
-        
+         
+        double scaleFactor = TILE_SIZE * COLS / 1920.0; 
+
         for (ICollectable<?> collectable : collectables) {
             if (collectable instanceof GoldBag) {
                 GoldBag goldBag = (GoldBag) collectable;
                 Point2D pos = goldBag.getCoordinates();
-                
+
                 // Scale the position from model space to view space
                 double viewX = pos.getX() * scaleFactor;
                 double viewY = pos.getY() * scaleFactor;
                 
-                // Render gold bag sprite/image
-                gc.setFill(Color.GOLD);  // Changed to gold color for better visibility
-                gc.fillOval(viewX - 15, viewY - 15, 30, 30);
-                
-                // Draw the amount
+            
+                if (!goldBag.isAnimated()) {
+                    int id = animationManager.createAnimationReturningId(
+                        gc, goldBagSpriteSheet, pos, 0.2, goldBag.getLifespan(), 80, 80
+                        );
+                    goldBag.setAnimated(true);
+                    goldBag.setAnimationId(id); // opsiyonel: animasyonu iptal etmek istersen
+                }
+
                 gc.setFill(Color.BLACK);
-                gc.setTextAlign(TextAlignment.CENTER);
-                gc.setTextBaseline(VPos.CENTER);
-                gc.fillText(String.valueOf(goldBag.getItem()), viewX, viewY);
+                gc.fillText(String.valueOf(goldBag.getItem()),
+                            viewX, viewY -20);
             }
         }
     }
+
 
 
 
