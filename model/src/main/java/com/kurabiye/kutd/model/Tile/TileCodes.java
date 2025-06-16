@@ -64,6 +64,6 @@ public class TileCodes {
 
     public static final int ARTILLERY_LEVEL_1 = 33; // Represents the artillery tower tile code, which is the same as TILE_33
     public static final int MAGE_LEVEL_1 = 34; // Represents the mage tower tile code, which is the same as TILE_34
-    public static final int ARCHER_LEVEL_1 = 35; // Represents the archer tower tile code, which is the same as TILE_35
+    public static final int ARCHER_LEVEL_1 = 32; // Represents the archer tower tile code, which is the same as TILE_35
 
 }

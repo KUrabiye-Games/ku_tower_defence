@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -41,8 +42,8 @@ import com.kurabiye.kutd.model.Tower.TowerType;
 
 import com.kurabiye.kutd.view.Animation.AnimationManager;
 
-
-
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -221,23 +222,29 @@ public class GamePlayView implements IGameUpdateListener, Observer {
        
     
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
-        try {
-            Image cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
-            if (cursorImage != null && !cursorImage.isError()) {
-                ImageCursor customCursor = new ImageCursor(cursorImage,
-                                                           cursorImage.getWidth() / 2,
-                                                           cursorImage.getHeight() / 2);
-                scene.setCursor(customCursor); // Set on scene (optional, but good practice)
-                root.setCursor(customCursor);  // Set on root pane - this is often key
-            }
-        } catch (Exception e) {
-            // Failed to load custom cursor, will use default cursor
-            e.printStackTrace();
-        }
+
         stage.setTitle("Game Map");
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
+
+         // Use Timeline to delay cursor setting slightly
+        Timeline cursorDelay = new Timeline(new KeyFrame(Duration.millis(100), e -> {
+            try {
+                Image cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
+                if (cursorImage != null && !cursorImage.isError()) {
+                    ImageCursor customCursor = new ImageCursor(cursorImage,
+                                                            cursorImage.getWidth() / 2,
+                                                            cursorImage.getHeight() / 2);
+                    scene.setCursor(customCursor);
+                    root.setCursor(customCursor);
+                }
+            } catch (Exception ex) {
+                // Failed to load custom cursor, will use default cursor
+                ex.printStackTrace();
+            }
+        }));
+        cursorDelay.play();
     
         setupClickHandler();
     }
@@ -365,8 +372,40 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         buttonContainer.setLayoutY(tileTopY - 40);
 
         Button sellButton = new Button("Sell");
-        sellButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold;");
-        sellButton.setPrefSize(80, 30);
+        sellButton.setStyle(
+            "-fx-background-color: linear-gradient(#ff5400, #be1d00);" +
+            "-fx-background-radius: 8;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold;" +
+            "-fx-font-size: 12px;" +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+            "-fx-border-color: #8B0000;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 8;"
+        );
+        sellButton.setPrefSize(85, 35);
+        sellButton.setOnMouseEntered(e -> sellButton.setStyle(
+            "-fx-background-color: linear-gradient(#ff6400, #ce2d00);" +
+            "-fx-background-radius: 8;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold;" +
+            "-fx-font-size: 12px;" +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);" +
+            "-fx-border-color: #8B0000;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 8;"
+        ));
+        sellButton.setOnMouseExited(e -> sellButton.setStyle(
+            "-fx-background-color: linear-gradient(#ff5400, #be1d00);" +
+            "-fx-background-radius: 8;" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold;" +
+            "-fx-font-size: 12px;" +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+            "-fx-border-color: #8B0000;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 8;"
+        ));
         sellButton.setOnAction(e -> handleSellButtonClick(row, col));
 
     
@@ -383,9 +422,45 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         buttonContainer.getChildren().add(sellButton);
 
         if (clickedTower != null && clickedTower.canUpgrade()) {
-            Button upgradeButton = new Button("Upgrade");
-            upgradeButton.setStyle("-fx-background-color: green; -fx-text-fill: white; -fx-font-weight: bold;");
-            upgradeButton.setPrefSize(80, 30);
+            int upgradeCost = clickedTower.getUpgradeCost();
+            Button upgradeButton = new Button("Upgrade\n$" + upgradeCost);
+            upgradeButton.setStyle(
+                "-fx-background-color: linear-gradient(#32CD32, #228B22);" +
+                "-fx-background-radius: 8;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 11px;" +
+                "-fx-text-alignment: center;" +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+                "-fx-border-color: #006400;" +
+                "-fx-border-width: 1;" +
+                "-fx-border-radius: 8;"
+            );
+            upgradeButton.setPrefSize(85, 45);
+            upgradeButton.setOnMouseEntered(e -> upgradeButton.setStyle(
+                "-fx-background-color: linear-gradient(#3AE03A, #2E8B2E);" +
+                "-fx-background-radius: 8;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 11px;" +
+                "-fx-text-alignment: center;" +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);" +
+                "-fx-border-color: #006400;" +
+                "-fx-border-width: 1;" +
+                "-fx-border-radius: 8;"
+            ));
+            upgradeButton.setOnMouseExited(e -> upgradeButton.setStyle(
+                "-fx-background-color: linear-gradient(#32CD32, #228B22);" +
+                "-fx-background-radius: 8;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 11px;" +
+                "-fx-text-alignment: center;" +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+                "-fx-border-color: #006400;" +
+                "-fx-border-width: 1;" +
+                "-fx-border-radius: 8;"
+            ));
             upgradeButton.setOnAction(e -> handleUpgradeButtonClick(row, col));
             buttonContainer.getChildren().add(upgradeButton);
         }
