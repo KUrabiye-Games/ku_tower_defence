@@ -9,16 +9,19 @@ import com.kurabiye.kutd.model.Tower.TowerType;
 
 public class GamePlayController {
 
-    private final GameManager gameManager;
+    private GameManager gameManager;
 
     public GameManager getGameManager() {
         return gameManager;
     }
 
-    public GamePlayController() {
-
-        GameMap defaultGameMap = StaticMap.getPrebuiltMap();
-        gameManager = new GameManager(defaultGameMap);
+    public GamePlayController(GameMap gameMap) {
+       if (gameMap == null) {
+            gameMap = StaticMap.getPrebuiltMap();
+        } else {
+            gameMap = gameMap.clone();
+        }
+        gameManager = new GameManager(gameMap);
     }
 
     public void setGameUpdateListener(IGameUpdateListener listener) {
@@ -70,7 +73,6 @@ public class GamePlayController {
     public boolean upgradeTower(int x, int y) {
         return gameManager.upgradeTower(x, y);
     }
-
 
     private void terminateGameThread() {
         gameManager.killGameThread();

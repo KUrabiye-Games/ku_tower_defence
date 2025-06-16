@@ -1,5 +1,11 @@
 package com.kurabiye.kutd.model.Coordinates;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * A 2D geometric point that represents a location in (x,y) coordinate space.
  * This class is an alternative to JavaFX's Point2D, providing similar functionality
@@ -11,12 +17,17 @@ package com.kurabiye.kutd.model.Coordinates;
  * @version 1.0
  * @since 2025-05-02
  */
-public class Point2D {
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Point2D implements Serializable{
+    private static final long serialVersionUID = 1L;
 
     public static final Point2D ZER_POINT2D = new Point2D(0, 0); // A constant representing the origin point (0,0)
     
+    @JsonProperty("pixelX")
     private final double x; // The x coordinate
+
+    @JsonProperty("pixelY")
     private final double y; // The y coordinate
     
     /**
@@ -25,7 +36,9 @@ public class Point2D {
      * @param x the x coordinate
      * @param y the y coordinate
      */
-    public Point2D(double x, double y) {
+
+    @JsonCreator
+    public Point2D(@JsonProperty("pixelX") double x, @JsonProperty("pixelY") double y) {
         this.x = x;
         this.y = y;
     }
@@ -35,6 +48,7 @@ public class Point2D {
      * 
      * @return the x coordinate
      */
+    @JsonProperty("pixelX")
     public double getX() {
         return x;
     }
@@ -44,6 +58,7 @@ public class Point2D {
      * 
      * @return the y coordinate
      */
+    @JsonProperty("pixelY")
     public double getY() {
         return y;
     }

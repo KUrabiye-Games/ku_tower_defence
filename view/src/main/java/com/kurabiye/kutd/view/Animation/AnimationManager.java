@@ -1,9 +1,14 @@
 package com.kurabiye.kutd.view.Animation;
 
 import javafx.scene.canvas.GraphicsContext;
+
+
+import javafx.scene.image.Image;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 
 public class AnimationManager {
     private static AnimationManager instance;
@@ -20,12 +25,14 @@ public class AnimationManager {
 
     public void createAnimation(Sprite sprite, double duration, double x, double y) {
         animations.add(new AnimationInstance(sprite, duration, x, y));
+
     }
 
     public void update(double deltaTime) {
         Iterator<AnimationInstance> iter = animations.iterator();
         while (iter.hasNext()) {
             AnimationInstance anim = iter.next();
+
             anim.update(deltaTime);
             if (anim.isFinished()) {
                 iter.remove();
@@ -36,10 +43,19 @@ public class AnimationManager {
     public void render(GraphicsContext gc) {
         for (AnimationInstance anim : animations) {
             anim.render(gc);
+
+            anim.sprite.update(deltaTime, anim.sprite.getX(), anim.sprite.getY());
+
+            anim.remainingTime -= deltaTime;
+            if (anim.remainingTime <= 0) {
+                iter.remove(); // Remove animation if it's finished
+            }
+
         }
     }
 
     private static class AnimationInstance {
+
         private final Sprite sprite;
         private final double duration;
         private double elapsedTime = 0;
@@ -64,6 +80,14 @@ public class AnimationManager {
 
         boolean isFinished() {
             return elapsedTime >= duration;
+/*
+        Sprite sprite;
+        double remainingTime;
+
+        AnimationInstance(Sprite sprite, double duration) {
+            this.sprite = sprite;
+            this.remainingTime = duration;
+*/
         }
     }
 }

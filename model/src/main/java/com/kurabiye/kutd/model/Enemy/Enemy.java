@@ -85,15 +85,7 @@ public class Enemy implements IEnemy {
             return; // If the enemy's health is less than or equal to 0, set the enemy state to DEAD
         }
 
-        // If the projectile type is magic, there is a chance to teleport the enemy back to the start of the path
-        if (projectile.getProjectileType() == ProjectileType.MAGIC) {
-            
-            if(Math.random() < 0.03) { // 3% chance to teleport the enemy back to the start of the path
-            pathPointIndex = 0; // Reset the path point index to 0
-            coordinate = movePath.get(0); // Set the coordinate of the enemy to the first point in the path
-                this.enemyState = EnemyState.TELEPORTED; // Set the enemy state to ALIVE
-            }
-        }
+        
  
         
 }
@@ -106,10 +98,15 @@ public class Enemy implements IEnemy {
         }
     }
 
-    public synchronized void move(double deltaTime){
+
+
+    public synchronized void move(double deltaTime) {
+
+        int targetSpeed = this.getSpeed(); // Get the base speed of the enemy
 
         
         if(enemyState == EnemyState.DEAD || enemyState == EnemyState.ARRIVED) {
+            
             return; // If the enemy is not alive, do not move
         }
 
@@ -122,9 +119,7 @@ public class Enemy implements IEnemy {
 
         Point2D nextPoint = movePath.get(pathPointIndex); // Get the next point on the path
 
-        int currentSpeed = getSpeed(); // Get the speed of the enemy
-
-        if(this.coordinate.distance(nextPoint) < currentSpeed * deltaTime) {
+        if(this.coordinate.distance(nextPoint) < targetSpeed * deltaTime) {
             pathPointIndex++; // Increment the path point index
 
             // Check if pathPointIndex is within the range of movePath
@@ -141,7 +136,7 @@ public class Enemy implements IEnemy {
         // Normalize the distance vector
         double distance = distanceVector.magnitude(); // Calculate the magnitude of the distance vector
         if(distance > 0) {
-            distanceVector = distanceVector.multiply(currentSpeed * deltaTime / distance); // Scale the distance vector by speed and delta time
+            distanceVector = distanceVector.multiply(targetSpeed * deltaTime / distance); // Scale the distance vector by speed and delta time
         }
         coordinate = coordinate.add(distanceVector); // Update the coordinate of the enemy
 
@@ -175,6 +170,7 @@ public class Enemy implements IEnemy {
         return coordinate; // Get the coordinate of the enemy
     }
 
+
     /*
      * 
      * This method is used to set the coordinate of the enemy to a new coordinate.
@@ -184,6 +180,20 @@ public class Enemy implements IEnemy {
      */
     public synchronized void locate(Point2D newCoordinate) {
         this.coordinate = newCoordinate; // Set the coordinate of the enemy to the new point
+    }
+
+    /*
+     * This method is used to get the type of the enemy.
+     * It is used to identify the enemy type in the game.
+     * 
+     * 
+     */
+    @Override
+    public synchronized void locateToStartPoint(){
+        pathPointIndex = 0; // Reset the path point index to 0
+            coordinate = movePath.get(0); // Set the coordinate of the enemy to the first point in the path
+                this.enemyState = EnemyState.TELEPORTED; // Set the enemy state to ALIVE
+
     }
 
     public EnemyType getEnemyType() {

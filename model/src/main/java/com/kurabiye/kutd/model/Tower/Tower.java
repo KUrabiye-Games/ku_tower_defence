@@ -121,7 +121,7 @@ public class Tower implements ITower{
             return null;
         }
         
-        try {
+        //try {
             IEnemy targetEnemy = attackStrategy.findTarget(filteredEnemies);
 
             if (targetEnemy == null) {
@@ -140,12 +140,15 @@ public class Tower implements ITower{
               
                 return null; // No attack
             }
+
+            
+
             return projectile; // Return the created projectile 
-        } catch (Exception e) {
+        /* } catch (Exception e) {
           
             e.printStackTrace();
             return null;
-        }
+        }*/
     }
 
 

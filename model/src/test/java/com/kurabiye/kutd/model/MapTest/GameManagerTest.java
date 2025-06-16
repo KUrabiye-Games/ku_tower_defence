@@ -29,6 +29,7 @@ public class GameManagerTest {
      * - Sets a buildable tile at position (2, 3) for use in tower tests.
      */
 
+
     // @BeforeEach
     // public void setup() {
     //     // Reset preferences and set a high starting gold
@@ -50,6 +51,7 @@ public class GameManagerTest {
     //     gameManager.getGameMap().setTile(2, 3, tile);
 
     // }
+
     
     
     /**
@@ -89,6 +91,7 @@ public class GameManagerTest {
     //         new UserPreference.Builder()
     //             .setStartingGold(0)
     //     );
+
 
 
     //     GameMap gameMap = GameMap.getPrebuiltMap();

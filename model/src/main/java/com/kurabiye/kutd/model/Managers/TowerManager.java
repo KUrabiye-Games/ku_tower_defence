@@ -9,6 +9,7 @@ import com.kurabiye.kutd.model.Player.Player;
 import com.kurabiye.kutd.model.Player.UserPreference;
 import com.kurabiye.kutd.model.Projectile.Projectile;
 import com.kurabiye.kutd.model.Tile.Tile;
+import com.kurabiye.kutd.model.Tile.TileCodes;
 import com.kurabiye.kutd.model.Tile.TileFactory;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.Tower;
@@ -82,13 +83,13 @@ public class TowerManager {
         int tileCode;
         switch (towerType) {
             case ARTILLERY:
-                tileCode = 20; // Example tile code for tower type 0
+                tileCode = TileCodes.ATILLERY_LEVEL_0; // Example tile code for tower type 0
                 break;
             case MAGE:
-                tileCode = 21; // Example tile code for tower type 1
+                tileCode = TileCodes.MAGE_LEVEL_0; // Example tile code for tower type 1
                 break;
             case ARCHER:
-                tileCode = 26; // Example tile code for tower type 2
+                tileCode = TileCodes.ARCHER_LEVEL_0; // Example tile code for tower type 2
                 break;
             default:
             return false; // Invalid tower type
@@ -124,7 +125,7 @@ public class TowerManager {
                 // Tower found, sell it
                 player.sellTower(tower.getSellReturn()); // Add sell return to player's gold
                 towers.remove(tower); // Remove the tower from the list
-                Tile buildableTile = tileFactory.create(15); // Create a buildable tile using the factory
+                Tile buildableTile = tileFactory.create(TileCodes.BUILDABLE_TILE_CODE); // Create a buildable tile using the factory
                 gameMap.setTile(xCoordinate, yCoordinate, buildableTile);
                 return true; // Tower sold successfully
             }
@@ -158,16 +159,13 @@ public class TowerManager {
 
                     switch (tower.getTowerType()) {
                         case ARTILLERY:
-                        // TODO: Replace with actual tile codes for each tower type
-                            tileCode = 33; // Example tile code for tower type 0
+                            tileCode = TileCodes.ARTILLERY_LEVEL_1; // Example tile code for tower type 0
                             break;
                         case MAGE:
-                        // TODO: Replace with actual tile codes for each tower type
-                            tileCode = 34; // Example tile code for tower type 1
+                            tileCode = TileCodes.MAGE_LEVEL_1; // Example tile code for tower type 1
                             break;
                         case ARCHER:
-                        // TODO: Replace with actual tile codes for each tower type
-                            tileCode = 32; // Example tile code for tower type 2
+                            tileCode = TileCodes.ARCHER_LEVEL_1; // Example tile code for tower type 2
                             break;
                         default:
                             return false; // Invalid tower type

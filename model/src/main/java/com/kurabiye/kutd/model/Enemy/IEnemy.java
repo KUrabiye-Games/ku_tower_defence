@@ -47,6 +47,7 @@ public interface IEnemy {
      * @param deltaTime Time passed since last update in milliseconds
      */
     void move(double deltaTime);
+
     
     /**
      * Checks if the enemy is alive
@@ -90,6 +91,7 @@ public interface IEnemy {
      */
     Point2D getCoordinate();
 
+    
     /**
      * Gets the move direction of the enemy
      * 
@@ -103,6 +105,14 @@ public interface IEnemy {
      * @param newCoordinate The new coordinate to place the enemy
      */
     void locate(Point2D newCoordinate);
+
+
+    /**
+     * Locate to the starting point of the enemy
+     * 
+     */
+
+    void locateToStartPoint(); // Locate the enemy to the starting point of the path
     
     /**
      * Gets the type of the enemy

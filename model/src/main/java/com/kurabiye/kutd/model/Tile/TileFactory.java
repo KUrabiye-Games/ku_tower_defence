@@ -84,11 +84,11 @@ public class TileFactory implements CodeFactory<Tile> {
             tile.setTileDirections(tileDirections);
         }
 
-        if(code == 15) {
+        if(code == TileCodes.BUILDABLE_TILE_CODE ) {
             tile.setBuildableTile(true);
         }
 
-        if(code == 5) {
+        if(code == TileCodes.GRASS_TILE_CODE) {
             tile.setGroundTile(true);
         }
 

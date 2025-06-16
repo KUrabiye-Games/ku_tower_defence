@@ -2,19 +2,16 @@ package com.kurabiye.kutd.model.Enemy.Decorators;
 
 import java.util.ArrayList;
 
-import com.kurabiye.kutd.model.Coordinates.Point2D;
-import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.MoveStrategy.IMoveStrategy;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
+import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
+import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 
-public abstract class EnemyDecorator implements IEnemy {
+public class EnemyDecorator implements IEnemy {
 
-
-    public static final double INFINITY_EFFECT_DURATION = Double.POSITIVE_INFINITY; // Constant for infinite effect duration
-
-    protected double remainigEffectTime = INFINITY_EFFECT_DURATION; // Default effect duration in seconds
 
     // This class is an abstract decorator for the IEnemy interface
     // It can be used to add additional functionality to the IEnemy interface
@@ -22,12 +19,82 @@ public abstract class EnemyDecorator implements IEnemy {
 
     protected IEnemy enemy;
 
+    DynamicArrayList<AbstractEffect> activeEffects = new DynamicArrayList<>();
 
+   
 
     public EnemyDecorator(IEnemy enemy) {
-        this.enemy = enemy; // Initialize the decorator with an IEnemy instance
+        this.enemy = enemy; // Set the enemy to be decorated
+        
     }
 
+
+    @Override
+    public void move(double deltaTime) {
+        // This method can be overridden by subclasses to implement specific movement behavior
+        // The default implementation does nothing.
+
+        // Update the remaining effect time
+
+        for (AbstractEffect effect : activeEffects) {
+            effect.update(deltaTime); // Update each active effect
+            if (effect.isExpired()) {
+                activeEffects.removeLater(effect);
+            }
+        }
+        activeEffects.removeCommit(); // Commit the changes to the active effects list
+
+
+        // Sort the active effects based on their priority
+        activeEffects.sort((effect1, effect2) -> -1 * Integer.compare(effect1.getPriority(), effect2.getPriority()));
+
+        int targetSpeed = this.getSpeed(); // Get the base speed of the enemy
+
+
+        for (AbstractEffect effect : activeEffects) {
+            if (effect instanceof ISpeedDecorator) {
+                targetSpeed = ((ISpeedDecorator) effect).getSpeed(targetSpeed); // Get the speed from the effect if it is a speed decorator
+            }
+        }
+        // Set the target speed and then call move
+        int originalSpeed = enemy.getSpeed();
+        enemy.setSpeed(targetSpeed);
+        enemy.move(deltaTime);
+        enemy.setSpeed(originalSpeed); // Restore original speed
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    
+    public void addEffect(AbstractEffect effect) {
+        if (effect != null) {
+
+            if(activeEffects.contains(effect)){
+
+                activeEffects.remove(effect);
+                activeEffects.add(effect); // If the effect already exists, remove it and add it again to update its position in the list
+
+            }else{
+
+                activeEffects.add(effect); // Add the effect to the list of active effects
+
+            }
+            
+        }
+    }
+
+    public boolean hasEffect(EffectTypes effectType) {
+     
+        for (AbstractEffect effect : activeEffects) {
+            if (effect.getEffectType() == effectType) {
+                return true; // Return true if the effect type is found in the active effects
+            }
+        }
+
+        return false; // Return false if the effect type is not found in the active effects
+    }
+
+    /////// copy everything from the enemy to the decorator
+    
     @Override
     public void setMovePathWithStrategy(ArrayList<Point2D> path, IMoveStrategy moveStrategy) {
         enemy.setMovePathWithStrategy(path, moveStrategy);
@@ -41,11 +108,6 @@ public abstract class EnemyDecorator implements IEnemy {
     @Override
     public int getKillReward() {
         return enemy.getKillReward();
-    }
-
-    @Override
-    public void move(double deltaTime) {
-        enemy.move(deltaTime);
     }
 
     @Override
@@ -79,6 +141,11 @@ public abstract class EnemyDecorator implements IEnemy {
     }
 
     @Override
+    public Point2D getMoveDirection() {
+        return enemy.getMoveDirection();
+    }
+
+    @Override
     public void locate(Point2D newCoordinate) {
         enemy.locate(newCoordinate);
     }
@@ -93,34 +160,9 @@ public abstract class EnemyDecorator implements IEnemy {
         enemy.setSpeed(speed);
     }
 
-     /** 
-     * This method is used to remove the decoration from the enemy.
-     * It returns the original enemy without any decoration.
-     * * @return The original enemy without decoration.
-     */
-    public IEnemy removeDecoration() {
-        return enemy; // Return the original enemy without decoration
-    }
-
     @Override
-    public Point2D getMoveDirection() {
-        return enemy.getMoveDirection();
+    public void locateToStartPoint() {
+        enemy.locateToStartPoint(); // Call the locateToStartPoint method of the enemy
     }
-
-
-    public abstract EffectTypes getEffectType() ; // Abstract method to get the effect type of the decorator
-
-    public double getRemainingEffectTime() {
-        return remainigEffectTime; // Get the remaining effect time of the decorator
-    }
-
-    public boolean isOver(){
-        return remainigEffectTime <= 0; // Check if the effect time is over
-    }
-
-    public void setRemainingEffectTime(double remainingEffectTime) {
-        this.remainigEffectTime = remainingEffectTime; // Set the remaining effect time of the decorator
-    }
-
 
 }

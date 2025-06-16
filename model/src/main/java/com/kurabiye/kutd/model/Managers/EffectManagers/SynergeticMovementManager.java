@@ -2,6 +2,7 @@ package com.kurabiye.kutd.model.Managers.EffectManagers;
 
 import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.EnemyDecorator;
 import com.kurabiye.kutd.model.Enemy.Decorators.SynergeticMoveDecorator;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
@@ -31,7 +32,8 @@ public class SynergeticMovementManager {
             for (IEnemy knight : enemies) {
                 if (knight.getEnemyType() == EnemyType.KNIGHT) { // Check if the enemy is a knight
 
-                    boolean foundGoblin = false; // Flag to check if a goblin is found
+
+                    IEnemy foundGoblin = null; // Variable to store the found goblin
 
                     for (IEnemy goblin : enemies) {
                         if (goblin.getEnemyType() == EnemyType.GOBLIN) { // Check if the enemy is a knight
@@ -39,7 +41,7 @@ public class SynergeticMovementManager {
                             if (distance < TILE_SIZE) { // If the distance is less than 1 tile
                                 // Check if the goblin isn't already decorated with synergetic movement
 
-                                foundGoblin = true; // Set the flag to true if a goblin is found
+                                foundGoblin = goblin; // Set the flag to true if a goblin is found
                                 break;                                
                             }
                         }
@@ -49,34 +51,21 @@ public class SynergeticMovementManager {
                     // Special thanks to Utku for the synergetic movement idea 
 
 
-                    if (foundGoblin && !(knight instanceof SynergeticMoveDecorator)) {
-                                    // check if the knight is in a pair with a goblin
-
-
+                    if (foundGoblin != null) { // If a goblin is found within 1 tile of the knight
+                                   if (!(knight instanceof EnemyDecorator)) {
+                                        // No previous effect, decorate the knight with synergetic movement
+                                        EnemyDecorator decoratedKnight = new EnemyDecorator(knight);
+                                        enemies.addLater(decoratedKnight); // Add the decorated knight to the list of enemies
+                                        enemies.removeLater(knight); // Remove the original knight from the list of enemies
+                                    } else {
+                                        // Add a new synergetic move decorator to the knight
+                                        ((EnemyDecorator) knight).addEffect(new SynergeticMoveDecorator(knight, foundGoblin));
+                                    }
                                     
-
-                            SynergeticMoveDecorator synergeticKnight = new SynergeticMoveDecorator(knight); // Create a new synergetic movement decorator for the knight
-
-                            enemies.addLater(synergeticKnight); // Add the synergetic knight to the enemies list
-                            enemies.removeLater(knight);
-
-                            // Debugging message
-                            //System.out.println("Synergetic movement applied to knight at " + knight.getCoordinate() + " with goblin at ");
-                                        
-
-                    }else if (!foundGoblin && knight instanceof SynergeticMoveDecorator) {
-
-                        IEnemy originalKnight = ((SynergeticMoveDecorator) knight).removeDecoration(); // Remove the synergetic movement decorator and get the original knight
-                        enemies.removeLater(knight); // Remove the synergetic knight from the enemies list
-                        enemies.addLater(originalKnight); // Add the original knight back to the enemies list
-
-
-                        // Debugging message
-                        //System.out.println("Synergetic movement removed from knight at " + knight.getCoordinate() + " as no goblin is found.");
-
+                    }
                     }
                 }
-            }
+            
 
         // Commit
         enemies.removeCommit();

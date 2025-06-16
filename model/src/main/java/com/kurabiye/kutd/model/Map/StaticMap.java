@@ -34,8 +34,7 @@ public final class StaticMap {
         { 5, 8, 13, 10, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5 }
     };
 
-    // Lazy singleton instance
-    private static GameMap prebuiltMap;
+    
 
     /**
      * This method creates or retrieves the prebuilt static map for the game.
@@ -43,8 +42,8 @@ public final class StaticMap {
      * 
      * @return GameMap - Returns a GameMap object with the prebuilt static map.
      */
-    public static synchronized GameMap getPrebuiltMap() {
-        if (prebuiltMap == null) {
+    public static GameMap getPrebuiltMap() {
+
             Tile[][] tiles = new Tile[MAP_HEIGHT][MAP_WIDTH]; // Initialize the tiles array
             TileFactory tileFactory = new TileFactory();
 
@@ -61,8 +60,8 @@ public final class StaticMap {
             TilePoint2D startTileCoordinates = new TilePoint2D(6, 8);
             TilePoint2D endTileCoordinates = new TilePoint2D(12, 0);
 
-            prebuiltMap = new GameMap(tiles, startTileCoordinates, endTileCoordinates); // Create the static map
-        }
-        return prebuiltMap; // Return the singleton instance
+            GameMap preMadeMap = new GameMap(tiles, startTileCoordinates, endTileCoordinates); // Create the static map
+        
+        return preMadeMap; // Return the singleton instance
     }
 }
