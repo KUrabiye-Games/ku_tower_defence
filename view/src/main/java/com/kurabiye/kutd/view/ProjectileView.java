@@ -39,7 +39,14 @@ public class ProjectileView {
                     shouldRotate = true;
                     break;
                 case MAGIC:
-                    projectileImage = projectileImages[1];
+                
+                    // For level two use different image
+                    if (projectile.getProjectileLevel() == 1) {
+                        projectileImage = projectileImages[3];
+                    } else {
+                        projectileImage = projectileImages[1];
+                    }
+
                     imageSize = 35;
                     break;
                 case ARTILLERY:

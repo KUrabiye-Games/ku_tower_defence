@@ -415,6 +415,13 @@ public class SettingsView {
         
         returnButton.setOnAction(e -> {
             settingsStage.close();
+
+             // Reset the main menu stage to normal size and not maximized
+            stage.setMaximized(false);
+            stage.setWidth(600);
+            stage.setHeight(420);
+            stage.centerOnScreen();
+            
             stage.show();
         });
 

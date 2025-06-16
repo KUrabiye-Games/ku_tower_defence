@@ -124,7 +124,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private ProjectileView projectileView;
 
 
-    private Image[] projectileImages = new Image[3]; // Array to store projectile images
+    private Image[] projectileImages = new Image[4]; // Array to store projectile images
 
     List<IEnemy> enemies;
     List<ITower> towers;
@@ -297,6 +297,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         projectileImages[0] = new Image(getClass().getResourceAsStream("/assets/projectiles/arrow.png")); // Arrow projectile
         projectileImages[1] = new Image(getClass().getResourceAsStream("/assets/projectiles/magic.png")); // Magic projectile
         projectileImages[2] = new Image(getClass().getResourceAsStream("/assets/projectiles/bomb.png")); // Artillery projectile
+        projectileImages[3] = new Image(getClass().getResourceAsStream("/assets/projectiles/magic2.png")); // Ice projectile
     }
 
     private void drawMap(GraphicsContext gc) {
@@ -757,6 +758,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         mainMenuButton.setOnAction(event -> {
             // End the current game
             controller.endGame();
+
+            // Reset stage to normal size before returning to main menu
+            stage.setMaximized(false);
+            stage.setWidth(600);
+            stage.setHeight(400);
+            stage.centerOnScreen();
             
             // Return to main menu
             MainMenuView mainMenuView = new MainMenuView();
@@ -843,7 +850,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         mainMenuButton.setOnAction(event -> {
             controller.endGame(); // Clean up the current game
             root.getChildren().remove(overlay); // Remove the popup
+            
             // Return to main menu
+            // Reset stage to normal size before returning to main menu
+            stage.setMaximized(false);
+            stage.setWidth(600);
+            stage.setHeight(400);
+            stage.centerOnScreen();
+
             MainMenuView mainMenuView = new MainMenuView();
             mainMenuView.start(stage);
         });
@@ -898,8 +912,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawMap(gc);
 
-       
-
         for (IProjectile projectile : projectiles) {
             // Get the projectile's current position
             Point2D position = projectile.getCoordinate();
@@ -924,10 +936,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     shouldRotate = true; // Arrows need to be rotated
                     break;
                 case MAGIC:
-                    projectileImage = projectileImages[1];
+                    // If shot from a level 2 magic tower, use a different image
+                  
+                        projectileImage = projectileImages[3]; // Use ice projectile image
+                    
+                    
                     imageSize = 35; // Larger size for magic projectiles
                     break;
                 case ARTILLERY:
+
                     projectileImage = projectileImages[2];
                     imageSize = 15; // Smaller size for bombs
                     break;
