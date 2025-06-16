@@ -14,6 +14,7 @@ public class AnimationManager {
     private int nextId = 0;
     private final double modelWidth = 1920;  // Add model width constant
     private double scaleFactor;        // Add scale factor
+    private static final double CLICK_RADIUS = 40;
     
     /**
      * Eski kullanım için: ID döndürmez
@@ -44,7 +45,7 @@ public class AnimationManager {
 
         Sprite sprite = new Sprite(gc, spriteSheet, frameDuration, totalDuration,
                                    scaledX, scaledY, scaledWidth, scaledHeight);
-        AnimationInstance instance = new AnimationInstance(nextId++, sprite, totalDuration);
+        AnimationInstance instance = new AnimationInstance(nextId++, sprite, totalDuration, position);
         animations.add(instance);
         return instance.id;
     }
@@ -53,8 +54,28 @@ public class AnimationManager {
      * Animasyonu manuel olarak bitirir
      */
     public void stopAnimation(int animationId) {
-        animations.removeIf(anim -> anim.id == animationId);
+       for (AnimationInstance anim : animations) {
+            if (anim.id == animationId) {
+                anim.remainingTime = 0;
+                break;
+            }
+        }
     }
+
+     public void handleClick(Point2D clickPoint) {
+        for (AnimationInstance anim : animations) {
+            if (isClickNear(clickPoint, anim.position)) {
+                anim.remainingTime = 0;
+            }
+        }
+    }
+
+    private boolean isClickNear(Point2D click, Point2D target) {
+        double dx = click.getX() - target.getX();
+        double dy = click.getY() - target.getY();
+        return (dx * dx + dy * dy) <= CLICK_RADIUS * CLICK_RADIUS;
+    }
+
 
     public void update(double deltaTime) {
         Iterator<AnimationInstance> iter = animations.iterator();
@@ -72,11 +93,14 @@ public class AnimationManager {
         int id;
         Sprite sprite;
         double remainingTime;
+        Point2D position;
+        
 
-        AnimationInstance(int id, Sprite sprite, double duration) {
+        AnimationInstance(int id, Sprite sprite, double duration, Point2D position) {
             this.id = id;
             this.sprite = sprite;
             this.remainingTime = duration;
+            this.position = position;
         }
     }
 }

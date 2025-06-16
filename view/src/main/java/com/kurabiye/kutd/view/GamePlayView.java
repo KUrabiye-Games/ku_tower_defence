@@ -312,6 +312,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
         // Try to collect gold bag first
         boolean collected = controller.getGameManager().handleCollectableClick(clickPoint);
+
+        if(collected){
+            animationManager.handleClick(clickPoint);
+        }
         
         if (!collected) {
             // If no collectable was clicked, handle tower/tile interactions
@@ -825,23 +829,30 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     public void renderCollectables(GraphicsContext gc) {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
+         
+        double scaleFactor = TILE_SIZE * COLS / 1920.0; 
 
         for (ICollectable<?> collectable : collectables) {
             if (collectable instanceof GoldBag) {
                 GoldBag goldBag = (GoldBag) collectable;
                 Point2D pos = goldBag.getCoordinates();
 
+                // Scale the position from model space to view space
+                double viewX = pos.getX() * scaleFactor;
+                double viewY = pos.getY() * scaleFactor;
+                
+            
                 if (!goldBag.isAnimated()) {
                     int id = animationManager.createAnimationReturningId(
                         gc, goldBagSpriteSheet, pos, 0.2, goldBag.getLifespan(), 80, 80
-                    );
+                        );
                     goldBag.setAnimated(true);
                     goldBag.setAnimationId(id); // opsiyonel: animasyonu iptal etmek istersen
                 }
 
                 gc.setFill(Color.BLACK);
                 gc.fillText(String.valueOf(goldBag.getItem()),
-                            pos.getX() - 10, pos.getY() + 5);
+                            viewX, viewY -20);
             }
         }
     }
