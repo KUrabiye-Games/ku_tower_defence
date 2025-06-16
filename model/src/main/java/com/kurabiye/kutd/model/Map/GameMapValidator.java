@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Tile.Tile;
+import com.kurabiye.kutd.model.Tile.TileCodes;
 
 public final class GameMapValidator {
 
@@ -126,7 +127,7 @@ public final class GameMapValidator {
         
          for(int i = 0; i < MAP_HEIGHT; i++) {
             for (int j = 0; j < MAP_WIDTH; j++) {
-                if (tiles[i][j].getTileCode() == 24){
+                if (tiles[i][j].getTileCode() == TileCodes.CASTLE_TILE_CODE_1){
 
                     //check if the tile is not on the right or bottom edge of the map
 
@@ -134,7 +135,7 @@ public final class GameMapValidator {
                         throw new IllegalArgumentException("Castle tiles should be together"); // Invalid tile
                     }
 
-                    if(tiles[i][j+1].getTileCode() != 25 || tiles[i+1][j].getTileCode() != 28 || tiles[i+1][j+1].getTileCode() != 29) {
+                    if(tiles[i][j+1].getTileCode() != TileCodes.CASTLE_TILE_CODE_2 || tiles[i+1][j].getTileCode() != TileCodes.CASTLE_TILE_CODE_3 || tiles[i+1][j+1].getTileCode() != TileCodes.CASTLE_TILE_CODE_4) {
                         throw new IllegalArgumentException("Castle tiles should be together"); // Invalid tile
                     }
                 }

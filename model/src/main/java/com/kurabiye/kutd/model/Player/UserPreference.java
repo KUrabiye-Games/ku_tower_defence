@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /* This is the class where the defined game settings on the settings screen are stored.
  * It is used to set the game settings such as waves, speed, sound, music, and difficulty level etc.
  * 
@@ -17,39 +20,67 @@ import java.util.ArrayList;
  * @since: 2025-04-23
  * 
  */
+
+ @JsonIgnoreProperties(ignoreUnknown = true) // Ignore unknown properties during deserialization
 public class UserPreference implements Serializable {
 
     // Using volatile to ensure visibility across threads
     private static volatile UserPreference instance; // Singleton instance of UserPreference
     private static final long serialVersionUID = 1L; // Serial version UID for serialization
 
-    // Game settings fields
-    private String userName; // Player's name
-    private float musicVolume; // Music volume level
-    private float soundVolume; // Sound volume level
-    private ArrayList<ArrayList<int[]>> waveList; // Number of groups per wave
-    private int delayBetweenWaves; // Delay between waves in milliseconds
-    private int delayBetweenGroups; // Delay between groups in milliseconds
-    private int delayBetweenEnemies; // Delay between enemies in milliseconds (default is 0)
-    private int startingGold; // Starting amount of gold for the player
-    private int[] goldPerEnemy; // Amount of gold earned when defeating an enemy
-    private int startingHealth; // Starting hit points of the player
-    private int[] enemyHealth; // Health points for each type of enemy
+    @JsonProperty("userName")
+    private String userName;
     
-   
-    private float artilleryRange; // Special range for artillery towers
-    private int[] enemyMovementSpeed; // Movement speed for each enemy type
-    private float[] towerSellReturn; // Percentage of cost returned when selling a tower
-
-    // There should be certain changes in the certain fields for tower upgrades
-
-    // The first index is the tower type, and the second index is the level of the tower
-    // For example, towerEffectiveRange[0][1] is the effective range of tower type 0 at level 1
-     private float[][][] damageDealt; // Damage dealt by each tower type to each enemy type
-     private float[][] towerEffectiveRange; // Effective range for each tower type
-     private float[][] towerRateOfFire; // Rate of fire for each tower type
-     private int[][] towerConstructionCost; // Cost to construct each tower type
-
+    @JsonProperty("musicVolume")
+    private float musicVolume;
+    
+    @JsonProperty("soundVolume")
+    private float soundVolume;
+    
+    @JsonProperty("waveList")
+    private ArrayList<ArrayList<int[]>> waveList;
+    
+    @JsonProperty("delayBetweenWaves")
+    private int delayBetweenWaves;
+    
+    @JsonProperty("delayBetweenGroups")
+    private int delayBetweenGroups;
+    
+    @JsonProperty("delayBetweenEnemies")
+    private int delayBetweenEnemies;
+    
+    @JsonProperty("startingGold")
+    private int startingGold;
+    
+    @JsonProperty("goldPerEnemy")
+    private int[] goldPerEnemy;
+    
+    @JsonProperty("startingHealth")
+    private int startingHealth;
+    
+    @JsonProperty("enemyHealth")
+    private int[] enemyHealth;
+    
+    @JsonProperty("damageDealt")
+    private float[][][] damageDealt;
+    
+    @JsonProperty("towerEffectiveRange")
+    private float[][] towerEffectiveRange;
+    
+    @JsonProperty("towerRateOfFire")
+    private float[][] towerRateOfFire;
+    
+    @JsonProperty("towerConstructionCost")
+    private int[][] towerConstructionCost;
+    
+    @JsonProperty("artilleryRange")
+    private float artilleryRange;
+    
+    @JsonProperty("enemyMovementSpeed")
+    private int[] enemyMovementSpeed;
+    
+    @JsonProperty("towerSellReturn")
+    private float[] towerSellReturn;
     // Private constructor to enforce the singleton pattern
     private UserPreference() {
         // Initialize with default values
@@ -170,6 +201,7 @@ public class UserPreference implements Serializable {
         return soundVolume;
     }
     
+    @JsonProperty("totalWaves")
     public int getTotalWaves() {
         return waveList != null ? waveList.size() : 0; // Return the number of waves
     }    

@@ -17,29 +17,33 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-
+import javafx.scene.text.TextAlignment;
 
 import java.util.List;
 
 
+
 import com.kurabiye.kutd.controller.GamePlayController;
+import com.kurabiye.kutd.controller.MapSelectionController;
 import com.kurabiye.kutd.model.Collectable.GoldBag;
 import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
-
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
-
+import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
+
 import com.kurabiye.kutd.model.Projectile.ProjectileState;
 import com.kurabiye.kutd.model.Projectile.ProjectileType;
+
+
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
-
 import com.kurabiye.kutd.view.Animation.AnimationManager;
+
 
 
 import javafx.application.Platform;
@@ -161,6 +165,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     * @effects Applies custom cursor if available, falls back to default cursor on failure
     */
     public void start(Stage stage, GamePlayController controller) {
+
+        /*int x = 5;
+
+        if (x == 5) {
+            throw new IllegalArgumentException("Stage and controller cannot be null");
+        }*/
         
         loadTiles();
         loadButtonIcons();
@@ -292,15 +302,29 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private void setupClickHandler() {
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            int col = (int) (event.getX() / TILE_SIZE);
-            int row = (int) (event.getY() / TILE_SIZE);
+        // First check for collectables
+        double clickX = event.getX();
+        double clickY = event.getY();
+        
+        // Convert click coordinates to model space
+        double modelWidth = 1920;  // The width used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth;
+        Point2D clickPoint = new Point2D(clickX / scaleFactor, clickY / scaleFactor);
+        
+        // Try to collect gold bag first
+        boolean collected = controller.getGameManager().handleCollectableClick(clickPoint);
+        
+        if (!collected) {
+            // If no collectable was clicked, handle tower/tile interactions
+            int col = (int) (clickX / TILE_SIZE);
+            int row = (int) (clickY / TILE_SIZE);
     
             if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
                 int tileId = map[row][col];
     
-                if (tileId == 20 || tileId == 21 || tileId == 26 || tileId == 32 || tileId == 33 || tileId == 34) { // Tower tile IDs
+                if (tileId == 20 || tileId == 21 || tileId == 26 || tileId == 32 || tileId == 33 || tileId == 34) {
                     showTowerButton(row, col);
-                } else if (tileId == INTERACTIVE_TILE_ID) { // Buildable tile
+                } else if (tileId == INTERACTIVE_TILE_ID) {
                     showBuildButtons(row, col);
                 } else {
                     removeButtonContainer();
@@ -308,6 +332,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             } else {
                 removeButtonContainer();
             }
+        } else {
+            // If we collected something, remove any UI elements
+            removeButtonContainer();
+        }
         });
     }
 
@@ -771,10 +799,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         // Add action handlers
         playAgainButton.setOnAction(event -> {
-            controller.endGame(); // Clean up the current game
-            root.getChildren().remove(overlay); // Remove the popup
-            GamePlayController newController = new GamePlayController(); // Create a new controller
-            this.start(stage, newController); // Restart the game view with the new controller
+            // Clean up current game
+            controller.endGame();
+            root.getChildren().remove(overlay);
+            
+            // Show map selection view for new game
+            MapSelectionView mapSelectionView = new MapSelectionView();
+            mapSelectionView.start(stage, new MapSelectionController());
         });
 
         mainMenuButton.setOnAction(event -> {
@@ -937,10 +968,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     public void renderCollectables(GraphicsContext gc) {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
 
+        // Calculate scale factor
+        double modelWidth = 1920;  // The width used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth;
+
         for (ICollectable<?> collectable : collectables) {
             if (collectable instanceof GoldBag) {
                 GoldBag goldBag = (GoldBag) collectable;
                 Point2D pos = goldBag.getCoordinates();
+
 
                 
                 if (!goldBag.isAnimated()) {
@@ -952,38 +988,40 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 gc.setFill(Color.BLACK);
                 gc.fillText(String.valueOf(goldBag.getItem()),
                             pos.getX() - 10, pos.getY() + 5);
+
             }
         }
     }
 
 
 
-public void renderTowerRanges(GraphicsContext gc) {
-    for (ITower tower : towers) {
-        // Get the tower's range and position
-        double range = tower.getRange();
+    public void renderTowerRanges(GraphicsContext gc) {
+            // Calculate the scale factor just like we do for projectiles
+        double modelWidth = 1920;  // The width used in the model
+        double scaleFactor = TILE_SIZE * COLS / modelWidth;
 
-        Point2D position = tower.getTileCoordinate().getCenter();
+        for (ITower tower : towers) {
+            // Get the tower's range and position
+            double range = tower.getRange() * scaleFactor; // Scale the range
+            Point2D position = tower.getTileCoordinate().getCenter();
 
-        // Calculate the top-left corner of the range oval
-        double topLeftX = position.getX() - range;
-        double topLeftY = position.getY() - (range * 0.6); // Reduce vertical height by 40%
-        // Draw a vertically squeezed oval for the range
-        gc.setStroke(Color.rgb(190, 120, 120, 0.5));
-        gc.setLineWidth(2);
-        gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Reduce vertical diameter
+            // Scale the position coordinates
+            double viewX = position.getX() * scaleFactor;
+            double viewY = position.getY() * scaleFactor;
 
+            // Calculate the top-left corner of the range oval
+            double topLeftX = viewX - range;
+            double topLeftY = viewY - (range * 0.6); // Reduce vertical height by 40%
 
-
+            // Draw a vertically squeezed oval for the range
+            gc.setStroke(Color.rgb(190, 120, 120, 0.5));
+            gc.setLineWidth(2);
+            gc.strokeOval(topLeftX, topLeftY, range * 2, range * 1.2); // Use diameter (range * 2) for width
+        }
     }
-
-}
 
     @Override
     public void update(Object arg) {
-
-
-
         currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         

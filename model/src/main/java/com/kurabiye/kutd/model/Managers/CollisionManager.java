@@ -106,7 +106,7 @@ public class CollisionManager {
                             }
                             enemies.removeLater(enemy); // Mark the enemy for removal
                         }else if (projectile.getProjectileType() == ProjectileType.MAGIC 
-                        && projectile.getProjectileLevel() > 1) {
+                        && projectile.getProjectileLevel() > 0) {
                             // If the projectile is magic, and its level is greater than 1, apply slow down effect
                             slowDownManager.addEnemyOnEffect(enemy); // Add the enemy to the slow down effect manager
                         }
@@ -118,6 +118,15 @@ public class CollisionManager {
                             projectiles.removeLater(projectile);
                             break; // Exit the loop if a collision occurred
                         }
+
+
+                        // If the projectile type is magic, there is a chance to teleport the enemy back to the start of the path
+                        if (projectile.getProjectileType() == ProjectileType.MAGIC && Math.random() < 0.03) {
+      
+                                enemy.locateToStartPoint(); // Teleport the enemy back to the start of the path
+                            
+                        }
+
                     }else if(distanceToTarget < deltaTime * projectile.getSpeedVector().magnitude()){
                         // Check if the projectile has reached its target
 
@@ -134,9 +143,9 @@ public class CollisionManager {
 
             
         // Remove dead enemies from the list
-        enemies.removeCommit();
+        enemies.commitAll();
         // Remove dead projectiles from the list
-        projectiles.removeCommit();
+        projectiles.commitAll();
 
 
         return totalGoldEarned; // Return the total gold earned by the player from enemy kills

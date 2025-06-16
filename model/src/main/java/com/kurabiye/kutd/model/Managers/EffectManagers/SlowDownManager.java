@@ -1,6 +1,8 @@
 package com.kurabiye.kutd.model.Managers.EffectManagers;
 
+import com.kurabiye.kutd.model.Enemy.Enemy;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
+import com.kurabiye.kutd.model.Enemy.Decorators.EnemyDecorator;
 import com.kurabiye.kutd.model.Enemy.Decorators.SlowDownDecorator;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 
@@ -32,31 +34,28 @@ public class SlowDownManager {
      */
     public void applySlowDown(double deltaTime) {
 
-        for (SlowDownDecorator enemy : onEffectEnemies) {
-                if (enemy.isOver()) {
-
-                    IEnemy originalEnemy = enemy.removeDecoration(); // Remove the slow down effect and get the original enemy
-                    enemies.remove(originalEnemy); // Remove the original enemy from the list of enemies
-                    onEffectEnemies.removeLater(enemy);
-                    enemies.add(originalEnemy); // Add the original enemy back to the list of enemies
-                }
-        }
-
-        onEffectEnemies.removeCommit();
+       
     }
 
 
     public void addEnemyOnEffect(IEnemy enemy) {
-        if (enemy != null && !onEffectEnemies.contains(enemy)) {
 
-            // Put the decorator here
-            SlowDownDecorator slowedEnemy = new SlowDownDecorator(enemy); // Apply the slow down decorator to the enemy
+        // check if the enemey has a decorator
 
-            onEffectEnemies.add(slowedEnemy); // Add the enemy to the list of enemies affected by the slow down effect
+        if (enemy instanceof EnemyDecorator) {
+            SlowDownDecorator slowDownDecorator = new SlowDownDecorator();
+            ((EnemyDecorator)enemy).addEffect(slowDownDecorator);
+            
 
-            enemies.remove(enemy); // Remove the original enemy from the list of enemies
-            enemies.add(slowedEnemy); // Add the slowed enemy to the list of enemies
+        }else {
+            // If the enemy is not decorated, decorate it with the slow down effect
+            EnemyDecorator decoratedEnemy = new EnemyDecorator(enemy);
+            SlowDownDecorator slowDownDecorator = new SlowDownDecorator();
+            decoratedEnemy.addEffect(slowDownDecorator);
+            enemies.addLater(decoratedEnemy); // Add the decorated enemy to the list of enemies
+            enemies.removeLater(enemy); // Remove the original enemy from the list of enemies
         }
+        
     }
 
 }

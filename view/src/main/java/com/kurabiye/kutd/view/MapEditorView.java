@@ -4,9 +4,13 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,15 +19,24 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.control.TextInputDialog;
+import java.util.Optional;
 
+import java.util.List;
+
+import com.kurabiye.kutd.controller.MapEditorController;
+import com.kurabiye.kutd.model.Coordinates.TilePoint2D;
 import com.kurabiye.kutd.model.Map.GameMap;
-import com.kurabiye.kutd.model.Tile.Tile;
-import com.kurabiye.kutd.model.Tile.TileFactory;
+import com.kurabiye.kutd.model.Map.MapOperationResult;
 
 /**
  *  MapEditorView
  */
 public class MapEditorView {
+
+
+    // Jasmine: You could use a constant as a flag instead of Integer
+    private static final int NO_TILE_FLAG = 1024; // Width of the map in pixels
 
      static final int TILE_SIZE = 64;
      static final int ROWS = 9;
@@ -31,14 +44,29 @@ public class MapEditorView {
     private static final int BUTTON_SIZE = 48;
 
     private final Image[] tileImages = new Image[32]; //0-31 tile images
+     
+        
      int[][] mapData;
+     private String currentMapName = null; //name of the currently loaded map
      int selectedTileType = 15; //default to buildable tile
 
      Canvas canvas;
      GraphicsContext gc;
      Label statusLabel;
 
-    public void start(Stage stage) {
+     private Button deleteButton;
+
+
+     private boolean settingStartPoint = false;
+     private boolean settingEndPoint = false;
+
+     private MapEditorController controller;
+
+    public void start(Stage stage, MapEditorController controller) {
+        
+        this.controller = controller;
+        mapData = controller.getTileCodeMatrix();
+
         loadTileImages();
         initializeMapData();
 
@@ -64,8 +92,16 @@ public class MapEditorView {
         statusLabel.setStyle("-fx-background-color: #333333; -fx-padding: 5px;");
 
         //layout setup
-        Pane canvasContainer = new Pane(canvas);
+        /*Pane canvasContainer = new Pane(canvas);
         root.setCenter(canvasContainer);
+        root.setLeft(tileSelectionPanel);
+        root.setBottom(controlButtons);
+        root.setTop(statusLabel);*/
+        ScrollPane canvasScrollPane = new ScrollPane(canvas);
+        canvasScrollPane.setPrefSize(COLS * TILE_SIZE, ROWS * TILE_SIZE);
+        canvasScrollPane.setPannable(true);
+
+        root.setCenter(canvasScrollPane);
         root.setLeft(tileSelectionPanel);
         root.setBottom(controlButtons);
         root.setTop(statusLabel);
@@ -203,20 +239,46 @@ public class MapEditorView {
         mapData = new int[ROWS][COLS];
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                mapData[row][col] = 5; //default to grass
+                mapData[row][col] = NO_TILE_FLAG; //default to grass
             }
         }
     }
 
     private void drawMap() {
+
+        gc.clearRect(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
+
+        mapData = controller.getTileCodeMatrix();
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                int tileId = mapData[row][col];
+                gc.drawImage(tileImages[5], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                
+                int topTile = mapData[row][col];
+                if (topTile != NO_TILE_FLAG && topTile != 5 && tileImages[topTile] != null) {
+                    gc.drawImage(tileImages[topTile], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
+                /*int tileId = mapData[row][col];
                 if (tileId >= 0 && tileId < tileImages.length && tileImages[tileId] != null) {
                     gc.drawImage(tileImages[tileId], col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                }
+                }*/
             }
         }
+
+        TilePoint2D start = controller.getStartPoint();
+        TilePoint2D end = controller.getEndPoint();
+
+        if (start != null) {
+            highlightTile(start.getTileX(), start.getTileY(), Color.GREEN);
+        }
+        if (end != null) {
+            highlightTile(end.getTileX(), end.getTileY(), Color.RED);
+        }
+    }
+
+    private void highlightTile(int x, int y, Color color) {
+        gc.setStroke(color);
+        gc.setLineWidth(3);
+        gc.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
 
     private HBox createControlButtons(Stage stage) {
@@ -225,10 +287,31 @@ public class MapEditorView {
 
         Button saveButton = createTextButton("Save Map", this::saveMap);
         Button loadButton = createTextButton("Load Map", this::loadMap);
-        Button validateButton = createTextButton("Validate Map", this::validateMap);
+        this.deleteButton = new Button("Delete Map");
+        Button clearButton = createTextButton("Clear Map", this::clearMap);
         Button returnButton = createTextButton("Main Menu", () -> returnToMenu(stage));
+        
+        deleteButton.setDisable(true);
+        deleteButton.setOnAction(e -> deleteCurrentMap());
+        deleteButton.setStyle("-fx-base: #ff4444; -fx-text-fill: white; -fx-font-weight: bold;");
 
-        buttonBox.getChildren().addAll(saveButton, loadButton, validateButton, returnButton);
+        clearButton.setStyle("-fx-base: #ffa500; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        Button setStartButton = new Button("Set Start Point");
+        setStartButton.setOnAction(e -> {
+            settingStartPoint = true;
+            settingEndPoint = false;
+            statusLabel.setText("Click to set start point");
+        });
+
+        Button setEndButton = new Button("Set End Point");
+        setEndButton.setOnAction(e -> {
+            settingEndPoint = true;
+            settingStartPoint = false;
+            statusLabel.setText("Click to set end point");
+        });
+
+        buttonBox.getChildren().addAll(saveButton, loadButton, deleteButton, clearButton, returnButton, setStartButton, setEndButton);
         return buttonBox;
     }
 
@@ -264,30 +347,150 @@ public class MapEditorView {
         if (x < 0 || x >= COLS * TILE_SIZE || y < 0 || y >= ROWS * TILE_SIZE) {
             return;
         }
-        
+
         int col = (int) (x / TILE_SIZE);
         int row = (int) (y / TILE_SIZE);
 
-        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+
+        if (selectedTileType == 5) {
+            //request to remove any top layer
+            mapData[row][col] = NO_TILE_FLAG;
+        } else {
+            //Replace top tile (only one can exist at a time)
             mapData[row][col] = selectedTileType;
-            drawMap();
         }
+
+        drawMap();
+
+
+
+        if (settingStartPoint) {
+            controller.setStartPoint(col, row);
+            settingStartPoint = false;
+            statusLabel.setText("Start point set");
+        } else if (settingEndPoint) {
+            controller.setEndPoint(col, row);
+            settingEndPoint = false;
+            statusLabel.setText("End point set");
+        } else {
+            controller.placeTile(col, row, selectedTileType);
+        }
+        drawMap();
     }
 
-    private void saveMap() {
-        statusLabel.setText("Saving map... (TODO: Implement saving)");
-    }
-
-    private void loadMap() {
-        statusLabel.setText("Loading map... (TODO: Implement loading)");
-    }
-
-    private void validateMap() {
-        statusLabel.setText("Validating map... (TODO: Implement validation)");
-    }
 
     private void returnToMenu(Stage stage) {
         new MainMenuView().start(stage);
+    }
+
+
+
+    private void saveMap() {
+        if (controller.getStartPoint() == null || controller.getEndPoint() == null) {
+            showError("Please set both start and end points before saving");
+            return;
+        }
+
+        if (controller.getCurrentMapName() != null) {
+            // Saving existing map
+            MapOperationResult result = controller.saveMap(currentMapName);
+            if (result.isSuccess()) {
+                showSuccess(result.getMessage());
+            } else {
+                showError(result.getMessage());
+            }
+        } else {
+            // New map - ask for name
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Save Map");
+            dialog.setHeaderText("Enter a name for your map:");
+            dialog.setContentText("Map name:");
+
+            dialog.showAndWait().ifPresent(mapName -> {
+                MapOperationResult result = controller.saveMap(mapName);
+                if (result.isSuccess()) {
+                    currentMapName = mapName;
+                    deleteButton.setDisable(false);
+                    showSuccess(result.getMessage());
+                } else {
+                    showError(result.getMessage());
+                }
+            });
+        }
+    }
+
+    private void loadMap() {
+        List<String> mapNames = controller.getAvailableMapNames();
+        if (mapNames.isEmpty()) {
+            showError("No saved maps available");
+            return;
+        }
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(mapNames.get(0), mapNames);
+        dialog.setTitle("Load Map");
+        dialog.setHeaderText("Select a map to load:");
+        dialog.setContentText("Map:");
+
+        dialog.showAndWait().ifPresent(mapName -> {
+            clearMap();
+            GameMap loadedMap = controller.loadMap(mapName);
+            if (loadedMap != null) {
+                drawMap();
+                currentMapName = mapName;
+                deleteButton.setDisable(false);
+                showSuccess("Map loaded successfully");
+            } else {
+                showError("Failed to load map");
+                clearMap();
+            }
+        });
+    }
+
+    private void deleteCurrentMap() {
+         if (currentMapName == null || currentMapName.isEmpty()) {
+            showError("No map loaded to delete");
+            return;
+        }
+
+         // Confirm deletion
+        if (currentMapName == null) {
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Map");
+        alert.setHeaderText("Delete " + currentMapName + "?");
+        alert.setContentText("This action cannot be undone.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                if (controller.deleteMap(currentMapName)) {
+                    showSuccess("Map deleted successfully");
+                    clearMap();
+                    currentMapName = null;
+                } else {
+                    showError("Failed to delete map");
+                }
+            }
+        });
+    }
+
+    private void clearMap() {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        controller.clearMap();
+        currentMapName = null;
+        deleteButton.setDisable(true);
+        drawMap();
+    }
+
+    public void showError(String message) {
+        statusLabel.setText("Error: " + message);
+        statusLabel.setStyle("-fx-background-color: #ff4444; -fx-padding: 5px;");
+    }
+
+    public void showSuccess(String message) {
+        statusLabel.setText(message);
+        statusLabel.setStyle("-fx-background-color: #44ff44; -fx-padding: 5px;");
     }
 
 }
