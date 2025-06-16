@@ -1,42 +1,93 @@
 package com.kurabiye.kutd.view.Animation;
 
 import javafx.scene.canvas.GraphicsContext;
+
+
 import javafx.scene.image.Image;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.kurabiye.kutd.model.Coordinates.Point2D;
 
 public class AnimationManager {
-
+    private static AnimationManager instance;
     private final List<AnimationInstance> animations = new ArrayList<>();
 
-    public void createAnimation(GraphicsContext gc, Image spriteSheet, Point2D position, double frameDuration, double totalDuration, int width, int height) {
-        Sprite sprite = new Sprite(gc, spriteSheet, frameDuration, totalDuration, (int) position.getX(), (int) position.getY(), width, height);
-        animations.add(new AnimationInstance(sprite, totalDuration));
+    private AnimationManager() {}
+
+    public static AnimationManager getInstance() {
+        if (instance == null) {
+            instance = new AnimationManager();
+        }
+        return instance;
+    }
+
+    public void createAnimation(Sprite sprite, double duration, double x, double y) {
+        animations.add(new AnimationInstance(sprite, duration, x, y));
+
     }
 
     public void update(double deltaTime) {
         Iterator<AnimationInstance> iter = animations.iterator();
         while (iter.hasNext()) {
             AnimationInstance anim = iter.next();
+
+            anim.update(deltaTime);
+            if (anim.isFinished()) {
+                iter.remove();
+            }
+        }
+    }
+
+    public void render(GraphicsContext gc) {
+        for (AnimationInstance anim : animations) {
+            anim.render(gc);
+
             anim.sprite.update(deltaTime, anim.sprite.getX(), anim.sprite.getY());
 
             anim.remainingTime -= deltaTime;
             if (anim.remainingTime <= 0) {
                 iter.remove(); // Remove animation if it's finished
             }
+
         }
     }
 
     private static class AnimationInstance {
+
+        private final Sprite sprite;
+        private final double duration;
+        private double elapsedTime = 0;
+        private final double x, y;
+
+        AnimationInstance(Sprite sprite, double duration, double x, double y) {
+            this.sprite = sprite;
+            this.duration = duration;
+            this.x = x;
+            this.y = y;
+        }
+
+        void update(double dt) {
+            elapsedTime += dt;
+        }
+
+        void render(GraphicsContext gc) {
+            if (!isFinished()) {
+                sprite.update(elapsedTime, (int) x, (int) y);
+            }
+        }
+
+        boolean isFinished() {
+            return elapsedTime >= duration;
+/*
         Sprite sprite;
         double remainingTime;
 
         AnimationInstance(Sprite sprite, double duration) {
             this.sprite = sprite;
             this.remainingTime = duration;
+*/
         }
     }
 }
