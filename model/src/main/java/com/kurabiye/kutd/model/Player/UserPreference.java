@@ -120,18 +120,6 @@ public class UserPreference implements Serializable {
                 {{7f, 10f}, {10f, 13f}},
             }  // Damage for artillery type 2
         ;
-        // Tower construction costs for each type and level
-        // towerConstructionCost[TowerType][Level]
-        towerConstructionCost = new int[][]{
-            {50, 60},
-            {75, 85},
-            {100, 120}
-        }; // Cost for each tower type [TowerType][Level]
-        towerEffectiveRange = new float[][]
-        {{320.0f, 350.0f},
-        {240.0f, 270.0f},
-        {280.0f, 320.0f} // Effective range for each tower type [Type][Level]
-    }; // Range fr each tower type
 
         artilleryRange = 200.0f; // Artillery tower AOE range
         towerConstructionCost = new int[][]{{50, 75},{50, 75},{50, 75}}; // Cost for each tower type
@@ -633,6 +621,7 @@ public class UserPreference implements Serializable {
                 userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
             }
             userPreference.damageDealt[0][0][0] = arrowDamage; // Set the first tower type's damage
+            userPreference.damageDealt[0][0][1] = arrowDamage * 1.1f; // Set the first tower type's damage for level 2
             return this;
         }
 
@@ -642,6 +631,7 @@ public class UserPreference implements Serializable {
                 userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
             }
             userPreference.damageDealt[2][0][0] = artilleryDamage; // Set the third tower type's damage
+            userPreference.damageDealt[2][0][1] = artilleryDamage * 1.1f; // Set the third tower type's damage for level 2
             return this;
         }
 
@@ -651,6 +641,7 @@ public class UserPreference implements Serializable {
                 userPreference.damageDealt = new float[3][2][2]; // Initialize if not set
             }
             userPreference.damageDealt[1][0][0] = magicDamage; // Set the second tower type's damage
+            userPreference.damageDealt[1][0][1] = magicDamage * 1.1f; // Set the second tower type's damage for level 2
             return this;
         }
 
@@ -687,6 +678,7 @@ public class UserPreference implements Serializable {
                 userPreference.towerEffectiveRange = new float[3][3]; // Initialize if not set
             }
             userPreference.towerEffectiveRange[2][0] = archerRange; // Set the first tower type's effective range
+            userPreference.towerEffectiveRange[2][1] = archerRange * 1.1f; // Set the first tower type's effective range for level 2 
             return this;
         }
 
@@ -696,6 +688,18 @@ public class UserPreference implements Serializable {
                 userPreference.towerEffectiveRange = new float[3][3]; // Initialize if not set
             }
             userPreference.towerEffectiveRange[1][0] = magicRange; // Set the second tower type's effective range
+            userPreference.towerEffectiveRange[1][1] = magicRange * 1.1f; // Set the second tower type's effective range for level 2
+            return this;
+        }
+
+        public Builder setArtilleryRange(float artilleryR) {
+            // Ensure the second tower type's effective range is set to the specified amount
+            if (userPreference.towerEffectiveRange == null || userPreference.towerEffectiveRange.length < 2) {
+                userPreference.towerEffectiveRange = new float[3][3]; // Initialize if not set
+            }
+
+            userPreference.towerEffectiveRange[0][0] = artilleryR; // Set the third tower type's effective range
+            userPreference.towerEffectiveRange[0][1] = artilleryR * 1.1f; // Set the third tower type's effective range for level 2
             return this;
         }
 
@@ -705,6 +709,7 @@ public class UserPreference implements Serializable {
                 userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
             }
             userPreference.towerRateOfFire[2][0] = archerFireRate; // Set the first tower type's rate of fire
+            userPreference.towerRateOfFire[2][1] = archerFireRate * 0.9f; // Set the first tower type's rate of fire for level 2
             return this;
         }
 
@@ -714,6 +719,7 @@ public class UserPreference implements Serializable {
                 userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
             }
             userPreference.towerRateOfFire[0][0] = artilleryFireRate; // Set the third tower type's rate of fire
+            userPreference.towerRateOfFire[0][1] = artilleryFireRate * 0.9f; // Set the third tower type's rate of fire for level 2
             return this;
         }
 
@@ -723,6 +729,7 @@ public class UserPreference implements Serializable {
                 userPreference.towerRateOfFire = new float[3][3]; // Initialize if not set
             }
             userPreference.towerRateOfFire[1][0] = magicFireRate; // Set the second tower type's rate of fire
+            userPreference.towerRateOfFire[1][1] = magicFireRate * 0.9f; // Set the second tower type's rate of fire for level 2
             return this;
         }
 
@@ -806,10 +813,7 @@ public class UserPreference implements Serializable {
             return this;
         }
         
-        public Builder setArtilleryRange(float artilleryR) {
-            userPreference.towerEffectiveRange[0][0] = artilleryR; // Set the artillery tower's range
-            return this;
-        }
+     
         
         public Builder setEnemyMovementSpeed(int[] enemyMovementSpeed) {
             userPreference.enemyMovementSpeed = enemyMovementSpeed;

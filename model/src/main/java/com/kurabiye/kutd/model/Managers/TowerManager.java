@@ -155,7 +155,10 @@ public class TowerManager {
                     tower.upgrade(); // Upgrade the tower
                     player.buyTower(cost); // Deduct cost from player's gold
 
-                     int tileCode;
+                    tower.setRange(userPreferences.getTowerEffectiveRange()[tower.getTowerType().getValue()][tower.getTowerLevel()]);
+                    tower.setAttackSpeed(userPreferences.getTowerRateOfFire()[tower.getTowerType().getValue()][tower.getTowerLevel()]);
+
+                    int tileCode;
 
                     switch (tower.getTowerType()) {
                         case ARTILLERY:

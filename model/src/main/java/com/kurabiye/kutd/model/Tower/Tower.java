@@ -27,7 +27,6 @@ import com.kurabiye.kutd.model.Tower.AttackStrategy.IAttackStrategy;
 
 public class Tower implements ITower{
 
-
     private static final UserPreference userPreferences = UserPreference.getInstance(); // User preferences for tower construction costs
 
    
@@ -86,6 +85,9 @@ public class Tower implements ITower{
 
     public void setAttackSpeed(float attackSpeed) {
         this.attackSpeed = attackSpeed; // Update the attack speed of the tower
+    }
+    public float getAttackSpeed() {
+        return attackSpeed; // Get the attack speed of the tower
     }
 
 

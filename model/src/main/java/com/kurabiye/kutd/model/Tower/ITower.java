@@ -130,4 +130,25 @@ public interface ITower {
      * @return The range of the tower
      */
     float getRange();
+
+    /**
+     * Sets the range of the tower
+     * 
+     * @param range The new range of the tower
+     */
+    void setRange(float range);
+
+    /**
+     * Gets the attack speed of the tower
+     * 
+     * @return The attack speed of the tower
+     */
+    float getAttackSpeed();
+
+    /**
+     * Sets the attack speed of the tower
+     * 
+     * @param attackSpeed The new attack speed of the tower
+     */
+    void setAttackSpeed(float attackSpeed);
 }
