@@ -25,7 +25,7 @@ import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
  * 
  * 
  * @author: Atlas Berk Polat
- * @version: 1.0
+ * @version: 2.0
  * @since: 2025-04-28
  */
 
@@ -120,6 +120,9 @@ public class GameManager implements Runnable{
     public void setGameUpdateListener(IGameUpdateListener gameUpdateListener) {
         this.gameUpdateListener = gameUpdateListener; // Set the game update listener
     }
+
+    private double frameTime; // keep track of the time taken for each frame
+    private double deltaFrameTime; // keep track of the time difference between frames
 
     @Override
     public void run() {
@@ -220,12 +223,33 @@ public class GameManager implements Runnable{
              
            collisionManager.commitAll();
 
+           // update the frame time and delta frame time
+            double currentTime = System.nanoTime() / 1_000_000.0; // Get the current time in milliseconds
+            deltaFrameTime = currentTime - frameTime; // Calculate the time difference since the last frame
+            frameTime = currentTime; // Update the frame time to the current time
+
            
             // Sleep for a short duration to control the frame rate
             try {
-                Thread.sleep((long)((1000/TARGET_FPS)/ gameTimer.getTimeCoefficient())); // Approximately 60 FPS
+
+                // substarct the delta frame time from the target frame time to achieve a consistent frame rate
+                double sleepTime = (1000.0 / TARGET_FPS) - deltaFrameTime; // Calculate the sleep time to maintain the target FPS
+                // calculate the final sleep time based on the game timer's time coefficient
+                if (gameTimer.getTimeCoefficient() > 0) { // Ensure coefficient is positive to avoid division by zero or sign flip
+                    sleepTime = sleepTime / gameTimer.getTimeCoefficient(); // Adjust sleep time based on the time coefficient
+                } else if (gameTimer.getTimeCoefficient() == 0) {
+                    sleepTime = Double.MAX_VALUE; // Effectively pause if time coefficient is 0
+                }
+                // else if coefficient is negative, sleepTime might become positive if it was negative,
+                // or negative if it was positive. This logic might need review based on desired behavior for negative coefficient.
+                // For now, we'll focus on preventing negative sleep.
+
+                if (sleepTime > 0) {
+                    Thread.sleep((long)sleepTime); 
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Thread.currentThread().interrupt(); // Restore interrupted status
             }
 
          }
