@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import javafx.scene.text.TextAlignment;
+import javafx.scene.control.Tooltip;
 
 import java.util.List;
 import java.util.Set;
@@ -34,16 +35,14 @@ import com.kurabiye.kutd.controller.MapSelectionController;
 import com.kurabiye.kutd.model.Collectable.GoldBag;
 import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
+import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
 import com.kurabiye.kutd.model.Map.GameMap;
 import com.kurabiye.kutd.model.Projectile.IProjectile;
-
 import com.kurabiye.kutd.model.Projectile.ProjectileState;
 import com.kurabiye.kutd.model.Projectile.ProjectileType;
-
-
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
 import com.kurabiye.kutd.view.Animation.AnimationManager;
@@ -61,50 +60,48 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.input.MouseEvent;
 
-
 public class GamePlayView implements IGameUpdateListener, Observer {
-    
+
     // Reference dimensions that the game was designed for
     private static final int REFERENCE_WIDTH = 1920;
     private static final int REFERENCE_HEIGHT = 1080;
-    
+
     // The actual screen dimensions
     private static final int SCREEN_WIDTH = (int) Screen.getPrimary().getBounds().getWidth();
     private static final int SCREEN_HEIGHT = (int) Screen.getPrimary().getBounds().getHeight();
-    
+
     // Keep the map grid fixed at 16x9
     private static final int ROWS = 9;
     private static final int COLS = 16;
-    
+
     // Calculate scaling factors
     private static final double SCALE_X = (double) SCREEN_WIDTH / REFERENCE_WIDTH;
     private static final double SCALE_Y = (double) SCREEN_HEIGHT / REFERENCE_HEIGHT;
-    
+
     // Use the smaller scaling factor to maintain aspect ratio
     private static final double SCALE = Math.min(SCALE_X, SCALE_Y);
-    
+
     // Calculate the tile size based on the scale
     private static final int TILE_SIZE = (int) (REFERENCE_WIDTH / COLS * SCALE);
-    
+
     // Calculate the actual canvas size
     private static final int CANVAS_WIDTH = TILE_SIZE * COLS;
     private static final int CANVAS_HEIGHT = TILE_SIZE * ROWS;
-    
+
     private static final int TILE_COUNT = 35;
     private static final int GRASS_TILE_ID = 5;
     private static final int INTERACTIVE_TILE_ID = 15;
 
     private final Image[] tileImages = new Image[TILE_COUNT];
     private Image[] buttonImages = new Image[3]; // For the three button icons
-    
+
     private Image blueButtonImage;
     private Image iconsImage;
-    private Image playImage;       // Play button image
-    private Image pauseImage;      // Pause button image
+    private Image playImage; // Play button image
+    private Image pauseImage; // Pause button image
     private Image accelerateImage; // Speed up image
-    private Image settingsImage;   // Settings image
+    private Image settingsImage; // Settings image
     private Image goldBagImage = new Image(getClass().getResourceAsStream("/assets/collectables/gold_bag.png"));
-    
 
     private Button playPauseButton;
     private boolean isGamePlaying = true;
@@ -123,9 +120,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Image goldBagSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/G_Spawn.png"));
     private Image explosionSpriteSheet = new Image(getClass().getResourceAsStream("/assets/animations/Explosions.png"));
 
-
-
-
     private EnemyView enemyView;
     // private TowerView towerView;
     private ProjectileView projectileView;
@@ -138,8 +132,6 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     // Projectiles projectiles;
 
     // Removed Enemiea Projectiles from here
-
-  
 
     List<IProjectile> projectiles;
 
@@ -154,40 +146,45 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     
     private int[][] map;
 
-    
     /**
-    * Initializes and starts the game view with the provided stage and controller.
-    * 
-    * @requires stage != null && controller != null
-    * @requires JavaFX Application Thread is running
-    * @requires controller.getGameManager() != null
-    * @requires all required asset files exist in resources (/assets/tiles/, /assets/buttons/, /assets/projectiles/, /assets/ui/)
-    * 
-    * @modifies this.controller, this.currentStage, this.isEndGamePopupShown
-    * @modifies this.enemyView, this.enemies, this.towers, this.projectiles
-    * @modifies this.currentGold, this.currentHealth, this.currentWave
-    * @modifies this.canvas, this.gc, this.root, this.map
-    * @modifies stage (sets title, scene, maximized state, and shows the stage)
-    * @modifies controller (sets listeners and starts the game)
-    * 
-    * @effects Loads all required assets (tiles, button icons, projectile images)
-    * @effects Creates and configures the game canvas with calculated dimensions
-    * @effects Sets up the UI layout with game elements positioned on screen
-    * @effects Initializes the game state by connecting to the controller's game manager
-    * @effects Registers this view as a listener for game updates and observer for player/map changes
-    * @effects Starts the game thread through the controller
-    * @effects Sets the stage title to "Game Map" and maximizes the window
-    * @effects Sets up mouse click handlers for tile interactions
-    * @effects Applies custom cursor if available, falls back to default cursor on failure
-    */
+     * Initializes and starts the game view with the provided stage and controller.
+     * 
+     * @requires stage != null && controller != null
+     * @requires JavaFX Application Thread is running
+     * @requires controller.getGameManager() != null
+     * @requires all required asset files exist in resources (/assets/tiles/,
+     *           /assets/buttons/, /assets/projectiles/, /assets/ui/)
+     * 
+     * @modifies this.controller, this.currentStage, this.isEndGamePopupShown
+     * @modifies this.enemyView, this.enemies, this.towers, this.projectiles
+     * @modifies this.currentGold, this.currentHealth, this.currentWave
+     * @modifies this.canvas, this.gc, this.root, this.map
+     * @modifies stage (sets title, scene, maximized state, and shows the stage)
+     * @modifies controller (sets listeners and starts the game)
+     * 
+     * @effects Loads all required assets (tiles, button icons, projectile images)
+     * @effects Creates and configures the game canvas with calculated dimensions
+     * @effects Sets up the UI layout with game elements positioned on screen
+     * @effects Initializes the game state by connecting to the controller's game
+     *          manager
+     * @effects Registers this view as a listener for game updates and observer for
+     *          player/map changes
+     * @effects Starts the game thread through the controller
+     * @effects Sets the stage title to "Game Map" and maximizes the window
+     * @effects Sets up mouse click handlers for tile interactions
+     * @effects Applies custom cursor if available, falls back to default cursor on
+     *          failure
+     */
     public void start(Stage stage, GamePlayController controller) {
 
-        /*int x = 5;
+        /*
+         * int x = 5;
+         * 
+         * if (x == 5) {
+         * throw new IllegalArgumentException("Stage and controller cannot be null");
+         * }
+         */
 
-        if (x == 5) {
-            throw new IllegalArgumentException("Stage and controller cannot be null");
-        }*/
-        
         loadTiles();
         loadButtonIcons();
         loadProjectileImages();
@@ -196,15 +193,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         this.isEndGamePopupShown = false; // Reset flag on start
 
         this.controller = controller;
-        this.enemyView = new EnemyView(TILE_SIZE);  // Pass just the tile size
-        // this.towerView = new TowerView(TILE_SIZE);  // Pass just the tile size
+        this.enemyView = new EnemyView(TILE_SIZE); // Pass just the tile size
+        // this.towerView = new TowerView(TILE_SIZE); // Pass just the tile size
 
         this.projectileView = new ProjectileView(projectileImages, TILE_SIZE, COLS);
 
         this.enemies = controller.getGameManager().getEnemies();
         this.towers = controller.getGameManager().getTowers();
-
-       
 
         this.projectiles = controller.getGameManager().getProjectiles();
         this.currentGold = controller.getGameManager().getPlayer().getCurrentGold();
@@ -222,21 +217,19 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         gc = canvas.getGraphicsContext2D();
         drawMap(gc);
-    
+
         // Create root pane to center the canvas
         root = new Pane();
         root.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-        
+
         // Position canvas in the center if it's smaller than the screen
         canvas.setLayoutX((SCREEN_WIDTH - CANVAS_WIDTH) / 2);
         canvas.setLayoutY(0); // Set to top of screen
-        
+
         root.getChildren().add(canvas);
-        
+
         addUIElements(stage);
 
-       
-    
         Scene scene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         stage.setTitle("Game Map");
@@ -244,14 +237,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         stage.setMaximized(true);
         stage.show();
 
-         // Use Timeline to delay cursor setting slightly
+        // Use Timeline to delay cursor setting slightly
         Timeline cursorDelay = new Timeline(new KeyFrame(Duration.millis(100), e -> {
             try {
                 Image cursorImage = new Image(getClass().getResourceAsStream("/assets/ui/cursor.png"));
                 if (cursorImage != null && !cursorImage.isError()) {
                     ImageCursor customCursor = new ImageCursor(cursorImage,
-                                                            cursorImage.getWidth() / 2,
-                                                            cursorImage.getHeight() / 2);
+                            cursorImage.getWidth() / 2,
+                            cursorImage.getHeight() / 2);
                     scene.setCursor(customCursor);
                     root.setCursor(customCursor);
                 }
@@ -261,7 +254,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             }
         }));
         cursorDelay.play();
-    
+
         setupClickHandler();
     }
 
@@ -279,7 +272,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private void loadButtonIcons() {
         // Load images for the buttons
         for (int i = 0; i < 3; i++) {
-            
+
             String path;
 
             if (i == 0) {
@@ -327,44 +320,44 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private void setupClickHandler() {
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-        // First check for collectables
-        double clickX = event.getX();
-        double clickY = event.getY();
-        
-        // Convert click coordinates to model space
-        double modelWidth = 1920;  // The width used in the model
-        double scaleFactor = TILE_SIZE * COLS / modelWidth;
-        Point2D clickPoint = new Point2D(clickX / scaleFactor, clickY / scaleFactor);
-        
-        // Try to collect gold bag first
-        boolean collected = controller.getGameManager().handleCollectableClick(clickPoint);
+            // First check for collectables
+            double clickX = event.getX();
+            double clickY = event.getY();
 
-        if(collected){
-            animationManager.handleClick(clickPoint);
-        }
-        
-        if (!collected) {
-            // If no collectable was clicked, handle tower/tile interactions
-            int col = (int) (clickX / TILE_SIZE);
-            int row = (int) (clickY / TILE_SIZE);
-    
-            if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-                int tileId = map[row][col];
-    
-                if (tileId == 20 || tileId == 21 || tileId == 26 || tileId == 32 || tileId == 33 || tileId == 34) {
-                    showTowerButton(row, col);
-                } else if (tileId == INTERACTIVE_TILE_ID) {
-                    showBuildButtons(row, col);
+            // Convert click coordinates to model space
+            double modelWidth = 1920; // The width used in the model
+            double scaleFactor = TILE_SIZE * COLS / modelWidth;
+            Point2D clickPoint = new Point2D(clickX / scaleFactor, clickY / scaleFactor);
+
+            // Try to collect gold bag first
+            boolean collected = controller.getGameManager().handleCollectableClick(clickPoint);
+
+            if (collected) {
+                animationManager.handleClick(clickPoint);
+            }
+
+            if (!collected) {
+                // If no collectable was clicked, handle tower/tile interactions
+                int col = (int) (clickX / TILE_SIZE);
+                int row = (int) (clickY / TILE_SIZE);
+
+                if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+                    int tileId = map[row][col];
+
+                    if (tileId == 20 || tileId == 21 || tileId == 26 || tileId == 32 || tileId == 33 || tileId == 34) {
+                        showTowerButton(row, col);
+                    } else if (tileId == INTERACTIVE_TILE_ID) {
+                        showBuildButtons(row, col);
+                    } else {
+                        removeButtonContainer();
+                    }
                 } else {
                     removeButtonContainer();
                 }
             } else {
+                // If we collected something, remove any UI elements
                 removeButtonContainer();
             }
-        } else {
-            // If we collected something, remove any UI elements
-            removeButtonContainer();
-        }
         });
     }
 
@@ -390,42 +383,38 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         Button sellButton = new Button("Sell");
         sellButton.setStyle(
-            "-fx-background-color: linear-gradient(#ff5400, #be1d00);" +
-            "-fx-background-radius: 8;" +
-            "-fx-text-fill: white;" +
-            "-fx-font-weight: bold;" +
-            "-fx-font-size: 12px;" +
-            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
-            "-fx-border-color: #8B0000;" +
-            "-fx-border-width: 1;" +
-            "-fx-border-radius: 8;"
-        );
+                "-fx-background-color: linear-gradient(#ff5400, #be1d00);" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+                        "-fx-border-color: #8B0000;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 8;");
         sellButton.setPrefSize(85, 35);
         sellButton.setOnMouseEntered(e -> sellButton.setStyle(
-            "-fx-background-color: linear-gradient(#ff6400, #ce2d00);" +
-            "-fx-background-radius: 8;" +
-            "-fx-text-fill: white;" +
-            "-fx-font-weight: bold;" +
-            "-fx-font-size: 12px;" +
-            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);" +
-            "-fx-border-color: #8B0000;" +
-            "-fx-border-width: 1;" +
-            "-fx-border-radius: 8;"
-        ));
+                "-fx-background-color: linear-gradient(#ff6400, #ce2d00);" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);" +
+                        "-fx-border-color: #8B0000;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 8;"));
         sellButton.setOnMouseExited(e -> sellButton.setStyle(
-            "-fx-background-color: linear-gradient(#ff5400, #be1d00);" +
-            "-fx-background-radius: 8;" +
-            "-fx-text-fill: white;" +
-            "-fx-font-weight: bold;" +
-            "-fx-font-size: 12px;" +
-            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
-            "-fx-border-color: #8B0000;" +
-            "-fx-border-width: 1;" +
-            "-fx-border-radius: 8;"
-        ));
+                "-fx-background-color: linear-gradient(#ff5400, #be1d00);" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+                        "-fx-border-color: #8B0000;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 8;"));
         sellButton.setOnAction(e -> handleSellButtonClick(row, col));
 
-    
         ITower clickedTower = null;
         for (ITower tower : controller.getGameManager().getTowers()) {
             if (tower.getTileCoordinate().getTileX() == col && tower.getTileCoordinate().getTileY() == row) {
@@ -442,42 +431,39 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             int upgradeCost = clickedTower.getUpgradeCost();
             Button upgradeButton = new Button("Upgrade\n$" + upgradeCost);
             upgradeButton.setStyle(
-                "-fx-background-color: linear-gradient(#32CD32, #228B22);" +
-                "-fx-background-radius: 8;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-weight: bold;" +
-                "-fx-font-size: 11px;" +
-                "-fx-text-alignment: center;" +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
-                "-fx-border-color: #006400;" +
-                "-fx-border-width: 1;" +
-                "-fx-border-radius: 8;"
-            );
+                    "-fx-background-color: linear-gradient(#32CD32, #228B22);" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-text-alignment: center;" +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+                            "-fx-border-color: #006400;" +
+                            "-fx-border-width: 1;" +
+                            "-fx-border-radius: 8;");
             upgradeButton.setPrefSize(85, 45);
             upgradeButton.setOnMouseEntered(e -> upgradeButton.setStyle(
-                "-fx-background-color: linear-gradient(#3AE03A, #2E8B2E);" +
-                "-fx-background-radius: 8;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-weight: bold;" +
-                "-fx-font-size: 11px;" +
-                "-fx-text-alignment: center;" +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);" +
-                "-fx-border-color: #006400;" +
-                "-fx-border-width: 1;" +
-                "-fx-border-radius: 8;"
-            ));
+                    "-fx-background-color: linear-gradient(#3AE03A, #2E8B2E);" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-text-alignment: center;" +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 3);" +
+                            "-fx-border-color: #006400;" +
+                            "-fx-border-width: 1;" +
+                            "-fx-border-radius: 8;"));
             upgradeButton.setOnMouseExited(e -> upgradeButton.setStyle(
-                "-fx-background-color: linear-gradient(#32CD32, #228B22);" +
-                "-fx-background-radius: 8;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-weight: bold;" +
-                "-fx-font-size: 11px;" +
-                "-fx-text-alignment: center;" +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
-                "-fx-border-color: #006400;" +
-                "-fx-border-width: 1;" +
-                "-fx-border-radius: 8;"
-            ));
+                    "-fx-background-color: linear-gradient(#32CD32, #228B22);" +
+                            "-fx-background-radius: 8;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-text-alignment: center;" +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 8, 0, 0, 2);" +
+                            "-fx-border-color: #006400;" +
+                            "-fx-border-width: 1;" +
+                            "-fx-border-radius: 8;"));
             upgradeButton.setOnAction(e -> handleUpgradeButtonClick(row, col));
             buttonContainer.getChildren().add(upgradeButton);
         }
@@ -485,19 +471,16 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         root.getChildren().add(buttonContainer);
     }
 
-
-
     private void handleSellButtonClick(int row, int col) {
-    
-    
-            // Call the controller's sellTower method with the tower type
-            controller.sellTower(col, row);
-    
-           removeButtonContainer();
+
+        // Call the controller's sellTower method with the tower type
+        controller.sellTower(col, row);
+
+        removeButtonContainer();
     }
 
     private void handleUpgradeButtonClick(int row, int col) {
-       
+
         boolean success = controller.upgradeTower(col, row);
 
         if (success) {
@@ -507,23 +490,20 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         }
     }
 
-
-
-
     private void showBuildButtons(int row, int col) {
         removeButtonContainer();
-    
+
         buttonContainer = new HBox(10);
         buttonContainer.setAlignment(Pos.CENTER);
-    
+
         // Calculate position based on clicked tile
         double tileLeftX = col * TILE_SIZE;
         double tileTopY = row * TILE_SIZE;
-    
+
         // Position container centered above the clicked tile
         buttonContainer.setLayoutX(tileLeftX + (TILE_SIZE / 2) - 105); // Center minus half of total buttons width
         buttonContainer.setLayoutY(tileTopY - 80); // Position above the tile
-    
+
         // Create buttons for building towers
         for (int i = 0; i < 3; i++) {
             Button button = new Button();
@@ -532,43 +512,84 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             }
             button.setStyle("-fx-background-color: transparent; -fx-padding: 5;");
             button.setPrefSize(64, 64);
-    
+
+            // Add tooltip based on button type
+            Tooltip tooltip = new Tooltip();
+            switch (i) {
+                case 0: // Mage Tower
+                    tooltip.setText("Mage Tower\n" +
+                            "Cost: 75 gold\n" +
+                            "Damage: 7\n" +
+                            "Range: 300\n" +
+                            "Attack Speed: 1\n" +
+                            "Reselling price: 45 gold");
+                    break;
+                case 1: // Archer Tower
+                    tooltip.setText("Archer Tower\n" +
+                            "Cost: 100 gold\n" +
+                            "Damage: 8\n" +
+                            "Range: 300\n" +
+                            "Attack Speed: 5\n" +
+                            "Reselling price: 70 gold");
+                    break;
+                case 2: // Artillery Tower
+                    tooltip.setText("Artillery Tower\n" +
+                            "Cost: 50 gold\n" +
+                            "Damage: 5\n" +
+                            "Range: 300\n" +
+                            "Attack Speed: 0.5\n" +
+                            "Reselling price: 25 gold");
+                    break;
+            }
+
+            // Style the tooltip (optional)
+            tooltip.setStyle(
+                    "-fx-font-size: 12px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-background-color: rgba(50, 50, 50, 0.9);" +
+                            "-fx-border-color: #555;" +
+                            "-fx-border-width: 1px;" +
+                            "-fx-border-radius: 3px;" +
+                            "-fx-padding: 5px;");
+
+            Tooltip.install(button, tooltip);
+
             final int buttonId = i;
             button.setOnAction(e -> handleBuildButtonClick(buttonId, row, col));
-    
+
             buttonContainer.getChildren().add(button);
         }
-    
+
         root.getChildren().add(buttonContainer);
     }
 
     private void handleBuildButtonClick(int buttonId, int row, int col) {
-        
-        // Map button IDs to tower types (0=Magic/Star, 1=Artillery/Bomb, 2=Archer/Arrow)
+
+        // Map button IDs to tower types (0=Magic/Star, 1=Artillery/Bomb,
+        // 2=Archer/Arrow)
         TowerType towerType;
-        switch(buttonId) {
+        switch (buttonId) {
             case 0: // Star button - creates Magic tower
                 towerType = TowerType.MAGE; // MAGIC tower type
                 break;
-            case 1: //  Arrow button - creates Archer tower
-                    towerType = TowerType.ARCHER; // ARROW tower type
+            case 1: // Arrow button - creates Archer tower
+                towerType = TowerType.ARCHER; // ARROW tower type
                 break;
-            case 2: //  Bomb button - creates Artillery  tower
-                
-                 towerType = TowerType.ARTILLERY; // ARTILLERY tower type
+            case 2: // Bomb button - creates Artillery tower
+                towerType = TowerType.ARTILLERY; // ARTILLERY tower type
                 break;
             default:
                 return;
         }
-        
+
         // Tell the controller to build a tower of the selected type
         boolean success = controller.buildTower(col, row, towerType);
 
-        
         if (success) {
         } else {
         }
-        
+
         removeButtonContainer();
     }
 
@@ -577,12 +598,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         buttonColumn.setLayoutX(64); // Next to icons
         buttonColumn.setLayoutY(10);
 
-        goldText = new Text(""+currentGold);
+        goldText = new Text("" + currentGold);
         goldText.setFill(Color.WHITE);
         goldText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
         goldText.setTextOrigin(VPos.CENTER);
 
-        healthText = new Text(""+currentHealth);
+        healthText = new Text("" + currentHealth);
         healthText.setFill(Color.WHITE);
         healthText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
         healthText.setTextOrigin(VPos.CENTER);
@@ -596,16 +617,17 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             ImageView blueButton = new ImageView(blueButtonImage);
             blueButton.setFitWidth(120);
             blueButton.setFitHeight(42);
-            
-            // For the first button (gold button), create a stack pane to overlay text and image
+
+            // For the first button (gold button), create a stack pane to overlay text and
+            // image
             if (i == 0) {
                 StackPane goldButton = new StackPane();
                 goldButton.getChildren().addAll(blueButton, goldText);
                 StackPane.setAlignment(goldText, Pos.CENTER);
-                
+
                 // Add margin to adjust vertical position if needed
                 StackPane.setMargin(goldText, new Insets(-10, 0, 0, 0)); // Adjust top margin as needed
-                
+
                 buttonColumn.getChildren().add(goldButton);
             } else {
                 buttonColumn.getChildren().add(blueButton);
@@ -625,7 +647,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 StackPane.setMargin(waveText, new Insets(-10, 0, 0, 0));
                 buttonColumn.getChildren().add(waveButton);
             }
-        }  
+        }
 
         ImageView icons = new ImageView(iconsImage);
         icons.setFitWidth(48);
@@ -638,38 +660,38 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         // Position at top-right with a margin
         controlButtons.setLayoutX(CANVAS_WIDTH - 200); // Adjust based on total width of buttons
         controlButtons.setLayoutY(20);
- 
+
         root.getChildren().addAll(icons, buttonColumn, controlButtons);
     }
 
     private HBox createControlButtons(Stage stage) {
         HBox container = new HBox(10); // 10 pixels spacing between buttons
-        
+
         // Create play/pause button with initial play image and store reference
         playPauseButton = createControlButton(pauseImage);
-        
+
         // Create accelerate button
         Button accelerateButton = createControlButton(accelerateImage);
         // Create settings button
         Button settingsButton = createControlButton(settingsImage);
-        
+
         // Set up the play/pause toggle functionality
         playPauseButton.setOnAction(e -> {
             if (isGamePlaying) {
                 // Currently playing, pause the game
                 controller.pauseGame();
-                ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
-                
+                ((ImageView) playPauseButton.getGraphic()).setImage(playImage);
+
                 // Show pause menu
                 showPauseMenu(stage);
             } else {
                 // Currently paused, resume the game
                 controller.resumeGame();
-                ((ImageView)playPauseButton.getGraphic()).setImage(pauseImage);
+                ((ImageView) playPauseButton.getGraphic()).setImage(pauseImage);
             }
             isGamePlaying = !isGamePlaying;
         });
-        
+
         // Set up accelerate button
         accelerateButton.setOnAction(e -> {
             if (isGameAccelerated) {
@@ -687,12 +709,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             // Pause the game
             controller.pauseGame();
             isGamePlaying = false;
-            ((ImageView)playPauseButton.getGraphic()).setImage(playImage);
-            
+            ((ImageView) playPauseButton.getGraphic()).setImage(playImage);
+
             // Show pause menu
             showPauseMenu(stage);
         });
-        
+
         container.getChildren().addAll(playPauseButton, accelerateButton, settingsButton);
         return container;
     }
@@ -703,28 +725,27 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         imageView.setFitWidth(52);
         imageView.setFitHeight(52);
         button.setGraphic(imageView);
-        
+
         // Remove button background, padding, and border
         button.setStyle(
-            "-fx-background-color: transparent;" +
-            "-fx-background-insets: 0;" +
-            "-fx-background-radius: 0;" +
-            "-fx-padding: 0;" +
-            "-fx-border-color: transparent;" +
-            "-fx-border-width: 0;" +
-            "-fx-focus-color: transparent;" +
-            "-fx-faint-focus-color: transparent;"
-        );
-        
+                "-fx-background-color: transparent;" +
+                        "-fx-background-insets: 0;" +
+                        "-fx-background-radius: 0;" +
+                        "-fx-padding: 0;" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-width: 0;" +
+                        "-fx-focus-color: transparent;" +
+                        "-fx-faint-focus-color: transparent;");
+
         // Keep the transparent style on hover
         button.setOnMouseEntered(e -> {
             button.setOpacity(0.8); // Slight transparency on hover for visual feedback
         });
-        
+
         button.setOnMouseExited(e -> {
             button.setOpacity(1.0); // Restore full opacity
         });
-        
+
         return button;
     }
 
@@ -733,38 +754,37 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         Pane overlay = new Pane();
         overlay.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
-        
+
         // Create the pause menu container
         VBox pauseMenu = new VBox(15);
         pauseMenu.setAlignment(Pos.CENTER);
         pauseMenu.setStyle(
-            "-fx-background-color: rgba(50, 50, 50, 0.9);" +
-            "-fx-background-radius: 15;" +
-            "-fx-padding: 20px;"
-        );
+                "-fx-background-color: rgba(50, 50, 50, 0.9);" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-padding: 20px;");
         pauseMenu.setMaxWidth(300);
         pauseMenu.setMaxHeight(250);
-        
+
         // Create the pause menu title
         Text pauseTitle = new Text("GAME PAUSED");
         pauseTitle.setFont(Font.font("System", FontWeight.BOLD, 24));
         pauseTitle.setFill(Color.WHITE);
-        
+
         // Create buttons
         Button resumeButton = createPauseMenuButton("Resume Game");
         Button mainMenuButton = createPauseMenuButton("Return to Main Menu");
-        
+
         // Add action handlers
         resumeButton.setOnAction(event -> {
             // Resume game
             controller.resumeGame();
             root.getChildren().remove(overlay);
-            
+
             // Update the play/pause button state using the class field
-            ((ImageView)playPauseButton.getGraphic()).setImage(pauseImage);
+            ((ImageView) playPauseButton.getGraphic()).setImage(pauseImage);
             isGamePlaying = true;
         });
-        
+
         mainMenuButton.setOnAction(event -> {
             // End the current game
             controller.endGame();
@@ -779,43 +799,40 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             MainMenuView mainMenuView = new MainMenuView();
             mainMenuView.start(stage);
         });
-        
+
         // Add all elements to the pause menu
         pauseMenu.getChildren().addAll(pauseTitle, resumeButton, mainMenuButton);
-        
+
         // Center the pause menu on screen
         pauseMenu.setLayoutX((SCREEN_WIDTH - 300) / 2);
         pauseMenu.setLayoutY((SCREEN_HEIGHT - 250) / 2);
-        
+
         // Add overlay and pause menu to the root
         overlay.getChildren().add(pauseMenu);
         root.getChildren().add(overlay);
     }
-    
+
     private Button createPauseMenuButton(String text) {
         Button button = new Button(text);
         button.setPrefWidth(200);
         button.setPrefHeight(40);
         button.setFont(Font.font("System", FontWeight.BOLD, 14));
-        
+
         button.setStyle(
-            "-fx-background-color: rgb(0, 218, 142);" +
-            "-fx-text-fill: white;" +
-            "-fx-background-radius: 8px;"
-        );
-        
+                "-fx-background-color: rgb(0, 218, 142);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 8px;");
+
         button.setOnMouseEntered(e -> button.setStyle(
-            "-fx-background-color: rgb(34, 220, 155);" + 
-            "-fx-text-fill: white;" +
-            "-fx-background-radius: 8px;"
-        ));
-        
+                "-fx-background-color: rgb(34, 220, 155);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 8px;"));
+
         button.setOnMouseExited(e -> button.setStyle(
-            "-fx-background-color: rgb(0, 218, 142);" +
-            "-fx-text-fill: white;" +
-            "-fx-background-radius: 8px;"
-        ));
-        
+                "-fx-background-color: rgb(0, 218, 142);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 8px;"));
+
         return button;
     }
 
@@ -829,10 +846,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         VBox endGameMenu = new VBox(15);
         endGameMenu.setAlignment(Pos.CENTER);
         endGameMenu.setStyle(
-            "-fx-background-color: rgba(50, 50, 50, 0.9);" +
-            "-fx-background-radius: 15;" +
-            "-fx-padding: 20px;"
-        );
+                "-fx-background-color: rgba(50, 50, 50, 0.9);" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-padding: 20px;");
         endGameMenu.setMaxWidth(350); // Slightly wider for longer text
         endGameMenu.setMaxHeight(300);
 
@@ -851,7 +867,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             // Clean up current game
             controller.endGame();
             root.getChildren().remove(overlay);
-            
+
             // Show map selection view for new game
             MapSelectionView mapSelectionView = new MapSelectionView();
             mapSelectionView.start(stage, new MapSelectionController());
@@ -889,10 +905,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     // Method called by the controller to update the game view
     @Override
-    public void onGameUpdate(double deltaTime) { 
-        // This must be called on the JavaFX Application Thread 
+    public void onGameUpdate(double deltaTime) {
+        // This must be called on the JavaFX Application Thread
         // So we wrap it in Platform.runLater
-         Platform.runLater(() -> {
+        Platform.runLater(() -> {
             updateView(deltaTime);
 
             // Check game state for win/loss condition
@@ -914,7 +930,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         }
 
         pastTime += deltaTime;
-        
+
         int imgNum = ((int) (pastTime * 6)) % 6;
 
         // GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -925,20 +941,21 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         for (IProjectile projectile : projectiles) {
             // Get the projectile's current position
             Point2D position = projectile.getCoordinate();
-        
-            // Transform model coordinates to view coordinates using the same scaling as for enemies
-            double modelWidth = 1920;  // The width used in the model
+
+            // Transform model coordinates to view coordinates using the same scaling as for
+            // enemies
+            double modelWidth = 1920; // The width used in the model
             double scaleFactor = TILE_SIZE * COLS / modelWidth; // Calculate the scale factor
-        
+
             // Scale positions from model space to view space
             double viewX = position.getX() * scaleFactor;
             double viewY = position.getY() * scaleFactor;
-        
+
             // Determine the projectile type and select the corresponding image
             Image projectileImage = null;
             double imageSize = 20; // Default size for projectiles
             boolean shouldRotate = false;
-        
+
             switch (projectile.getProjectileType()) {
                 case ARROW:
                     projectileImage = projectileImages[0];
@@ -959,25 +976,26 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     imageSize = 15; // Smaller size for bombs
                     break;
             }
-        
+
             // Draw the projectile image if it exists
             if (projectileImage != null) {
                 if (shouldRotate) {
                     // Calculate the rotation angle based on the speed vector
-                    double angle = Math.toDegrees(Math.atan2(projectile.getSpeedVector().getY(), projectile.getSpeedVector().getX()));
-        
+                    double angle = Math.toDegrees(
+                            Math.atan2(projectile.getSpeedVector().getY(), projectile.getSpeedVector().getX()));
+
                     // Save the current state of the GraphicsContext
                     gc.save();
-        
+
                     // Translate to the center of the projectile
                     gc.translate(viewX, viewY);
-        
+
                     // Rotate the canvas
                     gc.rotate(angle);
-        
+
                     // Draw the image centered at (0, 0) after translation
                     gc.drawImage(projectileImage, -imageSize / 2, -imageSize / 2, imageSize, imageSize);
-        
+
                     // Restore the GraphicsContext to its original state
                     gc.restore();
                 } else {
@@ -994,13 +1012,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 !projectile.hasExplosionAnimated()) {
 
                 animationManager.createAnimation(
-                    gc,
-                    explosionSpriteSheet, // patlama sprite'ınızın Image'ı
-                    position,  // koordinatlar
-                    0.2,  // frame süresi (örneğin)
-                    1.4,  // toplam animasyon süresi
-                    64,   // genişlik
-                    64    // yükseklik
+                        gc,
+                        explosionSpriteSheet, // patlama sprite'ınızın Image'ı
+                        position, // koordinatlar
+                        0.2, // frame süresi (örneğin)
+                        1.4, // toplam animasyon süresi
+                        64, // genişlik
+                        64 // yükseklik
                 );
 
                 projectile.setExplosionAnimated(true);
@@ -1010,9 +1028,18 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         for (IEnemy enemy : enemies) {
             if (enemy.isDead()) {
-                System.out.println("heyyyy");
-                Image deathStrip = new Image(getClass().getResourceAsStream("/assets/animations/death_strip.png"));
-                animationManager.createAnimation(gc, deathStrip, enemy.getCoordinate(), 0.1, 1.4, 64, 64);
+                //System.out.println("heyyyy");
+                if(enemy.getEnemyType() == EnemyType.KNIGHT){
+                    Image deathStrip1 = new Image(getClass().getResourceAsStream("/assets/animations/knight_death.png"));
+                    animationManager.createAnimation(gc, deathStrip1, enemy.getCoordinate(), 0.2, 1.0, 120, 120);
+
+                }
+                if(enemy.getEnemyType() == EnemyType.GOBLIN){
+                    Image deathStrip2 = new Image(getClass().getResourceAsStream("/assets/animations/goblin_death.png"));
+                    animationManager.createAnimation(gc, deathStrip2, enemy.getCoordinate(), 0.1, 0.8, 64, 64);
+
+                }
+                
             }
 
         }
@@ -1021,8 +1048,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         enemyView.renderEnemies(gc, enemies, imgNum);
         projectileView.renderProjectiles(gc, projectiles);
 
-
-        //By Atlas
+        // By Atlas
         renderCollectables(gc);
         renderTowerRanges(gc);
         animationManager.update(deltaTime);
@@ -1037,7 +1063,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
 
         // Calculate scale factor
-        double modelWidth = 1920;  // The width used in the model
+        double modelWidth = 1920; // The width used in the model
         double scaleFactor = TILE_SIZE * COLS / modelWidth;
 
         for (ICollectable<?> collectable : collectables) {
@@ -1048,48 +1074,43 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 // Scale the position from model space to view space
                 double viewX = pos.getX() * scaleFactor;
                 double viewY = pos.getY() * scaleFactor;
-                
-            
+
                 if (!goldBag.isAnimated()) {
                     int id = animationManager.createAnimationReturningId(
-                        gc, goldBagSpriteSheet, pos, 0.2, goldBag.getLifespan(), 80, 80
-                        );
+                            gc, goldBagSpriteSheet, pos, 0.2, goldBag.getLifespan(), 80, 80);
                     goldBag.setAnimated(true);
                     goldBag.setAnimationId(id); // opsiyonel: animasyonu iptal etmek istersen
                 }
 
                 gc.setFill(Color.BLACK);
                 gc.fillText(String.valueOf(goldBag.getItem()),
-                            viewX, viewY -20);
+                        viewX, viewY - 20);
             }
         }
     }
-
-
-
 
     public void renderTowerRanges(GraphicsContext gc) {
         // Only render range if a tower is selected
         if (selectedTower == null) {
             return;
         }
-    
+
         // Calculate the scale factor just like we do for projectiles
-        double modelWidth = 1920;  // The width used in the model
+        double modelWidth = 1920; // The width used in the model
         double scaleFactor = TILE_SIZE * COLS / modelWidth;
-    
+
         // Only render the selected tower's range, not all towers
         double range = selectedTower.getRange() * scaleFactor; // Scale the range
         Point2D position = selectedTower.getTileCoordinate().getCenter();
-    
+
         // Scale the position coordinates
         double viewX = position.getX() * scaleFactor;
         double viewY = position.getY() * scaleFactor;
-    
+
         // Calculate the top-left corner of the range oval
         double topLeftX = viewX - range;
         double topLeftY = viewY - (range * 0.6); // Reduce vertical height by 40%
-    
+
         // Draw a vertically squeezed oval for the range
         gc.setStroke(Color.rgb(190, 120, 120, 0.5));
         gc.setLineWidth(2);
@@ -1105,8 +1126,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
          if (goldText != null) {
             goldText.setText(String.valueOf(currentGold));
-            
-         }   
+
+        }
         if (healthText != null) {
 
             healthText.setText(String.valueOf(currentHealth));
@@ -1118,11 +1139,10 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         map = controller.getGameManager().getGameMap().toIntArray();
 
         if (gc == null) {
-             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-             drawMap(gc);
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawMap(gc);
         }
-       
-        
+
         double deltaTime = 0.0; // Placeholder for actual deltaTime
         updateView(deltaTime); // Pass a dummy deltaTime for now
     }
