@@ -1054,7 +1054,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         animationManager.update(deltaTime);
 
 
-        controller.getGameManager().getCollisionManager().commitAll();
+        //controller.getGameManager().getCollisionManager().commitAll();
     
     }
 
