@@ -35,6 +35,7 @@ import com.kurabiye.kutd.controller.MapSelectionController;
 import com.kurabiye.kutd.model.Collectable.GoldBag;
 import com.kurabiye.kutd.model.Collectable.ICollectable;
 import com.kurabiye.kutd.model.Coordinates.Point2D;
+import com.kurabiye.kutd.model.Enemy.EnemyType;
 import com.kurabiye.kutd.model.Enemy.IEnemy;
 import com.kurabiye.kutd.model.Listeners.IGameUpdateListener;
 import com.kurabiye.kutd.model.Managers.GameState;
@@ -1026,9 +1027,18 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         for (IEnemy enemy : enemies) {
             if (enemy.isDead()) {
-                System.out.println("heyyyy");
-                Image deathStrip = new Image(getClass().getResourceAsStream("/assets/animations/death_strip.png"));
-                animationManager.createAnimation(gc, deathStrip, enemy.getCoordinate(), 0.1, 1.4, 64, 64);
+                //System.out.println("heyyyy");
+                if(enemy.getEnemyType() == EnemyType.KNIGHT){
+                    Image deathStrip1 = new Image(getClass().getResourceAsStream("/assets/animations/knight_death.png"));
+                    animationManager.createAnimation(gc, deathStrip1, enemy.getCoordinate(), 0.2, 1.0, 120, 120);
+
+                }
+                if(enemy.getEnemyType() == EnemyType.GOBLIN){
+                    Image deathStrip2 = new Image(getClass().getResourceAsStream("/assets/animations/goblin_death.png"));
+                    animationManager.createAnimation(gc, deathStrip2, enemy.getCoordinate(), 0.1, 0.8, 64, 64);
+
+                }
+                
             }
 
         }
