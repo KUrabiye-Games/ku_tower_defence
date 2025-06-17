@@ -73,12 +73,15 @@ public class Enemy implements IEnemy {
     }
 
     public synchronized void getDamage(IProjectile projectile) {
+        //System.out.println("Enemy hit! Health before: " + health);
+
 
         float damage = userPreferences.getDamageDealt()[projectile.getProjectileType().getValue()][enemyType.getValue()][projectile.getProjectileLevel()]; // Get the damage dealt by the projectile
         health -= damage; // Reduce the health of the enemy by the damage dealt
 
         if(health <= 0) {
             enemyState = EnemyState.DEAD; // Set the enemy
+            //System.out.println("Enemy died at " + coordinate);
             return; // If the enemy's health is less than or equal to 0, set the enemy state to DEAD
         }
 
@@ -204,6 +207,17 @@ public class Enemy implements IEnemy {
     public synchronized void setSpeed(int speed) {
         this.speed = speed; // Set the speed of the enemy
     }
+
+    private boolean deathAnimationPlayed = false;
+
+    public boolean isDeathAnimationPlayed() {
+        return deathAnimationPlayed;
+    }
+
+    public void setDeathAnimationPlayed(boolean deathAnimationPlayed) {
+        this.deathAnimationPlayed = deathAnimationPlayed;
+    }
+
 
 
 

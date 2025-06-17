@@ -60,6 +60,7 @@ public class ProjectileFactory {
                 projectileAreaDamage,
                 explosionType,
                 projectileLevel); // Create a new projectile with the specified parameters
+                product.setProjectileLevel(projectileLevel); // Set the level of the projectile
                
 
 

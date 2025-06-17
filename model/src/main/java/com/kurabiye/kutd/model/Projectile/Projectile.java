@@ -175,6 +175,10 @@ public class Projectile implements IProjectile {
         return projectileLevel; // Get the projectile's level
     }
 
+    public void setProjectileLevel(int projectileLevel) {
+        this.projectileLevel = projectileLevel; // Set the projectile's level
+    }
+
     @Override
     public boolean hasExplosionAnimated() {
         return explosionAnimated;

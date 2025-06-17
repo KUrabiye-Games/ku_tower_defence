@@ -18,10 +18,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+
+
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import javafx.scene.text.TextAlignment;
 import javafx.scene.control.Tooltip;
 
 import java.util.List;
+<<<<<<< hoverTowerInformation
+=======
+import java.util.Set;
+
+>>>>>>> main
 
 import com.kurabiye.kutd.controller.GamePlayController;
 import com.kurabiye.kutd.controller.MapSelectionController;
@@ -37,6 +47,8 @@ import com.kurabiye.kutd.model.Projectile.ProjectileState;
 import com.kurabiye.kutd.model.Projectile.ProjectileType;
 import com.kurabiye.kutd.util.DynamicList.DynamicArrayList;
 import com.kurabiye.kutd.util.ObserverPattern.Observer;
+import com.kurabiye.kutd.view.Animation.AnimationManager;
+import com.kurabiye.kutd.view.Animation.Sprite;
 import com.kurabiye.kutd.model.Tower.ITower;
 import com.kurabiye.kutd.model.Tower.TowerType;
 import com.kurabiye.kutd.view.Animation.AnimationManager;
@@ -114,7 +126,12 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     // private TowerView towerView;
     private ProjectileView projectileView;
 
+<<<<<<< hoverTowerInformation
     private Image[] projectileImages = new Image[3]; // Array to store projectile images
+=======
+
+    private Image[] projectileImages = new Image[4]; // Array to store projectile images
+>>>>>>> main
 
     List<IEnemy> enemies;
     List<ITower> towers;
@@ -131,8 +148,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     private Text goldText;
     private Text healthText;
 
+    
     private int[][] map;
 
+<<<<<<< hoverTowerInformation
+=======
+    
+>>>>>>> main
     /**
      * Initializes and starts the game view with the provided stage and controller.
      * 
@@ -284,12 +306,19 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     }
 
     private void loadProjectileImages() {
+<<<<<<< hoverTowerInformation
         projectileImages[0] = new Image(getClass().getResourceAsStream("/assets/projectiles/arrow.png")); // Arrow
                                                                                                           // projectile
         projectileImages[1] = new Image(getClass().getResourceAsStream("/assets/projectiles/magic.png")); // Magic
                                                                                                           // projectile
         projectileImages[2] = new Image(getClass().getResourceAsStream("/assets/projectiles/bomb.png")); // Artillery
                                                                                                          // projectile
+=======
+        projectileImages[0] = new Image(getClass().getResourceAsStream("/assets/projectiles/arrow.png")); // Arrow projectile
+        projectileImages[1] = new Image(getClass().getResourceAsStream("/assets/projectiles/magic.png")); // Magic projectile
+        projectileImages[2] = new Image(getClass().getResourceAsStream("/assets/projectiles/bomb.png")); // Artillery projectile
+        projectileImages[3] = new Image(getClass().getResourceAsStream("/assets/projectiles/magic2.png")); // Ice projectile
+>>>>>>> main
     }
 
     private void drawMap(GraphicsContext gc) {
@@ -778,6 +807,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             // End the current game
             controller.endGame();
 
+<<<<<<< hoverTowerInformation
+=======
+            // Reset stage to normal size before returning to main menu
+            stage.setMaximized(false);
+            stage.setWidth(600);
+            stage.setHeight(420);
+            stage.centerOnScreen();
+            
+>>>>>>> main
             // Return to main menu
             MainMenuView mainMenuView = new MainMenuView();
             mainMenuView.start(stage);
@@ -859,7 +897,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         mainMenuButton.setOnAction(event -> {
             controller.endGame(); // Clean up the current game
             root.getChildren().remove(overlay); // Remove the popup
+            
             // Return to main menu
+            // Reset stage to normal size before returning to main menu
+            stage.setMaximized(false);
+            stage.setWidth(600);
+            stage.setHeight(420);
+            stage.centerOnScreen();
+
             MainMenuView mainMenuView = new MainMenuView();
             mainMenuView.start(stage);
         });
@@ -939,10 +984,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                     shouldRotate = true; // Arrows need to be rotated
                     break;
                 case MAGIC:
-                    projectileImage = projectileImages[1];
+                    // If shot from a level 2 magic tower, use a different image
+                  
+                        projectileImage = projectileImages[3]; // Use ice projectile image
+                    
+                    
                     imageSize = 35; // Larger size for magic projectiles
                     break;
                 case ARTILLERY:
+
                     projectileImage = projectileImages[2];
                     imageSize = 15; // Smaller size for bombs
                     break;
@@ -975,9 +1025,18 @@ public class GamePlayView implements IGameUpdateListener, Observer {
                 }
             }
 
+<<<<<<< hoverTowerInformation
             if (projectile.getProjectileType() == ProjectileType.ARTILLERY &&
                     projectile.getProjectileState() == ProjectileState.STOPPED &&
                     !projectile.hasExplosionAnimated()) {
+=======
+        
+
+
+            if (projectile.getProjectileType() == ProjectileType.ARTILLERY &&
+                projectile.getProjectileState() == ProjectileState.STOPPED &&
+                !projectile.hasExplosionAnimated()) {
+>>>>>>> main
 
                 animationManager.createAnimation(
                         gc,
@@ -994,6 +1053,15 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         }
 
+        for (IEnemy enemy : enemies) {
+            if (enemy.isDead()) {
+                System.out.println("heyyyy");
+                Image deathStrip = new Image(getClass().getResourceAsStream("/assets/animations/death_strip.png"));
+                animationManager.createAnimation(gc, deathStrip, enemy.getCoordinate(), 0.1, 1.4, 64, 64);
+            }
+
+        }
+
         // Draw enemies
         enemyView.renderEnemies(gc, enemies, imgNum);
         projectileView.renderProjectiles(gc, projectiles);
@@ -1003,9 +1071,18 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         renderTowerRanges(gc);
         animationManager.update(deltaTime);
 
+<<<<<<< hoverTowerInformation
         controller.getGameManager().getCollisionManager().commitRemovals();
     }
 
+=======
+
+        controller.getGameManager().getCollisionManager().commitAll();
+    
+    }
+
+
+>>>>>>> main
     public void renderCollectables(GraphicsContext gc) {
         DynamicArrayList<ICollectable<?>> collectables = controller.getGameManager().getCollectables();
 
