@@ -59,6 +59,7 @@ import javafx.geometry.Pos;
 
 import javafx.geometry.VPos;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.media.AudioClip;
 
 public class GamePlayView implements IGameUpdateListener, Observer {
 
@@ -147,6 +148,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     
     private int[][] map;
+
+    // Gold sound effect
+    private AudioClip goldSound;
 
     /**
      * Initializes and starts the game view with the provided stage and controller.
@@ -261,6 +265,14 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         cursorDelay.play();
 
         setupClickHandler();
+
+        // Initialize gold sound effect
+        try {
+            goldSound = new AudioClip(getClass().getResource("/assets/audio/gold.mp3").toExternalForm());
+        } catch (Exception e) {
+            System.err.println("Failed to load gold sound: " + e.getMessage());
+            goldSound = null;
+        }
     }
 
     public GamePlayController getController() {
@@ -1130,6 +1142,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     @Override
     public void update(Object arg) {
+        int previousGold = this.currentGold;
         currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
         currentWave = controller.getGameManager().getCurrentWaveIndex(); // Update current wave
@@ -1137,8 +1150,13 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         
          if (goldText != null) {
             goldText.setText(String.valueOf(currentGold));
-
         }
+        
+        // Play sound if gold increased
+        if (currentGold > previousGold && goldSound != null) {
+            goldSound.play();
+        }
+        
         if (healthText != null) {
 
             healthText.setText(String.valueOf(currentHealth));

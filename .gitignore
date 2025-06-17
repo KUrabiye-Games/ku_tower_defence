@@ -19,3 +19,6 @@ tasks.txt
 
 
 .DS_Store
+
+
+gc.log*
