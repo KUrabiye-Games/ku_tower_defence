@@ -218,6 +218,8 @@ public class GameManager implements Runnable{
                 gameUpdateListener.onGameUpdate(deltaTime); // Call the update method on the listener
             }
              
+           collisionManager.commitAll();
+
            
             // Sleep for a short duration to control the frame rate
             try {
