@@ -111,6 +111,7 @@ public class MapEditorView {
         Scene scene = new Scene(root, COLS * TILE_SIZE + 250, ROWS * TILE_SIZE + 100);
         stage.setTitle("Map Editor");
         stage.setScene(scene);
+        stage.setMaximized(true);
         stage.show();
     }
 
@@ -380,6 +381,13 @@ public class MapEditorView {
 
 
     private void returnToMenu(Stage stage) {
+
+        // Reset stage to normal size before returning to main menu
+        stage.setMaximized(false);
+        stage.setWidth(600);
+        stage.setHeight(420);
+        stage.centerOnScreen();
+
         new MainMenuView().start(stage);
     }
 

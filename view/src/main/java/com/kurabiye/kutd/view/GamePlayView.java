@@ -771,7 +771,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             // Reset stage to normal size before returning to main menu
             stage.setMaximized(false);
             stage.setWidth(600);
-            stage.setHeight(400);
+            stage.setHeight(420);
             stage.centerOnScreen();
             
             // Return to main menu
@@ -864,7 +864,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
             // Reset stage to normal size before returning to main menu
             stage.setMaximized(false);
             stage.setWidth(600);
-            stage.setHeight(400);
+            stage.setHeight(420);
             stage.centerOnScreen();
 
             MainMenuView mainMenuView = new MainMenuView();
