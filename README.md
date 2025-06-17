@@ -103,16 +103,4 @@ ku_tower_defence/
 
 ## License
 
-This project is licensed under the [We have not figured this out] - see the LICENSE file for details.
-hey
-
-## Acknowledgments
-
-<<<<<<< HEAD
-* [To be later elabroted]
-
-vvvvv
-push test
-=======
-- [To be later elabroted]
->>>>>>> 29f6691 (README push test)
+This project is licensed under nothing. Reach out to apolat21@ku.edu.tr for any quest.
