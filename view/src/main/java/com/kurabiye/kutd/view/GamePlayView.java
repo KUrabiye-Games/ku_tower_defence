@@ -62,6 +62,8 @@ import javafx.scene.input.MouseEvent;
 
 public class GamePlayView implements IGameUpdateListener, Observer {
 
+    private MusicManager musicManager;
+
     // Reference dimensions that the game was designed for
     private static final int REFERENCE_WIDTH = 1920;
     private static final int REFERENCE_HEIGHT = 1080;
@@ -188,6 +190,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         loadTiles();
         loadButtonIcons();
         loadProjectileImages();
+
+        musicManager = new MusicManager();
+        musicManager.playcombat();
 
         this.currentStage = stage; // Store the stage
         this.isEndGamePopupShown = false; // Reset flag on start
@@ -787,6 +792,8 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
         mainMenuButton.setOnAction(event -> {
             // End the current game
+            musicManager.stopCurrentMusic();
+
             controller.endGame();
 
             // Reset stage to normal size before returning to main menu
@@ -865,6 +872,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         // Add action handlers
         playAgainButton.setOnAction(event -> {
             // Clean up current game
+            musicManager.stopCurrentMusic();
             controller.endGame();
             root.getChildren().remove(overlay);
 
@@ -874,6 +882,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         });
 
         mainMenuButton.setOnAction(event -> {
+            
+            musicManager.stopCurrentMusic(); // Stop any current music
+
             controller.endGame(); // Clean up the current game
             root.getChildren().remove(overlay); // Remove the popup
             

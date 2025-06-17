@@ -24,9 +24,14 @@ import javafx.stage.Stage;
 public class MainMenuView {
 
     private MainMenuController controller = new MainMenuController();
+    private MusicManager musicManager;
 
     public void start(Stage stage) {
         BorderPane root = new BorderPane();
+
+        // Initialize music manager and start menu music
+        musicManager = new MusicManager();
+        musicManager.playBackgroundMusic();
 
         // Load background image
         Image backgroundImage = new Image(getClass().getClassLoader().getResource("assets/background.jpeg").toExternalForm());
@@ -72,6 +77,8 @@ public class MainMenuView {
         playButton.setOnAction(e -> {
             // TODO: Start the game
 
+            musicManager.stopCurrentMusic();
+
             MapSelectionController mapSelectionController = controller.onPlayButtonPressed();
             MapSelectionView mapSelectionView = new MapSelectionView();
             mapSelectionView.start(stage, mapSelectionController);
@@ -79,16 +86,16 @@ public class MainMenuView {
 
         mapEditorButton.setOnAction(e -> {
             // TODO: Open Map Editor
+            musicManager.stopCurrentMusic();
             MapEditorController mapEditorcontroller = controller.onMapEditorButtonPressed();
             MapEditorView mapEditor = new MapEditorView();
             mapEditor.start(stage, mapEditorcontroller);
         });
 
         settingsButton.setOnAction(e -> {
-            
             SettingsController settingsController = controller.onSettingsButtonPressed();
             SettingsView settingsView = new SettingsView();
-            settingsView.show(stage, settingsController);
+            settingsView.show(stage, settingsController, musicManager);
         });
 
         exitButton.setOnAction(e -> {

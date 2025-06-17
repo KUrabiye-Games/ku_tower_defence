@@ -22,6 +22,10 @@ import java.util.Random;
 public class SettingsView {
 
     public void show(Stage stage, SettingsController controller) {
+        show(stage, controller, null);
+    }
+
+    public void show(Stage stage, SettingsController controller, MusicManager musicManager) {
         // Create a new stage for settings
         Stage settingsStage = new Stage();
         
@@ -93,9 +97,14 @@ public class SettingsView {
         Label soundValueLabel = new Label(Math.round(current.getSoundVolume() * 100) + "%");
         styleValueLabel(soundValueLabel);
         
-        // Update labels when sliders change
-        musicVolumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> 
-            musicValueLabel.setText(Math.round(newVal.doubleValue() * 100) + "%"));
+        // Update labels and music volume when sliders change
+        musicVolumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            musicValueLabel.setText(Math.round(newVal.doubleValue() * 100) + "%");
+            // Update music manager volume in real-time if available
+            if (musicManager != null) {
+                musicManager.setVolume(newVal.doubleValue());
+            }
+        });
             
         soundVolumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> 
             soundValueLabel.setText(Math.round(newVal.doubleValue() * 100) + "%"));
@@ -346,6 +355,12 @@ public class SettingsView {
                     .setKnightSpeed(Integer.parseInt(knightSpeedField.getText()));
         
                 controller.applyPreferences(builder);
+
+                // Apply volume to music manager if available
+                if (musicManager != null) {
+                    musicManager.setVolume(musicVolumeSlider.getValue());
+                }
+
                 showAlert("Preferences applied successfully!");
             } catch (NumberFormatException ex) {
                 showAlert("Invalid input: please enter numeric values where appropriate.");
@@ -409,6 +424,11 @@ public class SettingsView {
             // Update percentage labels
             musicValueLabel.setText(Math.round(defaults.getMusicVolume() * 100) + "%");
             soundValueLabel.setText(Math.round(defaults.getSoundVolume() * 100) + "%");
+
+            // Reset music manager volume if available
+            if (musicManager != null) {
+                musicManager.setVolume(defaults.getMusicVolume());
+            }
 
             showAlert("All preferences reset to defaults.");
         });
