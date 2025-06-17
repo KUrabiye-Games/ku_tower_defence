@@ -1,6 +1,7 @@
 package com.kurabiye.kutd.model.Tower.AttackStrategy;
 
 import java.util.List;
+import java.util.Random; // Added for random target selection
 
 
 import com.kurabiye.kutd.model.Enemy.IEnemy;
@@ -17,6 +18,7 @@ import com.kurabiye.kutd.model.Enemy.IEnemy;
 
 public class MageStrategy implements IAttackStrategy {
     
+    private Random random = new Random(); // Added for random target selection
 
     /**
      * findTarget method is responsible for finding the target enemy to attack.
@@ -30,9 +32,8 @@ public class MageStrategy implements IAttackStrategy {
         if (enemies == null || enemies.isEmpty()) {
             return null;
         }
-        // For a more advanced implementation, this could target the strongest enemy
-        // or the enemy with the highest health
-        return enemies.get(0);
+        // Pick a random enemy from the list
+        return enemies.get(random.nextInt(enemies.size()));
     }
 
 }

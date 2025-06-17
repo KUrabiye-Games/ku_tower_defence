@@ -121,10 +121,10 @@ public class EnemyView {
         // Skip rendering dead enemies or those that have arrived at destination
         
         if (enemy.hasArrived()) return;
-        if (enemy.isDead()){
+        /*if (enemy.isDead()){
             System.out.println("death");
 
-        } 
+        } */
 
         
         // Get the enemy's current position
