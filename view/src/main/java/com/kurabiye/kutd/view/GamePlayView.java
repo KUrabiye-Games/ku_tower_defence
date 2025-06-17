@@ -149,6 +149,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
 
     private Text goldText;
     private Text healthText;
+    private Text waveText; // Add this as a class field
 
     
     private int[][] map;
@@ -586,7 +587,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         healthText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
         healthText.setTextOrigin(VPos.CENTER);
 
-        Text waveText = new Text(""+currentWave);
+        waveText = new Text(""+currentWave);
         waveText.setFill(Color.WHITE);
         waveText.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 18));
         waveText.setTextOrigin(VPos.CENTER);
@@ -1099,6 +1100,7 @@ public class GamePlayView implements IGameUpdateListener, Observer {
     public void update(Object arg) {
         currentGold = controller.getGameManager().getPlayer().getCurrentGold();
         currentHealth = controller.getGameManager().getPlayer().getCurrentHealth();
+        currentWave = controller.getGameManager().getCurrentWaveIndex(); // Update current wave
         
         
          if (goldText != null) {
@@ -1108,6 +1110,9 @@ public class GamePlayView implements IGameUpdateListener, Observer {
         if (healthText != null) {
 
             healthText.setText(String.valueOf(currentHealth));
+        }
+        if (waveText != null) {
+            waveText.setText(String.valueOf(currentWave + 1)); // +1 for 1-based display
         }
 
         map = controller.getGameManager().getGameMap().toIntArray();
